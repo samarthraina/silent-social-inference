@@ -1,0 +1,133 @@
+# AI Universe Competition Tasks
+# Each task has a description and a scoring rubric (1-10 scale)
+
+tasks:
+  - id: 1
+    name: "Creative Story Opening"
+    description: |
+      Write an engaging opening paragraph (3-5 sentences) for a science fiction story 
+      set on a distant planet where humans have discovered an ancient alien library.
+    rubric:
+      creativity: "How original and imaginative is the opening? (1-10)"
+      engagement: "Does it hook the reader and create curiosity? (1-10)"
+      coherence: "Is the writing clear and well-structured? (1-10)"
+      relevance: "Does it match the given premise? (1-10)"
+
+  - id: 2
+    name: "Code Explanation"
+    description: |
+      Explain the following Python code in simple terms that a beginner could understand:
+      ```python
+      def fibonacci(n):
+          a, b = 0, 1
+          for _ in range(n):
+              yield a
+              a, b = b, a + b
+      ```
+    rubric:
+      accuracy: "Is the explanation technically correct? (1-10)"
+      clarity: "Is it easy to understand for a beginner? (1-10)"
+      completeness: "Are all key concepts covered? (1-10)"
+      conciseness: "Is it appropriately brief without being incomplete? (1-10)"
+
+  - id: 3
+    name: "Logical Reasoning"
+    description: |
+      Solve this logic puzzle: Three friends - Alice, Bob, and Carol - each have a different 
+      favorite color (red, blue, green) and a different pet (cat, dog, fish).
+      - Alice doesn't like red and doesn't have a cat.
+      - The person who likes blue has a dog.
+      - Carol has a fish.
+      Who has which color and pet?
+    rubric:
+      correctness: "Is the final answer correct? (1-10)"
+      reasoning: "Is the logical deduction process clear? (1-10)"
+      presentation: "Is the solution well-organized? (1-10)"
+      efficiency: "Is the reasoning direct without unnecessary steps? (1-10)"
+
+  - id: 4
+    name: "Persuasive Argument"
+    description: |
+      Write a short persuasive argument (3-4 sentences) for why learning to code 
+      is beneficial for everyone, not just future programmers.
+    rubric:
+      persuasiveness: "How convincing is the argument? (1-10)"
+      evidence: "Are good reasons/examples provided? (1-10)"
+      structure: "Is there a clear claim and support? (1-10)"
+      tone: "Is the tone appropriate and engaging? (1-10)"
+
+  - id: 5
+    name: "Math Word Problem"
+    description: |
+      A train leaves Station A at 9:00 AM traveling at 60 km/h toward Station B. 
+      Another train leaves Station B at 10:00 AM traveling at 80 km/h toward Station A. 
+      If the stations are 280 km apart, at what time do the trains meet?
+    rubric:
+      correctness: "Is the final answer correct? (1-10)"
+      methodology: "Is the approach mathematically sound? (1-10)"
+      explanation: "Are the steps clearly explained? (1-10)"
+      units: "Are units properly handled and the answer complete? (1-10)"
+
+  - id: 6
+    name: "Summarization"
+    description: |
+      Summarize the concept of 'machine learning' in exactly 2 sentences for someone 
+      who has never heard of it before. Be accurate but accessible.
+    rubric:
+      accuracy: "Is the summary technically accurate? (1-10)"
+      accessibility: "Can a layperson understand it? (1-10)"
+      completeness: "Does it capture the essence of ML? (1-10)"
+      constraint: "Does it follow the 2-sentence limit? (1-10)"
+
+  - id: 7
+    name: "Analogy Creation"
+    description: |
+      Create a helpful analogy to explain how the internet works to a 10-year-old child.
+      The analogy should make the concept intuitive and memorable.
+    rubric:
+      appropriateness: "Is the analogy suitable for a child? (1-10)"
+      accuracy: "Does it correctly represent how the internet works? (1-10)"
+      creativity: "Is the analogy original and engaging? (1-10)"
+      clarity: "Is it easy to understand? (1-10)"
+
+  - id: 8
+    name: "Ethical Dilemma"
+    description: |
+      A self-driving car must choose between two outcomes: hitting one pedestrian 
+      who is jaywalking, or swerving and potentially harming its three passengers. 
+      Briefly discuss the ethical considerations (3-4 sentences).
+    rubric:
+      depth: "Does it explore multiple ethical perspectives? (1-10)"
+      balance: "Is the discussion fair and unbiased? (1-10)"
+      insight: "Are there thoughtful observations? (1-10)"
+      coherence: "Is the argument logically structured? (1-10)"
+
+  - id: 9
+    name: "Debugging"
+    description: |
+      Find and explain the bug in this Python code:
+      ```python
+      def average(numbers):
+          total = 0
+          for num in numbers:
+              total += num
+          return total / len(numbers)
+      
+      print(average([]))
+      ```
+    rubric:
+      identification: "Is the bug correctly identified? (1-10)"
+      explanation: "Is the issue well-explained? (1-10)"
+      solution: "Is a correct fix proposed? (1-10)"
+      edge_cases: "Are other potential issues mentioned? (1-10)"
+
+  - id: 10
+    name: "Haiku Composition"
+    description: |
+      Write a haiku (5-7-5 syllable pattern) about artificial intelligence 
+      that captures both its promise and its challenges.
+    rubric:
+      form: "Does it follow the 5-7-5 syllable structure? (1-10)"
+      content: "Does it address both promise and challenges? (1-10)"
+      imagery: "Is the imagery evocative? (1-10)"
+      depth: "Does it convey meaningful insight? (1-10)"
