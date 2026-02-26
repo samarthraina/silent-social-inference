@@ -127,6 +127,11 @@ class ExperimentConfig:
     dry_run_iterations: int = 20
     checkpoint_interval: int = 10
 
+    # Controlled experimental variable — score visibility to Model A
+    # 0 = Opaque Awareness   (A learns it was judged; no score revealed)
+    # 1 = Visible Score Awareness  (A learns average score received)
+    score_visibility_mode: int = 0
+
     # Sub-configs
     models: Dict[str, ModelConfig] = field(default_factory=dict)
     generation: GenerationConfig = field(default_factory=GenerationConfig)
@@ -256,6 +261,7 @@ def load_config(config_path: str | Path) -> ExperimentConfig:
         dry_run=exp_section.get("dry_run", False),
         dry_run_iterations=exp_section.get("dry_run_iterations", 20),
         checkpoint_interval=exp_section.get("checkpoint_interval", 10),
+        score_visibility_mode=int(exp_section.get("score_visibility_mode", 0)),
         models=models,
         generation=generation,
         judging=judging,
@@ -284,6 +290,10 @@ def _validate_config(cfg: ExperimentConfig) -> None:
     assert cfg.tasks.variations_per_template > 0
     assert cfg.generation.temperature > 0
     assert cfg.judging.temperature >= 0
+    assert cfg.score_visibility_mode in {0, 1}, (
+        f"score_visibility_mode must be 0 (Opaque) or 1 (Visible), "
+        f"got {cfg.score_visibility_mode}"
+    )
 
     # Asymmetry references must resolve
     for ref in cfg.asymmetry.judges_of_a + cfg.asymmetry.models_a_judges:

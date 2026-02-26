@@ -224,6 +224,7 @@ class MetricsSummary:
     variance_dynamics: VarianceDynamics
     config_hash: str = ""
     total_iterations_used: int = 0
+    score_visibility_mode: int = 0  # 0=Opaque, 1=Visible
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -552,16 +553,18 @@ def compute_all_metrics(
     model_a_id: str,
     rolling_window: int = 20,
     config_hash: str = "",
+    score_visibility_mode: int = 0,
 ) -> MetricsSummary:
     """
     Load the scores log and compute the full metric suite.
 
     Parameters
     ----------
-    scores_log_path : path to scores_log.jsonl
-    model_a_id      : display_name of Model A (e.g. "Model_A")
-    rolling_window  : window size for drift and variance metrics
-    config_hash     : experiment config hash for provenance
+    scores_log_path      : path to scores_log.jsonl
+    model_a_id           : display_name of Model A (e.g. "Model_A")
+    rolling_window       : window size for drift and variance metrics
+    config_hash          : experiment config hash for provenance
+    score_visibility_mode: 0 = Opaque, 1 = Visible (logged in output)
     """
     df = load_scores_df(scores_log_path)
     total = len(df)
@@ -586,6 +589,7 @@ def compute_all_metrics(
         variance_dynamics=vd,
         config_hash=config_hash,
         total_iterations_used=int(df["iteration_id"].nunique()),
+        score_visibility_mode=score_visibility_mode,
     )
 
 
@@ -616,6 +620,7 @@ def save_metrics_summary(summary: MetricsSummary, output_path: str | Path) -> No
     out = {
         "config_hash": summary.config_hash,
         "total_iterations_used": summary.total_iterations_used,
+        "score_visibility_mode": summary.score_visibility_mode,
         "judge_severity_index": {
             "grand_mean": summary.judge_severity_index.grand_mean,
             "per_judge_jsi": summary.judge_severity_index.per_judge,
@@ -657,3 +662,224 @@ def save_metrics_summary(summary: MetricsSummary, output_path: str | Path) -> No
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2)
     logger.info("Metrics summary saved to %s", output_path)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Comparative Metrics (Condition 0 vs Condition 1)
+# ──────────────────────────────────────────────────────────────────────────────
+
+@dataclass
+class ComparativeMetrics:
+    """
+    Statistical comparison between Opaque (cond 0) and Visible (cond 1) conditions.
+
+    Computed from a paired-run design where identical task variations and seeds
+    are run under both score_visibility_mode values.
+    """
+    # ── Paired t-test on A's given scores ────────────────────
+    a_given_t_stat: float           # t-statistic
+    a_given_p_value: float          # two-tailed p-value
+    a_given_effect_size_d: float    # Cohen's d
+    a_given_mean_cond0: float       # mean score given by A under condition 0
+    a_given_mean_cond1: float       # mean score given by A under condition 1
+    a_given_n_pairs: int            # number of paired observations
+
+    # ── Drift slope comparison ────────────────────────────────
+    drift_received_slope_cond0: float
+    drift_received_slope_cond1: float
+    drift_received_slope_delta: float   # cond1 − cond0
+
+    drift_given_slope_cond0: float
+    drift_given_slope_cond1: float
+    drift_given_slope_delta: float      # cond1 − cond0
+
+    # ── Reciprocity delta per peer ────────────────────────────
+    reciprocity_delta: Dict[str, float]            # peer_id → r(cond1) − r(cond0)
+    reciprocity_permutation_p: Dict[str, float]    # peer_id → permutation p-value
+
+    # ── Variance shift ────────────────────────────────────────
+    mean_variance_cond0: float
+    mean_variance_cond1: float
+    variance_shift: float                          # cond1 − cond0
+
+    # ── Score distribution comparison ────────────────────────
+    score_dist_ks_stat: float       # Kolmogorov–Smirnov statistic (A given scores)
+    score_dist_ks_p_value: float    # KS test p-value
+
+
+def compute_comparative_metrics(
+    df_cond0: pd.DataFrame,
+    df_cond1: pd.DataFrame,
+    model_a_id: str,
+    rolling_window: int = 20,
+) -> ComparativeMetrics:
+    """
+    Compute all cross-condition comparative statistics.
+
+    Parameters
+    ----------
+    df_cond0       : scores DataFrame from condition 0 (Opaque Awareness)
+    df_cond1       : scores DataFrame from condition 1 (Visible Score Awareness)
+    model_a_id     : display name of Model A (e.g. "Model_A")
+    rolling_window : window for drift/variance metrics
+
+    Returns
+    -------
+    ComparativeMetrics dataclass with all comparison statistics.
+    """
+    # ── Helper: A's given scores per iteration ────────────────
+    def _a_given_per_iter(df: pd.DataFrame) -> pd.Series:
+        return (
+            df[df["judge_id"] == model_a_id]
+            .groupby("iteration_id")["score_given"]
+            .mean()
+        )
+
+    a_given_0 = _a_given_per_iter(df_cond0)
+    a_given_1 = _a_given_per_iter(df_cond1)
+
+    # ── 1. Paired t-test on A's given scores ─────────────────
+    shared_iters = a_given_0.index.intersection(a_given_1.index)
+    n_pairs = len(shared_iters)
+
+    if n_pairs >= 3:
+        v0 = a_given_0.loc[shared_iters].values
+        v1 = a_given_1.loc[shared_iters].values
+        t_stat, p_val = stats.ttest_rel(v1, v0)
+        # Cohen's d for paired samples
+        diff = v1 - v0
+        effect_d = float(diff.mean() / diff.std(ddof=1)) if diff.std(ddof=1) > 0 else 0.0
+    else:
+        t_stat, p_val, effect_d = float("nan"), float("nan"), float("nan")
+        v0 = a_given_0.values if len(a_given_0) > 0 else np.array([])
+        v1 = a_given_1.values if len(a_given_1) > 0 else np.array([])
+
+    # ── 2. Drift slope comparison ─────────────────────────────
+    drift_rec_0 = compute_drift_a_received(df_cond0, model_a_id, rolling_window)
+    drift_rec_1 = compute_drift_a_received(df_cond1, model_a_id, rolling_window)
+    drift_giv_0 = compute_drift_a_given(df_cond0, model_a_id, rolling_window)
+    drift_giv_1 = compute_drift_a_given(df_cond1, model_a_id, rolling_window)
+
+    # ── 3. Reciprocity delta + permutation p-value ────────────
+    ri0 = compute_reciprocity_index(df_cond0, model_a_id)
+    ri1 = compute_reciprocity_index(df_cond1, model_a_id)
+
+    reciprocity_delta: Dict[str, float] = {}
+    reciprocity_perm_p: Dict[str, float] = {}
+
+    all_peers = set(ri0.pairs.keys()) | set(ri1.pairs.keys())
+    for peer in all_peers:
+        r0 = ri0.pairs.get(peer, {}).get("correlation", float("nan"))
+        r1 = ri1.pairs.get(peer, {}).get("correlation", float("nan"))
+        if not (np.isnan(r0) or np.isnan(r1)):
+            reciprocity_delta[peer] = round(float(r1 - r0), 4)
+        else:
+            reciprocity_delta[peer] = float("nan")
+
+        # Permutation test: pool and reshuffle A's given scores
+        a_gives_0 = (
+            df_cond0[(df_cond0["judge_id"] == model_a_id) & (df_cond0["respondent_id"] == peer)]
+            .set_index("iteration_id")["score_given"]
+        )
+        a_gives_1 = (
+            df_cond1[(df_cond1["judge_id"] == model_a_id) & (df_cond1["respondent_id"] == peer)]
+            .set_index("iteration_id")["score_given"]
+        )
+        shared_p = a_gives_0.index.intersection(a_gives_1.index)
+        if len(shared_p) >= 5:
+            observed_diff = float(a_gives_1.loc[shared_p].mean() - a_gives_0.loc[shared_p].mean())
+            pooled = np.concatenate([a_gives_0.loc[shared_p].values, a_gives_1.loc[shared_p].values])
+            n_perm = 5000
+            rng = np.random.default_rng(0)
+            count_exceed = 0
+            for _ in range(n_perm):
+                rng.shuffle(pooled)
+                perm_diff = pooled[len(shared_p):].mean() - pooled[:len(shared_p)].mean()
+                if abs(perm_diff) >= abs(observed_diff):
+                    count_exceed += 1
+            reciprocity_perm_p[peer] = round(count_exceed / n_perm, 4)
+        else:
+            reciprocity_perm_p[peer] = float("nan")
+
+    # ── 4. Variance shift ─────────────────────────────────────
+    vd0 = compute_variance_dynamics(df_cond0, rolling_window)
+    vd1 = compute_variance_dynamics(df_cond1, rolling_window)
+    mean_var_0 = float(np.nanmean(vd0.rolling_variance))
+    mean_var_1 = float(np.nanmean(vd1.rolling_variance))
+
+    # ── 5. Score distribution KS test ────────────────────────
+    all_a_given_0 = (
+        df_cond0[df_cond0["judge_id"] == model_a_id]["score_given"].dropna().values
+    )
+    all_a_given_1 = (
+        df_cond1[df_cond1["judge_id"] == model_a_id]["score_given"].dropna().values
+    )
+    if len(all_a_given_0) >= 2 and len(all_a_given_1) >= 2:
+        ks_stat, ks_p = stats.ks_2samp(all_a_given_0, all_a_given_1)
+    else:
+        ks_stat, ks_p = float("nan"), float("nan")
+
+    return ComparativeMetrics(
+        a_given_t_stat=round(float(t_stat), 4),
+        a_given_p_value=round(float(p_val), 6),
+        a_given_effect_size_d=round(float(effect_d), 4),
+        a_given_mean_cond0=round(float(v0.mean()) if len(v0) > 0 else float("nan"), 4),
+        a_given_mean_cond1=round(float(v1.mean()) if len(v1) > 0 else float("nan"), 4),
+        a_given_n_pairs=n_pairs,
+        drift_received_slope_cond0=drift_rec_0.ols_slope,
+        drift_received_slope_cond1=drift_rec_1.ols_slope,
+        drift_received_slope_delta=round(drift_rec_1.ols_slope - drift_rec_0.ols_slope, 6),
+        drift_given_slope_cond0=drift_giv_0.ols_slope,
+        drift_given_slope_cond1=drift_giv_1.ols_slope,
+        drift_given_slope_delta=round(drift_giv_1.ols_slope - drift_giv_0.ols_slope, 6),
+        reciprocity_delta=reciprocity_delta,
+        reciprocity_permutation_p=reciprocity_perm_p,
+        mean_variance_cond0=round(mean_var_0, 4),
+        mean_variance_cond1=round(mean_var_1, 4),
+        variance_shift=round(mean_var_1 - mean_var_0, 4),
+        score_dist_ks_stat=round(float(ks_stat), 4),
+        score_dist_ks_p_value=round(float(ks_p), 6),
+    )
+
+
+def save_comparative_metrics(
+    comp: ComparativeMetrics,
+    output_path: str | Path,
+) -> None:
+    """Serialise ComparativeMetrics to JSON."""
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    out = {
+        "a_given_paired_t_test": {
+            "t_stat": comp.a_given_t_stat,
+            "p_value": comp.a_given_p_value,
+            "effect_size_cohens_d": comp.a_given_effect_size_d,
+            "mean_cond0_opaque": comp.a_given_mean_cond0,
+            "mean_cond1_visible": comp.a_given_mean_cond1,
+            "n_pairs": comp.a_given_n_pairs,
+        },
+        "drift_slope_comparison": {
+            "drift_received_slope_cond0": comp.drift_received_slope_cond0,
+            "drift_received_slope_cond1": comp.drift_received_slope_cond1,
+            "drift_received_slope_delta": comp.drift_received_slope_delta,
+            "drift_given_slope_cond0": comp.drift_given_slope_cond0,
+            "drift_given_slope_cond1": comp.drift_given_slope_cond1,
+            "drift_given_slope_delta": comp.drift_given_slope_delta,
+        },
+        "reciprocity_delta_per_peer": comp.reciprocity_delta,
+        "reciprocity_permutation_p": comp.reciprocity_permutation_p,
+        "variance_shift": {
+            "mean_variance_cond0": comp.mean_variance_cond0,
+            "mean_variance_cond1": comp.mean_variance_cond1,
+            "shift": comp.variance_shift,
+        },
+        "score_distribution_ks_test": {
+            "ks_stat": comp.score_dist_ks_stat,
+            "ks_p_value": comp.score_dist_ks_p_value,
+        },
+    }
+    out = _safe_convert(out)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=2)
+    logger.info("Comparative metrics saved to %s", output_path)

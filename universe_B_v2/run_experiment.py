@@ -93,6 +93,17 @@ def parse_args() -> argparse.Namespace:
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
         help="Python logging level for console output",
     )
+    p.add_argument(
+        "--visibility-mode",
+        type=int,
+        default=None,
+        choices=[0, 1],
+        help=(
+            "Override config score_visibility_mode.\n"
+            "  0 = Opaque Awareness  (Model A told it was judged; no score revealed)\n"
+            "  1 = Visible Score Awareness  (Model A receives its average score)"
+        ),
+    )
     return p.parse_args()
 
 
@@ -250,6 +261,7 @@ def run_post_processing(cfg, exp_log) -> None:
             model_a_id=model_a_id,
             rolling_window=20,
             config_hash=cfg.config_hash,
+            score_visibility_mode=cfg.score_visibility_mode,
         )
         save_metrics_summary(summary, metrics_path)
 
@@ -260,6 +272,7 @@ def run_post_processing(cfg, exp_log) -> None:
             figures_dir=figures_dir,
             model_a_id=model_a_id,
             rolling_window=20,
+            score_visibility_mode=cfg.score_visibility_mode,
         )
     except Exception as exc:
         logger.error("Post-processing failed: %s\n%s", exc, traceback.format_exc())
@@ -283,6 +296,14 @@ def main() -> None:
     cfg = load_config(args.config)
     if args.dry_run:
         cfg.dry_run = True
+    # CLI override for the controlled experimental variable
+    if args.visibility_mode is not None:
+        cfg.score_visibility_mode = args.visibility_mode
+        logger.info(
+            "CLI override: score_visibility_mode set to %d (%s)",
+            cfg.score_visibility_mode,
+            "Opaque" if cfg.score_visibility_mode == 0 else "Visible",
+        )
     set_global_config(cfg)
 
     # ── Setup logging ─────────────────────────────────────────
@@ -296,15 +317,20 @@ def main() -> None:
     )
     logger.info("=" * 60)
     logger.info("Experiment: %s  (config_hash=%s)", cfg.name, cfg.config_hash)
-    logger.info("Dry run: %s  |  Total iterations: %d", cfg.dry_run, cfg.total_iterations)
+    logger.info(
+        "Dry run: %s  |  Total iterations: %d  |  score_visibility_mode: %d (%s)",
+        cfg.dry_run, cfg.total_iterations, cfg.score_visibility_mode,
+        "Opaque" if cfg.score_visibility_mode == 0 else "Visible",
+    )
     logger.info("=" * 60)
 
-    # ── Initialise experiment logger ──────────────────────────
+    # ── Initialise experiment logger ──────────────────────────────
     exp_log = ExperimentLogger(
         responses_path=base / cfg.paths.responses_cache_file,
         scores_path=base / cfg.paths.scores_log_file,
         events_path=base / cfg.paths.events_log_file,
         global_seed=cfg.seed,
+        score_visibility_mode=cfg.score_visibility_mode,
     )
 
     # ── Metrics / figures-only shortcuts ──────────────────────
