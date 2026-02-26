@@ -154,6 +154,13 @@ def format_prompt(
             f"<|user|>\n{user_message}</s>\n"
             f"<|assistant|>\n"
         ),
+        "llama3": (
+            f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n"
+            f"{system_prompt}<|eot_id|>"
+            f"<|start_header_id|>user<|end_header_id|>\n\n"
+            f"{user_message}<|eot_id|>"
+            f"<|start_header_id|>assistant<|end_header_id|>\n\n"
+        ),
         "chatml": (
             f"<|im_start|>system\n{system_prompt}<|im_end|>\n"
             f"<|im_start|>user\n{user_message}<|im_end|>\n"

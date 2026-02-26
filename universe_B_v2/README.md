@@ -22,9 +22,9 @@ We measure whether this ordering induces:
 | ID | HuggingFace name | Chat template | Role |
 |---|---|---|---|
 | **A** | `microsoft/Phi-3-mini-4k-instruct` | `phi3` | Primary subject: always judged first AND judges all peers |
-| **B** | `stabilityai/stablelm-3b-4e1t` | `stablelm` | Peer judge & respondent |
+| **B** | `meta-llama/Llama-3.2-3B-Instruct` | `llama3` | Peer judge & respondent |
 | **C** | `google/gemma-2b-it` | `gemma` | Peer judge & respondent |
-| **D** | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` | `tinyllama` | Peer judge & respondent |
+| **D** | `Qwen/Qwen2.5-3B-Instruct` | `chatml` | Peer judge & respondent |
 
 All models are loaded sequentially with **NF4 4-bit double quantization** (BitsAndBytes) to fit within 16 GB VRAM.
 
@@ -290,4 +290,4 @@ Tested on: **Lightning AI Free Tier** (NVIDIA T4 × 1, 16 GB VRAM).
 
 ## 14. License
 
-MIT. Model weights are subject to their respective upstream licenses (Phi-3 MIT, Gemma Terms of Use, StableLM Apache 2.0, TinyLlama Apache 2.0).
+MIT. Model weights are subject to their respective upstream licenses (Phi-3 MIT, Gemma Terms of Use, Llama 3.2 Community License, Qwen Apache 2.0).

@@ -22,11 +22,11 @@ models:
     role: "primary_subject"        # judged first; also judges others
     chat_template: "phi3"
   model_b:
-    hf_name: "stabilityai/stablelm-3b-4e1t"
+    hf_name: "meta-llama/Llama-3.2-3B-Instruct"
     display_name: "Model_B"
     quantization: "4bit"
     role: "judge_and_peer"
-    chat_template: "stablelm"
+    chat_template: "llama3"
   model_c:
     hf_name: "google/gemma-2b-it"
     display_name: "Model_C"
@@ -34,11 +34,11 @@ models:
     role: "judge_and_peer"
     chat_template: "gemma"
   model_d:
-    hf_name: "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+    hf_name: "Qwen/Qwen2.5-3B-Instruct"
     display_name: "Model_D"
     quantization: "4bit"
     role: "judge_and_peer"
-    chat_template: "tinyllama"
+    chat_template: "chatml"
 
 # ── Generation Parameters ────────────────────────────────────
 generation:
