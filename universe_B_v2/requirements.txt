@@ -1,0 +1,36 @@
+# Asymmetry-Induced Judge Drift Experiment
+# Requirements — pinned for reproducibility
+
+# Core ML stack
+torch==2.2.1
+transformers==4.40.0
+accelerate==0.29.3
+bitsandbytes==0.43.1
+sentencepiece==0.2.0
+tokenizers==0.19.0
+safetensors==0.4.3
+einops==0.7.0
+
+# HuggingFace hub
+huggingface-hub==0.22.2
+datasets==2.19.0
+
+# Scientific computing
+numpy==1.26.4
+scipy==1.13.0
+pandas==2.2.2
+scikit-learn==1.4.2
+
+# Visualization
+matplotlib==3.8.4
+seaborn==0.13.2
+
+# Utilities
+pyyaml==6.0.1
+tqdm==4.66.2
+jsonlines==4.0.0
+psutil==5.9.8
+colorlog==6.8.2
+
+# Reproducibility
+protobuf==4.25.3

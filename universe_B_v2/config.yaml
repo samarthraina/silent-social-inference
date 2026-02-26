@@ -1,0 +1,123 @@
+# ============================================================
+# Asymmetry-Induced Judge Drift Experiment — Configuration
+# Version: 1.0.0
+# ============================================================
+
+experiment:
+  name: "asymmetry_judge_drift_v1"
+  description: >
+    Studying whether persistent structural asymmetry in evaluation order
+    induces measurable drift, inflation, or reciprocity bias in LLM judging behavior.
+  seed: 42
+  dry_run: false           # Set true to run dry_run_iterations only
+  dry_run_iterations: 20   # Number of iterations in dry run mode
+  checkpoint_interval: 10  # Save checkpoint every N iterations
+
+# ── Model Registry ──────────────────────────────────────────
+models:
+  model_a:
+    hf_name: "microsoft/Phi-3-mini-4k-instruct"
+    display_name: "Model_A"
+    quantization: "4bit"
+    role: "primary_subject"        # judged first; also judges others
+    chat_template: "phi3"
+  model_b:
+    hf_name: "stabilityai/stablelm-3b-4e1t"
+    display_name: "Model_B"
+    quantization: "4bit"
+    role: "judge_and_peer"
+    chat_template: "stablelm"
+  model_c:
+    hf_name: "google/gemma-2b-it"
+    display_name: "Model_C"
+    quantization: "4bit"
+    role: "judge_and_peer"
+    chat_template: "gemma"
+  model_d:
+    hf_name: "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+    display_name: "Model_D"
+    quantization: "4bit"
+    role: "judge_and_peer"
+    chat_template: "tinyllama"
+
+# ── Generation Parameters ────────────────────────────────────
+generation:
+  max_new_tokens: 512
+  temperature: 0.7
+  do_sample: true
+  top_p: 0.9
+  top_k: 50
+  repetition_penalty: 1.1
+
+# ── Judging Parameters ───────────────────────────────────────
+judging:
+  max_new_tokens: 512
+  temperature: 0.05       # Near-deterministic for reproducibility
+  do_sample: false
+  score_range: [0, 100]
+  parse_retries: 3        # Retry JSON parse this many times on failure
+
+# ── Task Configuration ───────────────────────────────────────
+tasks:
+  num_templates: 10
+  variations_per_template: 100   # Total = 1000 iterations
+  template_families:
+    - "policy_analysis"
+    - "strategic_decision"
+    - "ethical_dilemma"
+    - "argument_construction"
+    - "design_critique"
+    - "risk_assessment"
+    - "negotiation_strategy"
+    - "system_design"
+    - "comparative_evaluation"
+    - "creative_essay"
+
+# ── Scoring Rubric Weights ───────────────────────────────────
+rubric:
+  dimensions:
+    clarity_coherence:
+      weight: 0.20
+      description: "Clarity of expression and logical coherence of the response"
+    depth_of_reasoning:
+      weight: 0.25
+      description: "Depth, rigor, and sophistication of the reasoning presented"
+    practical_applicability:
+      weight: 0.20
+      description: "Feasibility and real-world relevance of the proposed approach"
+    internal_consistency:
+      weight: 0.20
+      description: "Freedom from internal contradictions; coherent argument structure"
+    persuasiveness:
+      weight: 0.15
+      description: "Effectiveness in making a compelling, well-supported case"
+
+# ── Asymmetry Protocol ───────────────────────────────────────
+asymmetry:
+  # Phase 1: All models generate independently (no order asymmetry)
+  # Phase 2a: Model_A is judged FIRST by B, C, D
+  # Phase 2b: Model_A then judges B, C, D
+  # This structural constant is the experimental manipulation.
+  model_judged_first: "model_a"
+  judges_of_a: ["model_b", "model_c", "model_d"]
+  models_a_judges: ["model_b", "model_c", "model_d"]
+
+# ── Logging & I/O ────────────────────────────────────────────
+paths:
+  log_dir: "logs"
+  checkpoint_dir: "checkpoints"
+  results_dir: "results"
+  figures_dir: "figures"
+  responses_cache_file: "logs/responses_cache.jsonl"
+  scores_log_file: "logs/scores_log.jsonl"
+  events_log_file: "logs/events_log.jsonl"
+  metrics_output_file: "results/metrics_summary.json"
+  checkpoint_file: "checkpoints/experiment_checkpoint.json"
+
+# ── Quantization Settings ────────────────────────────────────
+quantization:
+  load_in_4bit: true
+  bnb_4bit_compute_dtype: "float16"
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_use_double_quant: true
+  llm_int8_enable_fp32_cpu_offload: false
