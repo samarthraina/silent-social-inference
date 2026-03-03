@@ -100,6 +100,7 @@ def plot_score_evolution(
     output_dir: Path,
     window: int = 20,
     model_a_id: str = "Model_A",
+    condition_tag: str = "",
 ) -> None:
     """
     Line plot showing rolling mean score for each judge over iterations.
@@ -173,7 +174,7 @@ def plot_score_evolution(
         fontweight="bold",
     )
     plt.tight_layout()
-    _save_fig(fig, output_dir, "01_score_evolution")
+    _save_fig(fig, output_dir, "01_score_evolution" + condition_tag)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -185,6 +186,7 @@ def plot_drift_curve_a(
     drift_given: "DriftMetric",     # noqa: F821
     output_dir: Path,
     model_a_id: str = "Model_A",
+    condition_tag: str = "",
 ) -> None:
     """
     Dual-panel drift curves for Model A:
@@ -258,7 +260,7 @@ def plot_drift_curve_a(
         fontsize=_TITLE_FONTSIZE + 1, fontweight="bold",
     )
     plt.tight_layout()
-    _save_fig(fig, output_dir, "02_drift_curve_model_a")
+    _save_fig(fig, output_dir, "02_drift_curve_model_a" + condition_tag)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -269,6 +271,7 @@ def plot_judge_severity(
     jsi: "JudgeSeverityIndex",  # noqa: F821
     df: pd.DataFrame,
     output_dir: Path,
+    condition_tag: str = "",
 ) -> None:
     """
     Horizontal bar chart of JSI per judge with 95% CI error bars.
@@ -330,7 +333,7 @@ def plot_judge_severity(
         bbox=dict(boxstyle="round,pad=0.2", facecolor="lightyellow", alpha=0.9),
     )
     plt.tight_layout()
-    _save_fig(fig, output_dir, "03_judge_severity_index")
+    _save_fig(fig, output_dir, "03_judge_severity_index" + condition_tag)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -340,6 +343,7 @@ def plot_judge_severity(
 def plot_scoring_matrix_heatmap(
     df: pd.DataFrame,
     output_dir: Path,
+    condition_tag: str = "",
 ) -> None:
     """
     Heatmap of mean score awarded by each judge to each respondent.
@@ -380,7 +384,7 @@ def plot_scoring_matrix_heatmap(
     ax.set_yticklabels(ax.get_yticklabels(), rotation=0, fontsize=_TICK_FONTSIZE)
 
     plt.tight_layout()
-    _save_fig(fig, output_dir, "04_scoring_matrix_heatmap")
+    _save_fig(fig, output_dir, "04_scoring_matrix_heatmap" + condition_tag)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -391,6 +395,7 @@ def plot_inflation_trend(
     df: pd.DataFrame,
     sit: "ScoreInflationTrend",  # noqa: F821
     output_dir: Path,
+    condition_tag: str = "",
 ) -> None:
     """
     Per-judge scatter plot with OLS trend line.
@@ -460,7 +465,7 @@ def plot_inflation_trend(
 
     fig.suptitle("Score Inflation Trend (OLS per Judge)", fontsize=_TITLE_FONTSIZE + 1, fontweight="bold")
     plt.tight_layout()
-    _save_fig(fig, output_dir, "05_inflation_trend")
+    _save_fig(fig, output_dir, "05_inflation_trend" + condition_tag)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -470,6 +475,7 @@ def plot_inflation_trend(
 def plot_variance_over_time(
     vd: "VarianceDynamics",  # noqa: F821
     output_dir: Path,
+    condition_tag: str = "",
 ) -> None:
     """
     Rolling variance of combined scores over iterations.
@@ -497,7 +503,7 @@ def plot_variance_over_time(
     ax.set_ylim(bottom=0)
 
     plt.tight_layout()
-    _save_fig(fig, output_dir, "06_variance_over_time")
+    _save_fig(fig, output_dir, "06_variance_over_time" + condition_tag)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -507,6 +513,7 @@ def plot_variance_over_time(
 def plot_inter_model_agreement(
     imam: "InterModelAgreement",  # noqa: F821
     output_dir: Path,
+    condition_tag: str = "",
 ) -> None:
     """
     Heatmap of Pearson correlations between judges' scores on Model A.
@@ -561,7 +568,7 @@ def plot_inter_model_agreement(
     ax.set_xlabel("Judge", fontsize=_LABEL_FONTSIZE)
     ax.set_ylabel("Judge", fontsize=_LABEL_FONTSIZE)
     plt.tight_layout()
-    _save_fig(fig, output_dir, "07_inter_model_agreement")
+    _save_fig(fig, output_dir, "07_inter_model_agreement" + condition_tag)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -573,6 +580,7 @@ def plot_reciprocity_scatter(
     ri: "ReciprocityIndex",  # noqa: F821
     model_a_id: str,
     output_dir: Path,
+    condition_tag: str = "",
 ) -> None:
     """
     For each peer model X:
@@ -634,7 +642,7 @@ def plot_reciprocity_scatter(
 
     fig.suptitle("Reciprocity Scatter (A↔X Scores)", fontsize=_TITLE_FONTSIZE + 1, fontweight="bold")
     plt.tight_layout()
-    _save_fig(fig, output_dir, "08_reciprocity_scatter")
+    _save_fig(fig, output_dir, "08_reciprocity_scatter" + condition_tag)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -647,9 +655,14 @@ def render_all_figures(
     figures_dir: str | Path,
     model_a_id: str = "Model_A",
     rolling_window: int = 20,
+    score_visibility_mode: int = 0,
 ) -> None:
     """
     Load scores log and render all 8 publication-grade figures.
+
+    All output filenames are tagged with the condition, e.g.:
+      01_score_evolution_cond0.png
+      01_score_evolution_cond1.png
     """
     from src.logging_utils import load_jsonl
     from src.metrics import load_scores_df
@@ -658,7 +671,11 @@ def render_all_figures(
     figures_dir = Path(figures_dir)
     figures_dir.mkdir(parents=True, exist_ok=True)
 
-    logger.info("Rendering all figures to %s", figures_dir)
+    condition_tag = f"_cond{score_visibility_mode}"
+    logger.info(
+        "Rendering all figures to %s  (condition_tag=%s)",
+        figures_dir, condition_tag,
+    )
 
     try:
         df = load_scores_df(scores_log_path)
@@ -668,13 +685,352 @@ def render_all_figures(
 
     ms = metrics_summary
 
-    plot_score_evolution(df, figures_dir, window=rolling_window, model_a_id=model_a_id)
-    plot_drift_curve_a(ms.drift_a_received, ms.drift_a_given, figures_dir, model_a_id=model_a_id)
-    plot_judge_severity(ms.judge_severity_index, df, figures_dir)
-    plot_scoring_matrix_heatmap(df, figures_dir)
-    plot_inflation_trend(df, ms.score_inflation_trend, figures_dir)
-    plot_variance_over_time(ms.variance_dynamics, figures_dir)
-    plot_inter_model_agreement(ms.inter_model_agreement, figures_dir)
-    plot_reciprocity_scatter(df, ms.reciprocity_index, model_a_id, figures_dir)
+    plot_score_evolution(df, figures_dir, window=rolling_window, model_a_id=model_a_id, condition_tag=condition_tag)
+    plot_drift_curve_a(ms.drift_a_received, ms.drift_a_given, figures_dir, model_a_id=model_a_id, condition_tag=condition_tag)
+    plot_judge_severity(ms.judge_severity_index, df, figures_dir, condition_tag=condition_tag)
+    plot_scoring_matrix_heatmap(df, figures_dir, condition_tag=condition_tag)
+    plot_inflation_trend(df, ms.score_inflation_trend, figures_dir, condition_tag=condition_tag)
+    plot_variance_over_time(ms.variance_dynamics, figures_dir, condition_tag=condition_tag)
+    plot_inter_model_agreement(ms.inter_model_agreement, figures_dir, condition_tag=condition_tag)
+    plot_reciprocity_scatter(df, ms.reciprocity_index, model_a_id, figures_dir, condition_tag=condition_tag)
 
     logger.info("All figures rendered successfully to %s", figures_dir)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Comparative figures (Condition 0 vs Condition 1)
+# ──────────────────────────────────────────────────────────────────────────────
+
+_COND_COLORS = {0: _PALETTE[0], 1: _PALETTE[1]}
+_COND_LABELS = {0: "Cond 0: Opaque", 1: "Cond 1: Visible"}
+
+
+# ── C1: Overlay drift curves baseline vs visible ──────────────────────────────
+
+def plot_comparative_drift_overlay(
+    drift_cond0_received: "DriftMetric",  # noqa: F821
+    drift_cond1_received: "DriftMetric",  # noqa: F821
+    drift_cond0_given: "DriftMetric",     # noqa: F821
+    drift_cond1_given: "DriftMetric",     # noqa: F821
+    output_dir: Path,
+    model_a_id: str = "Model_A",
+) -> None:
+    """
+    Overlay rolling-mean drift curves for both conditions on a single
+    dual-panel figure (received | given).
+    """
+    _apply_style()
+    fig, axes = plt.subplots(1, 2, figsize=_FIG_DOUBLE)
+
+    panel_data = [
+        (axes[0], drift_cond0_received, drift_cond1_received,
+         f"(a) {model_a_id} Received Scores"),
+        (axes[1], drift_cond0_given, drift_cond1_given,
+         f"(b) {model_a_id} Given Scores"),
+    ]
+
+    for ax, d0, d1, title in panel_data:
+        for cond, drift in [(0, d0), (1, d1)]:
+            color = _COND_COLORS[cond]
+            label = _COND_LABELS[cond]
+            ax.scatter(drift.iteration_ids, drift.raw_scores,
+                       alpha=0.12, s=3, color=color, zorder=1)
+            ax.plot(drift.iteration_ids, drift.rolling_mean,
+                    color=color, linewidth=1.8, label=label, zorder=3)
+            ax.fill_between(
+                drift.iteration_ids,
+                np.clip(drift.rolling_mean - drift.rolling_std, 0, 100),
+                np.clip(drift.rolling_mean + drift.rolling_std, 0, 100),
+                alpha=0.12, color=color, zorder=2,
+            )
+            if not np.isnan(drift.ols_slope):
+                y_trend = drift.ols_intercept + drift.ols_slope * drift.iteration_ids
+                ax.plot(drift.iteration_ids, np.clip(y_trend, 0, 100),
+                        color=color, linewidth=0.9, linestyle="--", zorder=4)
+
+        ax.set_xlabel("Iteration", fontsize=_LABEL_FONTSIZE)
+        ax.set_ylabel("Score", fontsize=_LABEL_FONTSIZE)
+        ax.set_title(title, fontsize=_TITLE_FONTSIZE)
+        ax.set_ylim(0, 105)
+        ax.axhline(y=50, color="gray", linestyle=":", linewidth=0.8, alpha=0.5)
+        ax.legend(fontsize=_LEGEND_FONTSIZE, framealpha=0.8)
+
+        # Slope annotation box
+        slope_txt = "\n".join(
+            f"{_COND_LABELS[c]}: β₁={d.ols_slope:.5f}"
+            for c, d in [(0, d0), (1, d1)]
+        )
+        ax.text(
+            0.03, 0.97, slope_txt,
+            transform=ax.transAxes, fontsize=_ANNOTATION_FONTSIZE,
+            verticalalignment="top",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.85, edgecolor="gray"),
+        )
+
+    fig.suptitle(
+        f"Drift Overlay: Opaque vs Visible — {model_a_id}",
+        fontsize=_TITLE_FONTSIZE + 1, fontweight="bold",
+    )
+    plt.tight_layout()
+    _save_fig(fig, output_dir, "C1_comparative_drift_overlay")
+
+
+# ── C2: Difference-in-drift slope plot ───────────────────────────────────────
+
+def plot_drift_slope_comparison(
+    comp: "ComparativeMetrics",  # noqa: F821
+    output_dir: Path,
+    model_a_id: str = "Model_A",
+) -> None:
+    """
+    Bar chart comparing OLS drift slopes across the two conditions for both
+    received and given scores of Model A.  Delta (cond1 − cond0) annotated.
+    """
+    _apply_style()
+    fig, ax = plt.subplots(figsize=_FIG_SINGLE)
+
+    labels = [f"{model_a_id}\nReceived", f"{model_a_id}\nGiven"]
+    slopes_c0 = [comp.drift_received_slope_cond0, comp.drift_given_slope_cond0]
+    slopes_c1 = [comp.drift_received_slope_cond1, comp.drift_given_slope_cond1]
+    deltas = [comp.drift_received_slope_delta, comp.drift_given_slope_delta]
+
+    x = np.arange(len(labels))
+    width = 0.32
+
+    bars0 = ax.bar(x - width / 2, slopes_c0, width,
+                   color=_COND_COLORS[0], alpha=0.85,
+                   label=_COND_LABELS[0])
+    bars1 = ax.bar(x + width / 2, slopes_c1, width,
+                   color=_COND_COLORS[1], alpha=0.85,
+                   label=_COND_LABELS[1])
+
+    # Delta annotations
+    for xi, delta in zip(x, deltas):
+        ax.annotate(
+            f"Δ={delta:+.5f}",
+            xy=(xi, max(0, max(slopes_c0[xi], slopes_c1[xi]))),
+            xytext=(0, 4), textcoords="offset points",
+            ha="center", fontsize=_ANNOTATION_FONTSIZE,
+            color="black",
+        )
+
+    ax.axhline(y=0, color="black", linewidth=0.8, linestyle="-")
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, fontsize=_TICK_FONTSIZE)
+    ax.set_ylabel("OLS Slope (β₁)", fontsize=_LABEL_FONTSIZE)
+    ax.set_title("Drift Slope Comparison: Opaque vs Visible", fontsize=_TITLE_FONTSIZE)
+    ax.legend(fontsize=_LEGEND_FONTSIZE, framealpha=0.8)
+    plt.tight_layout()
+    _save_fig(fig, output_dir, "C2_drift_slope_comparison")
+
+
+# ── C3: Reciprocity delta heatmap ─────────────────────────────────────────────
+
+def plot_reciprocity_delta_heatmap(
+    comp: "ComparativeMetrics",  # noqa: F821
+    output_dir: Path,
+    model_a_id: str = "Model_A",
+) -> None:
+    """
+    Heatmap of reciprocity correlation delta (cond1 − cond0) per peer.
+    One row per peer model.
+    """
+    _apply_style()
+    peer_ids = sorted(comp.reciprocity_delta.keys())
+    if not peer_ids:
+        logger.warning("No peers for reciprocity delta heatmap.")
+        return
+
+    deltas = [[comp.reciprocity_delta.get(p, float("nan"))] for p in peer_ids]
+    perm_ps = [comp.reciprocity_permutation_p.get(p, float("nan")) for p in peer_ids]
+
+    fig_h = max(2.0, len(peer_ids) * 0.8)
+    fig, ax = plt.subplots(figsize=(3.5, fig_h))
+
+    arr = np.array(deltas)
+    im = ax.imshow(arr, aspect="auto", cmap="RdBu_r", vmin=-1, vmax=1)
+    plt.colorbar(im, ax=ax, label="Δ Reciprocity (cond1 − cond0)", shrink=0.9)
+
+    ax.set_yticks(range(len(peer_ids)))
+    ax.set_yticklabels(peer_ids, fontsize=_TICK_FONTSIZE)
+    ax.set_xticks([])
+    ax.set_title(
+        f"Reciprocity Δ vs {model_a_id}\n(permutation p annotated)",
+        fontsize=_TITLE_FONTSIZE,
+    )
+
+    for i, (p_val, delta_val) in enumerate(zip(perm_ps, [d[0] for d in deltas])):
+        if not np.isnan(delta_val) and not np.isnan(p_val):
+            sig = "***" if p_val < 0.001 else "**" if p_val < 0.01 else "*" if p_val < 0.05 else ""
+            ax.text(
+                0, i,
+                f"{delta_val:+.3f}{sig}",
+                ha="center", va="center",
+                fontsize=_ANNOTATION_FONTSIZE,
+                color="white" if abs(delta_val) > 0.5 else "black",
+                fontweight="bold",
+            )
+
+    plt.tight_layout()
+    _save_fig(fig, output_dir, "C3_reciprocity_delta_heatmap")
+
+
+# ── C4: Score distribution KDE comparison ────────────────────────────────────
+
+def plot_score_kde_comparison(
+    df_cond0: pd.DataFrame,
+    df_cond1: pd.DataFrame,
+    output_dir: Path,
+    model_a_id: str = "Model_A",
+    comp: Optional["ComparativeMetrics"] = None,  # noqa: F821
+) -> None:
+    """
+    KDE plots of A's given score distributions for condition 0 and condition 1,
+    with optional KS-test annotation.
+    """
+    _apply_style()
+    fig, ax = plt.subplots(figsize=_FIG_SINGLE)
+
+    for cond, df in [(0, df_cond0), (1, df_cond1)]:
+        scores = df[df["judge_id"] == model_a_id]["score_given"].dropna().values
+        if len(scores) < 2:
+            continue
+        color = _COND_COLORS[cond]
+        label = f"{_COND_LABELS[cond]} (n={len(scores)})"
+        sns.kdeplot(
+            scores, ax=ax, color=color, linewidth=2.0,
+            fill=True, alpha=0.25, label=label,
+        )
+
+    ax.set_xlabel(f"Score given by {model_a_id}", fontsize=_LABEL_FONTSIZE)
+    ax.set_ylabel("Density", fontsize=_LABEL_FONTSIZE)
+    ax.set_title(
+        f"{model_a_id} Given Score Distribution: Opaque vs Visible",
+        fontsize=_TITLE_FONTSIZE,
+    )
+    ax.set_xlim(0, 100)
+    ax.legend(fontsize=_LEGEND_FONTSIZE, framealpha=0.8)
+
+    if comp is not None and not np.isnan(comp.score_dist_ks_stat):
+        ks_txt = (
+            f"KS stat={comp.score_dist_ks_stat:.3f}\n"
+            f"p={comp.score_dist_ks_p_value:.4f}"
+        )
+        ax.text(
+            0.97, 0.96, ks_txt,
+            transform=ax.transAxes, fontsize=_ANNOTATION_FONTSIZE,
+            ha="right", va="top",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="lightyellow",
+                      alpha=0.9, edgecolor="gray"),
+        )
+
+    plt.tight_layout()
+    _save_fig(fig, output_dir, "C4_score_kde_comparison")
+
+
+# ── C5: Variance shift comparison ─────────────────────────────────────────────
+
+def plot_variance_shift_comparison(
+    vd_cond0: "VarianceDynamics",  # noqa: F821
+    vd_cond1: "VarianceDynamics",  # noqa: F821
+    output_dir: Path,
+    comp: Optional["ComparativeMetrics"] = None,  # noqa: F821
+) -> None:
+    """
+    Overlay rolling variance curves for both conditions.
+    Shift delta annotated below the legend.
+    """
+    _apply_style()
+    fig, ax = plt.subplots(figsize=_FIG_SINGLE)
+
+    for cond, vd in [(0, vd_cond0), (1, vd_cond1)]:
+        color = _COND_COLORS[cond]
+        label = _COND_LABELS[cond]
+        ax.plot(vd.iteration_ids, vd.rolling_variance,
+                color=color, linewidth=1.8, label=label)
+        ax.fill_between(vd.iteration_ids, 0, vd.rolling_variance,
+                        alpha=0.12, color=color)
+
+    ax.set_xlabel("Iteration", fontsize=_LABEL_FONTSIZE)
+    ax.set_ylabel("Rolling Score Variance", fontsize=_LABEL_FONTSIZE)
+    ax.set_title("Variance Dynamics: Opaque vs Visible", fontsize=_TITLE_FONTSIZE)
+    ax.set_ylim(bottom=0)
+    ax.legend(fontsize=_LEGEND_FONTSIZE, framealpha=0.8)
+
+    if comp is not None:
+        shift_txt = (
+            f"Mean variance\n"
+            f"  Cond 0: {comp.mean_variance_cond0:.2f}\n"
+            f"  Cond 1: {comp.mean_variance_cond1:.2f}\n"
+            f"  Shift:  {comp.variance_shift:+.2f}"
+        )
+        ax.text(
+            0.97, 0.96, shift_txt,
+            transform=ax.transAxes, fontsize=_ANNOTATION_FONTSIZE,
+            ha="right", va="top",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+                      alpha=0.9, edgecolor="gray"),
+        )
+
+    plt.tight_layout()
+    _save_fig(fig, output_dir, "C5_variance_shift_comparison")
+
+
+# ── Master comparative render ─────────────────────────────────────────────────
+
+def render_comparative_figures(
+    scores_log_cond0: str | Path,
+    scores_log_cond1: str | Path,
+    metrics_cond0: "MetricsSummary",   # noqa: F821
+    metrics_cond1: "MetricsSummary",   # noqa: F821
+    comp: "ComparativeMetrics",        # noqa: F821
+    figures_dir: str | Path,
+    model_a_id: str = "Model_A",
+    rolling_window: int = 20,
+) -> None:
+    """
+    Render the 5 cross-condition comparative figures (C1–C5).
+
+    Call this after running both conditions and computing ComparativeMetrics.
+    Requires a scores log for each condition.
+
+    Outputs (all in figures_dir):
+      C1_comparative_drift_overlay.{png,pdf}
+      C2_drift_slope_comparison.{png,pdf}
+      C3_reciprocity_delta_heatmap.{png,pdf}
+      C4_score_kde_comparison.{png,pdf}
+      C5_variance_shift_comparison.{png,pdf}
+    """
+    from src.metrics import load_scores_df
+
+    figures_dir = Path(figures_dir)
+    figures_dir.mkdir(parents=True, exist_ok=True)
+
+    logger.info("Rendering comparative figures to %s", figures_dir)
+
+    try:
+        df0 = load_scores_df(scores_log_cond0)
+        df1 = load_scores_df(scores_log_cond1)
+    except FileNotFoundError as exc:
+        logger.error("Cannot render comparative figures: %s", exc)
+        return
+
+    plot_comparative_drift_overlay(
+        metrics_cond0.drift_a_received,
+        metrics_cond1.drift_a_received,
+        metrics_cond0.drift_a_given,
+        metrics_cond1.drift_a_given,
+        figures_dir,
+        model_a_id=model_a_id,
+    )
+    plot_drift_slope_comparison(comp, figures_dir, model_a_id=model_a_id)
+    plot_reciprocity_delta_heatmap(comp, figures_dir, model_a_id=model_a_id)
+    plot_score_kde_comparison(df0, df1, figures_dir, model_a_id=model_a_id, comp=comp)
+    plot_variance_shift_comparison(
+        metrics_cond0.variance_dynamics,
+        metrics_cond1.variance_dynamics,
+        figures_dir,
+        comp=comp,
+    )
+
+    logger.info("All comparative figures rendered to %s", figures_dir)

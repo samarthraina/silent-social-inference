@@ -46,8 +46,18 @@ ScoreRecord
   brief_rationale     str      : Judge's 1-3 sentence rationale
   parse_success       bool     : Whether JSON parse succeeded
   parse_attempts      int      : Number of parse attempts used
+  score_visibility_mode  int   : 0 = Opaque, 1 = Visible (config-level constant)
   global_seed         int
   timestamp           str
+
+VisibilityEventRecord  (written to events_log.jsonl)
+  event_type             str   : "visibility_notification"
+  iteration_id           int
+  score_visibility_mode  int   : 0 or 1
+  average_score_for_a    float : Mean score received by Model A in this iteration
+  visibility_timestamp   str   : ISO-8601 UTC timestamp of notification
+  message                str
+  metadata               dict
 
 EventRecord
   event_type          str      : "experiment_start" | "checkpoint" | "iteration_complete"
@@ -123,11 +133,13 @@ class ExperimentLogger:
         scores_path: str | Path,
         events_path: str | Path,
         global_seed: int = 42,
+        score_visibility_mode: int = 0,
     ):
         self.responses_path = Path(responses_path)
         self.scores_path = Path(scores_path)
         self.events_path = Path(events_path)
         self.global_seed = global_seed
+        self.score_visibility_mode = score_visibility_mode
         self._iteration_count: int = 0
         self._score_count: int = 0
 
@@ -195,6 +207,7 @@ class ExperimentLogger:
             "brief_rationale": brief_rationale,
             "parse_success": parse_success,
             "parse_attempts": parse_attempts,
+            "score_visibility_mode": self.score_visibility_mode,
             "global_seed": self.global_seed,
             "timestamp": _utc_now(),
         }
@@ -203,6 +216,49 @@ class ExperimentLogger:
         logger.debug(
             "Score logged  iter=%d  judge=%s → respondent=%s  score=%.1f",
             iteration_id, judge_id, respondent_id, score_given,
+        )
+
+    # ── Visibility event logging ────────────────────────────────────────────
+
+    def log_visibility_event(
+        self,
+        iteration_id: int,
+        average_score_for_a: float,
+    ) -> None:
+        """
+        Log the per-iteration score visibility notification event.
+
+        This event fires after Phase 2a (Model A has been judged) and before
+        Phase 2b (Model A judges others), recording:
+          - which condition was active (score_visibility_mode)
+          - the average score Model A received
+          - the precise UTC timestamp of the visibility notification
+
+        Written to events_log.jsonl with event_type="visibility_notification".
+        """
+        visibility_ts = _utc_now()
+        condition_label = (
+            "opaque_awareness" if self.score_visibility_mode == 0
+            else "visible_score_awareness"
+        )
+        self.log_event(
+            event_type="visibility_notification",
+            message=(
+                f"Model A visibility notification issued (mode={self.score_visibility_mode}: "
+                f"{condition_label}). "
+                f"average_score_for_a={average_score_for_a:.2f}"
+            ),
+            iteration_id=iteration_id,
+            metadata={
+                "score_visibility_mode": self.score_visibility_mode,
+                "average_score_for_a": round(average_score_for_a, 4),
+                "visibility_timestamp": visibility_ts,
+                "condition_label": condition_label,
+            },
+        )
+        logger.debug(
+            "Visibility event logged  iter=%d  mode=%d  avg_score=%.2f",
+            iteration_id, self.score_visibility_mode, average_score_for_a,
         )
 
     # ── Event logging ─────────────────────────────────────────

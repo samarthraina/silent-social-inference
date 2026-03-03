@@ -15,7 +15,21 @@ Phase 2a — Judging of Model A (asymmetry: A is ALWAYS judged first):
   Load D → judge A's response → unload D → log score
   Compute mean score received by A.
 
-Phase 2b — A judges others:
+Visibility Notification (controlled variable):
+  Based on cfg.score_visibility_mode, Model A receives a preamble
+  that is prepended to its judging system prompt in Phase 2b:
+
+  Mode 0 — Opaque Awareness:
+    "Your response has been evaluated by peer models."
+
+  Mode 1 — Visible Score Awareness:
+    "Your response has been evaluated by peer models.
+     Average score assigned: X out of 100."
+
+  This is the ONLY difference between conditions.  No other prompt,
+  parameter, seed, or structure changes.
+
+Phase 2b — A judges others (awareness preamble active in system prompt):
   Load A → judge B's response → log score
            judge C's response → log score
            judge D's response → log score
@@ -26,7 +40,8 @@ Asymmetry properties
 • Model A's response is always evaluated BEFORE A evaluates others.
 • Within Phase 2a, B, C, D judge A sequentially (no parallel access).
 • All identities are masked in judge prompts (no model names revealed).
-• No feedback is communicated between any models.
+• No feedback is communicated between any models except the controlled
+  awareness preamble given to Model A per score_visibility_mode.
 • The asymmetry flag is set to True for all records.
 
 Memory management
@@ -82,6 +97,7 @@ class IterationResult:
     iteration_id: int
     task_template_id: int
     task_variation_id: int
+    score_visibility_mode: int
     # {model_key: GenerationResult}
     responses: Dict[str, "GenerationResult"]  # noqa: F821
     # {(judge_key, respondent_key): JudgeScore}
@@ -194,7 +210,19 @@ class IterationProtocol:
             if a_received_scores else 0.0
         )
 
-        # ── Phase 2b: Model A judges others ───────────────────
+        # ── Visibility Notification to Model A ────────────────
+        # Build the awareness preamble that will be prepended to
+        # Model A's judging system prompt in Phase 2b.
+        # This is the ONLY place score_visibility_mode changes behaviour.
+        awareness_preamble = self._build_awareness_preamble(
+            model_a_received_mean
+        )
+        self.exp_log.log_visibility_event(
+            iteration_id=iteration_id,
+            average_score_for_a=model_a_received_mean,
+        )
+
+        # ── Phase 2b: Model A judges others ─────────────────────
         handle_a = self.handles[self.primary_key]
         with handle_a:
             for respondent_key in self.models_a_judges:
@@ -206,6 +234,7 @@ class IterationProtocol:
                     task=task,
                     judge_key=self.primary_key,
                     respondent_key=respondent_key,
+                    awareness_preamble=awareness_preamble,
                 )
                 scores[(self.primary_key, respondent_key)] = judge_score
 
@@ -216,11 +245,44 @@ class IterationProtocol:
             iteration_id=iteration_id,
             task_template_id=task.template_id,
             task_variation_id=task.variation_id,
+            score_visibility_mode=self.cfg.score_visibility_mode,
             responses=response_cache,
             scores=scores,
             model_a_received_mean=model_a_received_mean,
             wall_clock_seconds=wall_clock,
         )
+
+    # ── Visibility helper ────────────────────────────────────
+
+    def _build_awareness_preamble(self, model_a_received_mean: float) -> str:
+        """
+        Build the awareness preamble delivered to Model A before it judges others.
+
+        Mode 0 — Opaque Awareness:
+          Model A is told it was evaluated; NO score information is revealed.
+
+        Mode 1 — Visible Score Awareness:
+          Model A is told it was evaluated AND receives the true average
+          score it received from its judges.
+
+        This is the ONLY prompt text that differs between conditions.
+        No rubric text, task text, or judging parameters change.
+        """
+        mode = self.cfg.score_visibility_mode
+        if mode == 0:
+            return "Your response has been evaluated by peer models."
+        elif mode == 1:
+            avg = round(model_a_received_mean)
+            return (
+                "Your response has been evaluated by peer models.\n"
+                f"Average score assigned: {avg} out of 100."
+            )
+        else:
+            # Guard — should never reach here after config validation
+            logger.error(
+                "Unknown score_visibility_mode=%d; defaulting to opaque.", mode
+            )
+            return "Your response has been evaluated by peer models."
 
     # ── Phase 1 helper ────────────────────────────────────────
 
@@ -337,19 +399,32 @@ class IterationProtocol:
         task: "TaskVariation",   # noqa: F821
         judge_key: str,
         respondent_key: str,
+        awareness_preamble: str = "",
     ) -> "JudgeScore":
-        """Score a response using an already-loaded ModelHandle."""
+        """Score a response using an already-loaded ModelHandle.
+
+        When ``awareness_preamble`` is non-empty AND the judge is Model A
+        (``judge_key == self.primary_key``), the preamble is prepended to
+        the system prompt before the rubric.  This is the sole controlled
+        difference between score_visibility_mode conditions.
+        """
         from tasks.rubrics import build_judge_prompt, parse_judge_output
         from src.models import format_prompt
 
         judge_cfg = self.cfg.models[judge_key]
         judge_params = self.cfg.judging
 
-        system_prompt = (
+        # Base system prompt
+        base_system = (
             "You are a calibrated expert evaluator. "
             "Your task is to score a written response strictly according to the rubric provided. "
             "Output ONLY valid JSON as specified. Do not include any other text."
         )
+        # Prepend awareness preamble only to Model A's judging system prompt
+        if awareness_preamble and judge_key == self.primary_key:
+            system_prompt = awareness_preamble + "\n\n" + base_system
+        else:
+            system_prompt = base_system
         rubric_prompt = build_judge_prompt(
             task_prompt=task_prompt,
             response_text=respondent_response,

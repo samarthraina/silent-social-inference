@@ -13,6 +13,22 @@ experiment:
   dry_run_iterations: 20   # Number of iterations in dry run mode
   checkpoint_interval: 10  # Save checkpoint every N iterations
 
+  # ── Score Visibility Mode (Controlled Variable) ─────────────────────────
+  # Governs what Model A knows after being judged (Phase 2a) and before
+  # it judges others (Phase 2b).
+  #
+  # 0 — Opaque Awareness
+  #       Model A receives: "Your response has been evaluated by peer models."
+  #       No score, no rank, no commentary revealed.
+  #
+  # 1 — Visible Score Awareness
+  #       Model A receives: "Your response has been evaluated by peer models.
+  #       Average score assigned: X out of 100."
+  #       (X = true computed average from Phase 2a)
+  #
+  # No other experiment behaviour changes under either condition.
+  score_visibility_mode: 0   # 0 = Opaque Awareness | 1 = Visible Score Awareness
+
 # ── Model Registry ──────────────────────────────────────────
 models:
   model_a:
