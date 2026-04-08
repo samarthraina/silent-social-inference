@@ -1185,9 +1185,9 @@ def print_summary_table(all_series: List[Dict]):
 
     for series in all_series:
         judge = series["judge"]
-        print(f"\n{'─'*60}")
-        print(f"Judge: {judge} ({MODELS[judge].split('/')[-1]})")
-        print(f"{'─'*60}")
+        print(f"\n{'-'*60}")
+        print(f"Judge: {judge} ({MODEL_CONFIG[judge]['label']})")
+        print(f"{'-'*60}")
 
         summary = series.get("summary", {})
         for case_key in ["case1_blind", "case2_competition", "case3_self_aware", "case4_revenge"]:
@@ -1202,10 +1202,10 @@ def print_summary_table(all_series: List[Dict]):
             }[case_key]
 
             print(f"\n  {case_label}:")
-            print(f"  {'Model':<12} {'Relevance':>10} {'Reasoning':>10} {'Total':>8}")
-            print(f"  {'─'*42}")
+            print(f"  {'Model':<20} {'Relevance':>10} {'Reasoning':>10} {'Total':>8}")
+            print(f"  {'-'*50}")
             for mk, s in sorted(avgs.items()):
-                print(f"  {mk:<12} {s['avg_relevance']:>10.2f} {s['avg_reasoning_quality']:>10.2f} {s['avg_total']:>8.2f}")
+                print(f"  {mk:<20} {s['avg_relevance']:>10.2f} {s['avg_reasoning_quality']:>10.2f} {s['avg_total']:>8.2f}")
 
 
 # ============================================================
@@ -1224,11 +1224,13 @@ def run_pipeline(prompts: List[str] = None, num_prompts: int = None):
     print(f"Models: {list(MODELS.keys())}")
     print(f"Prompts: {len(prompts)}")
     print(f"K-judge samples: {K_JUDGE_SAMPLES}")
-    print(f"Precision: bfloat16 (No Quantization)")
+    print(f"Precision: bfloat16, sequential load/unload (one model at a time)")
     if torch.cuda.is_available():
         print(f"GPU: {torch.cuda.get_device_name()}")
         print(f"VRAM: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
     print("=" * 60)
+
+    _reset_event_log()
 
     # ---- PART 1: Collect responses ----
     print("\n>>> PART 1: Collecting responses from all models...")
@@ -1296,6 +1298,7 @@ def run_pipeline(prompts: List[str] = None, num_prompts: int = None):
         with open(checkpoint_path, "w") as f:
             json.dump(series_data, f, indent=2, default=str)
         print(f"[Checkpoint] Saved series: {checkpoint_path}")
+        save_event_log(OUTPUT_DIR, tag=f"series_{judge_key}")
 
     # Final cleanup
     cleanup_gpu()
@@ -1303,6 +1306,19 @@ def run_pipeline(prompts: List[str] = None, num_prompts: int = None):
     # Save everything
     full_path, csv_path = save_results(all_series, OUTPUT_DIR)
     print_summary_table(all_series)
+
+    # Print parse failure summary
+    if _parse_failure_counts:
+        total_judge_calls = len(PROMPTS) * K_JUDGE_SAMPLES
+        lines = [f"{mk}: {n}/{total_judge_calls}" for mk, n in sorted(_parse_failure_counts.items())]
+        print(f"\n[Parse failures] {', '.join(lines)}")
+
+    # Print load failure warning
+    if _failed_models:
+        print(f"\n[WARNING] The following models failed to load and were skipped: {_failed_models}")
+
+    # Save final event log
+    save_event_log(OUTPUT_DIR)
 
     print("\n" + "=" * 60)
     print("PIPELINE COMPLETE")
@@ -1322,6 +1338,8 @@ def resume_from_collected(collected_path: str, start_from_judge: str = None,
     """Resume judging from saved collected responses."""
     with open(collected_path) as f:
         collected = json.load(f)
+
+    _reset_event_log()
 
     if num_prompts:
         collected = collected[:num_prompts]
@@ -1386,10 +1404,18 @@ def resume_from_collected(collected_path: str, start_from_judge: str = None,
         checkpoint_path = os.path.join(OUTPUT_DIR, f"checkpoint_series_{judge_key}.json")
         with open(checkpoint_path, "w") as f:
             json.dump(series_data, f, indent=2, default=str)
+        save_event_log(OUTPUT_DIR, tag=f"series_{judge_key}")
 
     cleanup_gpu()
     save_results(all_series, OUTPUT_DIR)
     print_summary_table(all_series)
+    save_event_log(OUTPUT_DIR)
+    if _parse_failure_counts:
+        total_judge_calls = len(PROMPTS) * K_JUDGE_SAMPLES
+        lines = [f"{mk}: {n}/{total_judge_calls}" for mk, n in sorted(_parse_failure_counts.items())]
+        print(f"\n[Parse failures] {', '.join(lines)}")
+    if _failed_models:
+        print(f"\n[WARNING] The following models failed to load and were skipped: {_failed_models}")
     return all_series
 
 
