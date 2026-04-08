@@ -94,7 +94,7 @@ GENERATION_PARAMS = {
     "do_sample": True,
 }
 
-N_RUNS_PER_PROMPT = 5
+N_RUNS_PER_PROMPT = 10
 
 JUDGE_PARAMS = {
     "temperature": 0.3,
@@ -111,6 +111,17 @@ JUDGE_PARAMS = {
 # and reducing sensitivity to a single stochastic decode.
 # ============================================================
 K_JUDGE_SAMPLES = 3
+
+# ============================================================
+# TEMPERATURE SAMPLING CONFIG
+# The response-collection phase is repeated for each temperature
+# in TEMPERATURES. At each temperature, N_TEMPERATURE_RUNS
+# independent full pipeline runs are executed.
+# temperature=0.0 → greedy decode (do_sample=False).
+# Judge temperature is fixed at JUDGE_PARAMS["temperature"].
+# ============================================================
+TEMPERATURES = [round(i * 0.1, 1) for i in range(11)]   # [0.0, 0.1, ..., 1.0]
+N_TEMPERATURE_RUNS = 10
 
 OUTPUT_DIR = "/root/results"
 SEED = 42

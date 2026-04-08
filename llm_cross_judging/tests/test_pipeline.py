@@ -148,3 +148,13 @@ def test_build_judge_messages_tulu_dpo_is_not_sft():
     pipe = _load_pipeline_config()
     msgs = pipe.build_judge_messages("tulu_dpo", "Rate this answer.")
     assert "Example format" not in msgs[0]["content"]
+
+def test_temperature_config():
+    pipe = _load_pipeline_config()
+    assert hasattr(pipe, "TEMPERATURES"), "TEMPERATURES constant missing"
+    assert pipe.TEMPERATURES[0] == 0.0
+    assert pipe.TEMPERATURES[-1] == 1.0
+    assert len(pipe.TEMPERATURES) == 11
+    assert hasattr(pipe, "N_TEMPERATURE_RUNS"), "N_TEMPERATURE_RUNS constant missing"
+    assert pipe.N_TEMPERATURE_RUNS == 10
+    assert pipe.N_RUNS_PER_PROMPT == 10
