@@ -197,3 +197,55 @@ def test_get_log_entry_filters_temp_run_idx():
     results = pipe.get_log_entry(temp_run_idx=1)
     assert len(results) == 1
     assert results[0]["temp_run_idx"] == 1
+
+
+def test_collect_responses_accepts_gen_params():
+    """collect_responses must accept gen_params kwarg and forward temperature to log_ctx."""
+    import llm_cross_judging.LLM_Cross_Judging_Pipeline_KSampling as pipe
+    from unittest.mock import patch
+
+    call_params = {}
+
+    def fake_generate(model_key, messages, params=None, log_ctx=None):
+        call_params["params"] = params
+        call_params["log_ctx"] = log_ctx
+        return "fake answer"
+
+    with patch.object(pipe, "generate_response", side_effect=fake_generate), \
+         patch.object(pipe, "load_model"), \
+         patch.object(pipe, "unload_current_model"):
+        custom_params = {**pipe.GENERATION_PARAMS, "temperature": 0.3}
+        pipe.collect_responses(
+            [pipe.PROMPTS[0]],
+            gen_params=custom_params,
+            temperature=0.3,
+            temp_run_idx=2,
+        )
+
+    assert call_params["params"]["temperature"] == 0.3
+    assert call_params["log_ctx"]["temperature"] == 0.3
+    assert call_params["log_ctx"]["temp_run_idx"] == 2
+
+
+def test_collect_responses_greedy_at_zero_temperature():
+    """temperature=0.0 must set do_sample=False in the params passed to generate_response."""
+    import llm_cross_judging.LLM_Cross_Judging_Pipeline_KSampling as pipe
+    from unittest.mock import patch
+
+    captured = {}
+
+    def fake_generate(model_key, messages, params=None, log_ctx=None):
+        captured["do_sample"] = params.get("do_sample")
+        return "answer"
+
+    with patch.object(pipe, "generate_response", side_effect=fake_generate), \
+         patch.object(pipe, "load_model"), \
+         patch.object(pipe, "unload_current_model"):
+        pipe.collect_responses(
+            [pipe.PROMPTS[0]],
+            gen_params={**pipe.GENERATION_PARAMS, "temperature": 0.0},
+            temperature=0.0,
+            temp_run_idx=0,
+        )
+
+    assert captured["do_sample"] is False

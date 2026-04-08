@@ -361,7 +361,8 @@ def generate_response(model_key: str, messages: List[Dict], params: Dict = None,
         output_text=response,
         duration_s=duration_s,
         **{k: v for k, v in ctx.items()
-           if k in ("phase", "prompt_id", "iteration_idx", "case", "judge_key", "k_sample_idx")},
+           if k in ("phase", "prompt_id", "iteration_idx", "case",
+                    "judge_key", "k_sample_idx", "temperature", "temp_run_idx")},
     )
 
     return response
@@ -617,18 +618,39 @@ def build_judge_messages(judge_key: str, judge_prompt: str) -> List[Dict]:
 # PART 1: COLLECT RESPONSES
 # ============================================================
 
-def collect_responses(prompts: List[str]) -> List[Dict]:
+def collect_responses(
+    prompts: List[str],
+    gen_params: Dict = None,
+    temperature: float = None,
+    temp_run_idx: int = None,
+) -> List[Dict]:
     """
     Collect responses from all models.
 
+    gen_params: generation parameters dict; defaults to GENERATION_PARAMS.
+        When temperature=0.0, do_sample is forced to False (greedy decode).
+    temperature: the collection temperature for this run (logged in every event).
+    temp_run_idx: which of the N_TEMPERATURE_RUNS runs this is (logged in every event).
+
     Logging: every generation is recorded with:
-        phase="collect", prompt_id=<idx>, model_key=<key>, iteration_idx=<run_idx>
+        phase="collect", prompt_id=<idx>, model_key=<key>,
+        iteration_idx=<run_idx>, temperature=<temp>, temp_run_idx=<idx>
     """
+    if gen_params is None:
+        gen_params = dict(GENERATION_PARAMS)
+    else:
+        gen_params = dict(gen_params)  # local copy — do not mutate caller's dict
+
+    # Greedy decode when temperature is exactly 0
+    if gen_params.get("temperature", 1.0) == 0.0:
+        gen_params["do_sample"] = False
+
     all_data = [{"prompt_id": i, "prompt": p, "responses": {}} for i, p in enumerate(prompts)]
     model_keys = list(MODELS.keys())
 
     print(f"[Config] N_RUNS_PER_PROMPT = {N_RUNS_PER_PROMPT}")
     print(f"[Config] K_JUDGE_SAMPLES   = {K_JUDGE_SAMPLES}")
+    print(f"[Config] collection temperature = {gen_params.get('temperature')}")
     print(f"[Config] Total generations = "
           f"{len(prompts)} prompts x {len(model_keys)} models x {N_RUNS_PER_PROMPT} runs = "
           f"{len(prompts) * len(model_keys) * N_RUNS_PER_PROMPT}")
@@ -657,11 +679,13 @@ def collect_responses(prompts: List[str]) -> List[Dict]:
                     {"role": "user", "content": entry["prompt"]},
                 ]
                 answer = generate_response(
-                    mk, messages,
+                    mk, messages, gen_params,
                     log_ctx={
                         "phase":         "collect",
                         "prompt_id":     prompt_id,
                         "iteration_idx": run_idx,
+                        "temperature":   temperature,
+                        "temp_run_idx":  temp_run_idx,
                     },
                 )
                 runs.append(answer)
@@ -675,7 +699,6 @@ def collect_responses(prompts: List[str]) -> List[Dict]:
                 "representative": representative,
             }
 
-        # Unload after finishing all prompts for this model
         unload_current_model()
 
     return all_data
