@@ -213,9 +213,10 @@ def test_resolve_model_key_no_match():
 def test_collect_responses_structure():
     """collect_responses returns list with one entry per prompt, each with N runs per model."""
     fake_llm = MagicMock()
-    fake_output = MagicMock()
-    fake_output.outputs = [MagicMock(text=f"response_{i}") for i in range(pipe.N_RUNS_PER_PROMPT)]
-    fake_llm.generate.return_value = [fake_output] * pipe.N_RUNS_PER_PROMPT
+    fake_llm.generate.return_value = [
+        MagicMock(outputs=[MagicMock(text=f"response_{i}")])
+        for i in range(pipe.N_RUNS_PER_PROMPT)
+    ]
 
     with patch.object(pipe, "load_model"), \
          patch.object(pipe, "unload_current_model"), \
@@ -235,9 +236,10 @@ def test_collect_responses_greedy_at_zero():
     """temperature=0.0 must pass do_sample=False via SamplingParams temperature=0."""
     captured_params = {}
     fake_llm = MagicMock()
-    fake_output = MagicMock()
-    fake_output.outputs = [MagicMock(text="r") for _ in range(pipe.N_RUNS_PER_PROMPT)]
-    fake_llm.generate.return_value = [fake_output] * pipe.N_RUNS_PER_PROMPT
+    fake_llm.generate.return_value = [
+        MagicMock(outputs=[MagicMock(text="r")])
+        for _ in range(pipe.N_RUNS_PER_PROMPT)
+    ]
 
     original_sp = __import__("vllm").SamplingParams
 
@@ -258,9 +260,10 @@ def test_collect_responses_greedy_at_zero():
 def test_collect_responses_logs_events():
     """Each generation run must produce one event log entry per model per run."""
     fake_llm = MagicMock()
-    fake_output = MagicMock()
-    fake_output.outputs = [MagicMock(text=f"r{i}") for i in range(pipe.N_RUNS_PER_PROMPT)]
-    fake_llm.generate.return_value = [fake_output] * pipe.N_RUNS_PER_PROMPT
+    fake_llm.generate.return_value = [
+        MagicMock(outputs=[MagicMock(text=f"r{i}")])
+        for i in range(pipe.N_RUNS_PER_PROMPT)
+    ]
 
     pipe._reset_event_log()
     with patch.object(pipe, "load_model"), \

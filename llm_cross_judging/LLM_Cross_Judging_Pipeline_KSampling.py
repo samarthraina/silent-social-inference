@@ -1044,6 +1044,7 @@ def run_pipeline(prompts: List[str] = None, num_prompts: int = None):
         print(f"{'#'*60}")
 
         _reset_event_log()
+        _parse_failure_counts.clear()
 
         # ---- PART 1: Collect responses ----
         print(f"\n>>> PART 1: Collecting responses (T={temp})...")
