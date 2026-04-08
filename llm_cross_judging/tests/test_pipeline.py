@@ -1,8 +1,6 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-# Avoid importing torch/transformers at module level in tests
-import importlib, types
 
 def _load_pipeline_config():
     """Import only the config-level names from the pipeline, without loading models."""
