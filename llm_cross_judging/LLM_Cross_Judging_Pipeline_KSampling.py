@@ -434,6 +434,8 @@ def log_event(
     duration_s: Optional[float] = None,
     parse_ok: Optional[bool] = None,
     parsed_scores: Optional[List] = None,
+    temperature: Optional[float] = None,
+    temp_run_idx: Optional[int] = None,
 ) -> None:
     """Append a structured event to the in-memory event log."""
     _event_log.append({
@@ -451,6 +453,8 @@ def log_event(
         "duration_s":    duration_s,
         "parse_ok":      parse_ok,
         "parsed_scores": parsed_scores,
+        "temperature":   temperature,
+        "temp_run_idx":  temp_run_idx,
     })
 
 
@@ -463,6 +467,8 @@ def get_log_entry(
     case: Optional[str] = None,
     judge_key: Optional[str] = None,
     model_key: Optional[str] = None,
+    temperature: Optional[float] = None,
+    temp_run_idx: Optional[int] = None,
 ) -> List[Dict]:
     """
     Return all log entries matching every supplied filter (AND logic).
@@ -470,6 +476,8 @@ def get_log_entry(
 
     Example — get the raw text for the 5th prompt's 4th iteration, 3rd K-sample:
         get_log_entry(prompt_id=4, iteration_idx=3, k_sample_idx=2)
+    Example — get all events at temperature 0.5, run 2:
+        get_log_entry(temperature=0.5, temp_run_idx=2)
     """
     results = _event_log
     if prompt_id     is not None: results = [e for e in results if e["prompt_id"]     == prompt_id]
@@ -479,6 +487,8 @@ def get_log_entry(
     if case          is not None: results = [e for e in results if e["case"]          == case]
     if judge_key     is not None: results = [e for e in results if e["judge_key"]     == judge_key]
     if model_key     is not None: results = [e for e in results if e["model_key"]     == model_key]
+    if temperature   is not None: results = [e for e in results if e.get("temperature") == temperature]
+    if temp_run_idx  is not None: results = [e for e in results if e.get("temp_run_idx") == temp_run_idx]
     return results
 
 

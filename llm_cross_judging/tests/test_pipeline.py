@@ -158,3 +158,42 @@ def test_temperature_config():
     assert hasattr(pipe, "N_TEMPERATURE_RUNS"), "N_TEMPERATURE_RUNS constant missing"
     assert pipe.N_TEMPERATURE_RUNS == 10
     assert pipe.N_RUNS_PER_PROMPT == 10
+
+def test_log_event_includes_temperature_fields():
+    import llm_cross_judging.LLM_Cross_Judging_Pipeline_KSampling as pipe
+    pipe._reset_event_log()
+    pipe.log_event(
+        "generation",
+        prompt_id=0, model_key="llama", phase="collect",
+        iteration_idx=0, input_text="hi", output_text="hello", duration_s=1.0,
+        temperature=0.5, temp_run_idx=3,
+    )
+    entry = pipe._event_log[0]
+    assert entry["temperature"] == 0.5
+    assert entry["temp_run_idx"] == 3
+
+
+def test_get_log_entry_filters_temperature():
+    import llm_cross_judging.LLM_Cross_Judging_Pipeline_KSampling as pipe
+    pipe._reset_event_log()
+    pipe.log_event("generation", prompt_id=0, model_key="llama", phase="collect",
+                   iteration_idx=0, input_text="a", output_text="b", duration_s=1.0,
+                   temperature=0.3, temp_run_idx=0)
+    pipe.log_event("generation", prompt_id=1, model_key="llama", phase="collect",
+                   iteration_idx=0, input_text="c", output_text="d", duration_s=1.0,
+                   temperature=0.7, temp_run_idx=0)
+    results = pipe.get_log_entry(temperature=0.3)
+    assert len(results) == 1
+    assert results[0]["temperature"] == 0.3
+
+
+def test_get_log_entry_filters_temp_run_idx():
+    import llm_cross_judging.LLM_Cross_Judging_Pipeline_KSampling as pipe
+    pipe._reset_event_log()
+    for run in range(3):
+        pipe.log_event("generation", prompt_id=0, model_key="llama", phase="collect",
+                       iteration_idx=0, input_text="a", output_text="b", duration_s=1.0,
+                       temperature=0.5, temp_run_idx=run)
+    results = pipe.get_log_entry(temp_run_idx=1)
+    assert len(results) == 1
+    assert results[0]["temp_run_idx"] == 1
