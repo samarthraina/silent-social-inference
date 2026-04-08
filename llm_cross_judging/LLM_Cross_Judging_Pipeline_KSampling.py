@@ -63,10 +63,27 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 # ============================================================
 
 MODELS = {
-    "qwen":    "Qwen/Qwen2.5-7B-Instruct",
-    "llama":   "meta-llama/Llama-3.1-8B-Instruct",
-    "gemma":   "google/gemma-2-9b-it",
-    "mistral": "mistralai/Mistral-7B-Instruct-v0.3",
+    "qwen":          "Qwen/Qwen2.5-7B-Instruct",
+    "llama":         "meta-llama/Llama-3.1-8B-Instruct",
+    "gemma":         "google/gemma-2-9b-it",
+    "mistral":       "mistralai/Mistral-7B-Instruct-v0.3",
+    "olmo_instruct": "allenai/OLMo-7B-Instruct",
+    "olmo_sft":      "allenai/OLMo-7B-SFT",
+    "tulu_sft":      "allenai/Llama-3.1-Tulu-3-8B-SFT",
+    "tulu_dpo":      "allenai/Llama-3.1-Tulu-3-8B-DPO",
+    "gemma4":        "google/gemma-4-E4B-it",
+}
+
+MODEL_CONFIG = {
+    "qwen":          {"is_sft": False, "label": "Qwen2.5-7B-Instruct"},
+    "llama":         {"is_sft": False, "label": "Llama-3.1-8B-Instruct"},
+    "gemma":         {"is_sft": False, "label": "Gemma-2-9B-IT"},
+    "mistral":       {"is_sft": False, "label": "Mistral-7B-Instruct-v0.3"},
+    "olmo_instruct": {"is_sft": False, "label": "OLMo-7B-Instruct"},
+    "olmo_sft":      {"is_sft": True,  "label": "OLMo-7B-SFT"},
+    "tulu_sft":      {"is_sft": True,  "label": "Llama-3.1-Tulu-3-8B-SFT"},
+    "tulu_dpo":      {"is_sft": False, "label": "Llama-3.1-Tulu-3-8B-DPO"},
+    "gemma4":        {"is_sft": False, "label": "Gemma-4-E4B-IT"},
 }
 
 
