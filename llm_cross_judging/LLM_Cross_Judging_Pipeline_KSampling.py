@@ -200,61 +200,101 @@ You MUST respond ONLY with valid JSON in this exact format (no markdown, no extr
 
 
 # ============================================================
-# MODEL MANAGEMENT — H100 Optimized (Load All, No Unloading)
+# MODEL MANAGEMENT — Sequential Load/Unload (one model at a time)
 # ============================================================
 
-_loaded_models = {}
-_loaded_tokenizers = {}
+_loaded_model     = None   # current model in VRAM
+_loaded_tokenizer = None   # current tokenizer
+_loaded_key       = None   # key of currently loaded model
+_failed_models: set = set()
 
-def cleanup_gpu():
-    """Light cleanup. Models stay in memory, just clear the cache."""
+
+def unload_current_model():
+    """Fully unload the current model and free VRAM."""
+    global _loaded_model, _loaded_tokenizer, _loaded_key
+    if _loaded_key is None:
+        return
+    print(f"  [Unload] {_loaded_key} — freeing VRAM...")
+    del _loaded_model
+    del _loaded_tokenizer
+    _loaded_model = None
+    _loaded_tokenizer = None
+    _loaded_key = None
     gc.collect()
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
+        torch.cuda.synchronize()
+
+
+def cleanup_gpu():
+    """Unload current model and clear CUDA cache."""
+    unload_current_model()
+
 
 def load_model(model_key: str):
-    """Load a model in bfloat16 and keep it in memory."""
-    global _loaded_models, _loaded_tokenizers
+    """Load model_key into VRAM, unloading the previous model first if needed."""
+    global _loaded_model, _loaded_tokenizer, _loaded_key
 
-    if model_key in _loaded_models:
-        return  # Already loaded
+    if _loaded_key == model_key:
+        return  # Already loaded — no-op
+
+    if model_key in _failed_models:
+        print(f"  [SKIP] {model_key} previously failed to load.")
+        return
+
+    if _loaded_key is not None:
+        unload_current_model()
 
     model_name = MODELS[model_key]
-    print(f"  [Loading] {model_name} (bfloat16)...")
+    print(f"  [Load] {model_name} (bfloat16)...")
 
-    tokenizer = AutoTokenizer.from_pretrained(
-        model_name,
-        token=HF_TOKEN,
-        trust_remote_code=True,
-    )
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_name,
+            token=HF_TOKEN,
+            trust_remote_code=True,
+        )
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
 
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            torch_dtype=torch.bfloat16,
+            device_map="auto",
+            token=HF_TOKEN,
+            trust_remote_code=True,
+        )
 
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        torch_dtype=torch.bfloat16,
-        device_map="auto",
-        token=HF_TOKEN,
-        trust_remote_code=True,
-    )
+        _loaded_model = model
+        _loaded_tokenizer = tokenizer
+        _loaded_key = model_key
 
-    _loaded_models[model_key] = model
-    _loaded_tokenizers[model_key] = tokenizer
+        if torch.cuda.is_available():
+            mem_gb = torch.cuda.memory_allocated() / 1e9
+            print(f"  [Loaded] {model_key} — VRAM in use: {mem_gb:.2f} GB")
 
-    if torch.cuda.is_available():
-        mem_gb = torch.cuda.memory_allocated() / 1e9
-        print(f"  [Loaded] {model_key} — Total GPU VRAM used so far: {mem_gb:.2f} GB")
+    except Exception as e:
+        print(f"  [ERROR] Failed to load {model_key}: {e}")
+        _failed_models.add(model_key)
 
-def generate_response(model_key: str, messages: List[Dict], params: Dict = None) -> str:
-    """Generate a response from the designated model."""
+def generate_response(model_key: str, messages: List[Dict], params: Dict = None,
+                      log_ctx: Dict = None) -> str:
+    """Generate a response. log_ctx is reserved for future event logging (Task 4)."""
+    if model_key in _failed_models:
+        print(f"  [SKIP generation] {model_key} previously failed to load.")
+        return ""
+
     if params is None:
         params = GENERATION_PARAMS
 
     load_model(model_key)
 
-    model = _loaded_models[model_key]
-    tokenizer = _loaded_tokenizers[model_key]
+    if _loaded_key != model_key:
+        # load_model failed silently (model in _failed_models after attempt)
+        return ""
+
+    model = _loaded_model
+    tokenizer = _loaded_tokenizer
 
     try:
         input_text = tokenizer.apply_chat_template(

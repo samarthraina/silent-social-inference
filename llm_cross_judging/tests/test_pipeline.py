@@ -28,3 +28,30 @@ def test_labels_are_unique():
 def test_nine_models():
     pipe = _load_pipeline_config()
     assert len(pipe.MODELS) == 9, f"Expected 9 models, got {len(pipe.MODELS)}"
+
+from unittest.mock import MagicMock, patch
+
+def test_unload_clears_globals():
+    import llm_cross_judging.LLM_Cross_Judging_Pipeline_KSampling as pipe
+    # Manually set state to simulate a loaded model
+    pipe._loaded_model = MagicMock()
+    pipe._loaded_tokenizer = MagicMock()
+    pipe._loaded_key = "llama"
+
+    with patch("gc.collect"), patch("torch.cuda.is_available", return_value=False):
+        pipe.unload_current_model()
+
+    assert pipe._loaded_model is None
+    assert pipe._loaded_tokenizer is None
+    assert pipe._loaded_key is None
+
+def test_load_model_skips_if_already_loaded():
+    import llm_cross_judging.LLM_Cross_Judging_Pipeline_KSampling as pipe
+    pipe._loaded_model = MagicMock()
+    pipe._loaded_tokenizer = MagicMock()
+    pipe._loaded_key = "llama"
+
+    # load_model("llama") should return immediately without calling from_pretrained
+    with patch("transformers.AutoModelForCausalLM.from_pretrained") as mock_load:
+        pipe.load_model("llama")
+        mock_load.assert_not_called()
