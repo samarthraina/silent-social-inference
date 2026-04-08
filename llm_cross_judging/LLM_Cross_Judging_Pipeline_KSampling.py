@@ -572,29 +572,26 @@ def sample_judge_scores(
 def collect_responses(prompts: List[str]) -> List[Dict]:
     """
     Collect responses from all models.
-    Each model answers each prompt N_RUNS_PER_PROMPT times.
-    The stored response is the average — represented as the
-    concatenation of runs for judging, with per-run scores
-    averaged during aggregation.
 
-    Stored structure per entry:
-        entry["responses"][model_key] = {
-            "runs": ["run1 text", "run2 text", ...],   # N_RUNS_PER_PROMPT individual answers
-            "representative": "run text chosen as best/avg for judging"
-        }
-
-    For judging we use the MEDIAN run (by length) as a single
-    representative answer, keeping prompt size manageable.
-    The individual run scores are averaged to produce the final score.
+    Logging: every generation is recorded with:
+        phase="collect", prompt_id=<idx>, model_key=<key>, iteration_idx=<run_idx>
     """
     all_data = [{"prompt_id": i, "prompt": p, "responses": {}} for i, p in enumerate(prompts)]
     model_keys = list(MODELS.keys())
 
     print(f"[Config] N_RUNS_PER_PROMPT = {N_RUNS_PER_PROMPT}")
     print(f"[Config] K_JUDGE_SAMPLES   = {K_JUDGE_SAMPLES}")
-    print(f"[Config] Total generations = {len(prompts)} prompts × {len(model_keys)} models × {N_RUNS_PER_PROMPT} runs = {len(prompts)*len(model_keys)*N_RUNS_PER_PROMPT}")
+    print(f"[Config] Total generations = "
+          f"{len(prompts)} prompts x {len(model_keys)} models x {N_RUNS_PER_PROMPT} runs = "
+          f"{len(prompts) * len(model_keys) * N_RUNS_PER_PROMPT}")
 
     for mk in model_keys:
+        if mk in _failed_models:
+            print(f"\n[SKIP] {mk} is in failed_models — skipping response collection.")
+            for entry in all_data:
+                entry["responses"][mk] = {"runs": [], "representative": ""}
+            continue
+
         print(f"\n{'='*50}")
         print(f"[Collect] Loading {mk} for response generation...")
         print(f"{'='*50}")
@@ -603,28 +600,36 @@ def collect_responses(prompts: List[str]) -> List[Dict]:
 
         for entry in all_data:
             runs = []
-            print(f"  Prompt {entry['prompt_id']+1}/{len(prompts)}: {entry['prompt'][:50]}...")
+            prompt_id = entry["prompt_id"]
+            print(f"  Prompt {prompt_id+1}/{len(prompts)}: {entry['prompt'][:50]}...")
 
             for run_idx in range(N_RUNS_PER_PROMPT):
                 messages = [
                     {"role": "system", "content": "You are a helpful assistant. Answer concisely and thoughtfully."},
                     {"role": "user", "content": entry["prompt"]},
                 ]
-                answer = generate_response(mk, messages)
+                answer = generate_response(
+                    mk, messages,
+                    log_ctx={
+                        "phase":         "collect",
+                        "prompt_id":     prompt_id,
+                        "iteration_idx": run_idx,
+                    },
+                )
                 runs.append(answer)
                 print(f"    Run {run_idx+1}/{N_RUNS_PER_PROMPT}: {len(answer)} chars")
 
-            # Pick the median-length run as the representative answer for judging
-            # This avoids outliers (very short/very long) while keeping a real answer
             runs_sorted_by_len = sorted(runs, key=len)
-            representative = runs_sorted_by_len[len(runs_sorted_by_len) // 2]
+            representative = runs_sorted_by_len[len(runs_sorted_by_len) // 2] if runs_sorted_by_len else ""
 
             entry["responses"][mk] = {
                 "runs": runs,
                 "representative": representative,
             }
 
-    cleanup_gpu()
+        # Unload after finishing all prompts for this model
+        unload_current_model()
+
     return all_data
 
 
