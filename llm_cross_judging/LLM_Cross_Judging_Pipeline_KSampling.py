@@ -280,7 +280,14 @@ def load_model(model_key: str):
 
 def generate_response(model_key: str, messages: List[Dict], params: Dict = None,
                       log_ctx: Dict = None) -> str:
-    """Generate a response. log_ctx is reserved for future event logging (Task 4)."""
+    """
+    Generate a response from model_key.
+
+    log_ctx: optional dict merged into the event log entry. Pass keys such as:
+        {"phase": "collect", "prompt_id": 3, "iteration_idx": 1}
+        {"phase": "judge",   "prompt_id": 3, "case": "case1_blind",
+         "judge_key": "qwen", "k_sample_idx": 0}
+    """
     if model_key in _failed_models:
         print(f"  [SKIP generation] {model_key} previously failed to load.")
         return ""
@@ -320,6 +327,7 @@ def generate_response(model_key: str, messages: List[Dict], params: Dict = None,
         max_length=3072,
     ).to(model.device)
 
+    t0 = time.time()
     with torch.no_grad():
         outputs = model.generate(
             **inputs,
@@ -329,9 +337,21 @@ def generate_response(model_key: str, messages: List[Dict], params: Dict = None,
             do_sample=params.get("do_sample", True),
             pad_token_id=tokenizer.pad_token_id,
         )
+    duration_s = round(time.time() - t0, 3)
 
     new_tokens = outputs[0][inputs["input_ids"].shape[1]:]
     response = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
+
+    ctx = log_ctx or {}
+    log_event(
+        "generation",
+        model_key=model_key,
+        input_text=input_text,
+        output_text=response,
+        duration_s=duration_s,
+        **{k: v for k, v in ctx.items()
+           if k in ("phase", "prompt_id", "iteration_idx", "case", "judge_key", "k_sample_idx")},
+    )
 
     return response
 
