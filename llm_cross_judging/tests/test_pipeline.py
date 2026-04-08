@@ -1,11 +1,25 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+import pytest
 
 def _load_pipeline_config():
     """Import only the config-level names from the pipeline, without loading models."""
     import llm_cross_judging.LLM_Cross_Judging_Pipeline_KSampling as pipe
     return pipe
+
+@pytest.fixture(autouse=True)
+def reset_pipeline_state():
+    pipe = _load_pipeline_config()
+    pipe._loaded_model = None
+    pipe._loaded_tokenizer = None
+    pipe._loaded_key = None
+    pipe._failed_models = set()
+    yield
+    pipe._loaded_model = None
+    pipe._loaded_tokenizer = None
+    pipe._loaded_key = None
+    pipe._failed_models = set()
 
 def test_model_config_keys_match_models():
     pipe = _load_pipeline_config()

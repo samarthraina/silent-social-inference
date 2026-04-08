@@ -264,18 +264,19 @@ def load_model(model_key: str):
             token=HF_TOKEN,
             trust_remote_code=True,
         )
-
-        _loaded_model = model
-        _loaded_tokenizer = tokenizer
-        _loaded_key = model_key
-
-        if torch.cuda.is_available():
-            mem_gb = torch.cuda.memory_allocated() / 1e9
-            print(f"  [Loaded] {model_key} — VRAM in use: {mem_gb:.2f} GB")
-
     except Exception as e:
         print(f"  [ERROR] Failed to load {model_key}: {e}")
         _failed_models.add(model_key)
+        return
+
+    # Only assign globals after successful load (outside try block)
+    _loaded_model = model
+    _loaded_tokenizer = tokenizer
+    _loaded_key = model_key
+
+    if torch.cuda.is_available():
+        mem_gb = torch.cuda.memory_allocated() / 1e9
+        print(f"  [Loaded] {model_key} — VRAM in use: {mem_gb:.2f} GB")
 
 def generate_response(model_key: str, messages: List[Dict], params: Dict = None,
                       log_ctx: Dict = None) -> str:
