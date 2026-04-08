@@ -1183,33 +1183,52 @@ def aggregate_series(series_data: Dict) -> Dict:
     return summary
 
 
-def save_results(all_series: List[Dict], output_dir: str):
-    """Save full JSON and summary CSV."""
+def save_results(
+    all_series: List[Dict],
+    output_dir: str,
+    temperature: float = None,
+    temp_run_idx: int = None,
+):
+    """Save full JSON and summary CSV.
+
+    temperature and temp_run_idx are embedded in filenames and CSV rows
+    when provided (i.e. when called from the temperature loop in run_pipeline).
+    """
     os.makedirs(output_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    full_path = os.path.join(output_dir, f"full_results_{timestamp}.json")
+    # Build filename tag
+    temp_tag = ""
+    if temperature is not None and temp_run_idx is not None:
+        temp_tag = f"_T{temperature}_run{temp_run_idx:02d}"
+
+    full_path = os.path.join(output_dir, f"full_results{temp_tag}_{timestamp}.json")
     with open(full_path, "w") as f:
         json.dump(all_series, f, indent=2, default=str)
     print(f"\n[Saved] Full results: {full_path}")
 
-    csv_path = os.path.join(output_dir, f"summary_{timestamp}.csv")
+    csv_path = os.path.join(output_dir, f"summary{temp_tag}_{timestamp}.csv")
     rows = []
     for series in all_series:
         judge = series["judge"]
         summary = series.get("summary", {})
         for case_key, model_avgs in summary.items():
             for model_key, avgs in model_avgs.items():
-                rows.append({
-                    "judge":                judge,
-                    "case":                 case_key,
-                    "evaluated_model":      model_key,
-                    "avg_relevance":        avgs["avg_relevance"],
-                    "avg_reasoning_quality":avgs["avg_reasoning_quality"],
-                    "avg_total":            avgs["avg_total"],
-                    "n_prompts":            avgs["n_prompts"],
-                    "k_judge_samples":      K_JUDGE_SAMPLES,
-                })
+                row = {
+                    "judge":                 judge,
+                    "case":                  case_key,
+                    "evaluated_model":       model_key,
+                    "avg_relevance":         avgs["avg_relevance"],
+                    "avg_reasoning_quality": avgs["avg_reasoning_quality"],
+                    "avg_total":             avgs["avg_total"],
+                    "n_prompts":             avgs["n_prompts"],
+                    "k_judge_samples":       K_JUDGE_SAMPLES,
+                }
+                if temperature is not None:
+                    row["temperature"] = temperature
+                if temp_run_idx is not None:
+                    row["temp_run_idx"] = temp_run_idx
+                rows.append(row)
 
     if rows:
         with open(csv_path, "w", newline="") as f:

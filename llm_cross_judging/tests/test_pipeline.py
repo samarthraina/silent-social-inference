@@ -249,3 +249,51 @@ def test_collect_responses_greedy_at_zero_temperature():
         )
 
     assert captured["do_sample"] is False
+
+
+def test_save_results_csv_includes_temperature_columns(tmp_path):
+    import llm_cross_judging.LLM_Cross_Judging_Pipeline_KSampling as pipe
+    import csv
+
+    all_series = [{
+        "judge": "llama",
+        "summary": {
+            "case1_blind": {
+                "qwen": {
+                    "avg_relevance": 7.0,
+                    "avg_reasoning_quality": 6.5,
+                    "avg_total": 6.75,
+                    "n_prompts": 8,
+                }
+            }
+        }
+    }]
+
+    pipe.save_results(all_series, str(tmp_path), temperature=0.5, temp_run_idx=3)
+
+    csv_files = list(tmp_path.glob("summary_*.csv"))
+    assert len(csv_files) == 1, "Expected exactly one summary CSV"
+
+    with open(csv_files[0]) as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    assert len(rows) == 1
+    assert rows[0]["temperature"] == "0.5"
+    assert rows[0]["temp_run_idx"] == "3"
+
+
+def test_save_results_filename_includes_temperature(tmp_path):
+    import llm_cross_judging.LLM_Cross_Judging_Pipeline_KSampling as pipe
+
+    all_series = [{
+        "judge": "llama",
+        "summary": {},
+    }]
+
+    pipe.save_results(all_series, str(tmp_path), temperature=0.3, temp_run_idx=1)
+
+    json_files = list(tmp_path.glob("full_results_*.json"))
+    assert len(json_files) == 1
+    assert "T0.3" in json_files[0].name
+    assert "run01" in json_files[0].name
