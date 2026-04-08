@@ -122,3 +122,29 @@ def test_get_log_entry_no_filters_returns_all():
         pipe.log_event("generation", prompt_id=i, model_key="llama", phase="collect",
                        iteration_idx=0, input_text="x", output_text="y", duration_s=1.0)
     assert len(pipe.get_log_entry()) == 5
+
+def test_build_judge_messages_instruct_model():
+    pipe = _load_pipeline_config()
+    msgs = pipe.build_judge_messages("qwen", "Rate this answer.")
+    assert len(msgs) == 2
+    assert msgs[0]["role"] == "system"
+    assert msgs[1]["role"] == "user"
+    assert msgs[1]["content"] == "Rate this answer."
+    assert "Example format" not in msgs[0]["content"]
+
+def test_build_judge_messages_sft_model():
+    pipe = _load_pipeline_config()
+    msgs = pipe.build_judge_messages("olmo_sft", "Rate this answer.")
+    assert len(msgs) == 2
+    assert "Example format" in msgs[0]["content"]
+    assert '"evaluations"' in msgs[0]["content"]
+
+def test_build_judge_messages_tulu_sft():
+    pipe = _load_pipeline_config()
+    msgs = pipe.build_judge_messages("tulu_sft", "Rate this answer.")
+    assert "Example format" in msgs[0]["content"]
+
+def test_build_judge_messages_tulu_dpo_is_not_sft():
+    pipe = _load_pipeline_config()
+    msgs = pipe.build_judge_messages("tulu_dpo", "Rate this answer.")
+    assert "Example format" not in msgs[0]["content"]
