@@ -366,6 +366,104 @@ def parse_judge_response(raw: str) -> Optional[List[Dict]]:
 
 
 # ============================================================
+# EVENT LOGGING
+# ============================================================
+# Every generation and judge draw is appended to _event_log as a dict.
+# Addressable by any combination of:
+#   prompt_id      — index into PROMPTS (0-based)
+#   iteration_idx  — which N_RUNS_PER_PROMPT run (0-based); None for judge events
+#   k_sample_idx   — which K_JUDGE_SAMPLES draw (0-based); None for collect events
+#   phase          — "collect" | "judge"
+#   case           — None | "case1_blind" | "case2_competition" |
+#                    "case3_self_aware" | "case4_revenge"
+#   judge_key      — model key of judge (judge phase only)
+#   model_key      — model that produced the output
+
+_event_log: List[Dict] = []
+
+
+def _reset_event_log():
+    """Clear the event log. Used in tests and at pipeline start."""
+    global _event_log
+    _event_log = []
+
+
+def log_event(
+    event: str,
+    *,
+    prompt_id: Optional[int] = None,
+    model_key: Optional[str] = None,
+    phase: Optional[str] = None,
+    iteration_idx: Optional[int] = None,
+    case: Optional[str] = None,
+    judge_key: Optional[str] = None,
+    k_sample_idx: Optional[int] = None,
+    input_text: Optional[str] = None,
+    output_text: Optional[str] = None,
+    duration_s: Optional[float] = None,
+    parse_ok: Optional[bool] = None,
+    parsed_scores: Optional[List] = None,
+) -> None:
+    """Append a structured event to the in-memory event log."""
+    _event_log.append({
+        "ts":            datetime.now().isoformat(timespec="milliseconds"),
+        "event":         event,
+        "phase":         phase,
+        "prompt_id":     prompt_id,
+        "model_key":     model_key,
+        "iteration_idx": iteration_idx,
+        "case":          case,
+        "judge_key":     judge_key,
+        "k_sample_idx":  k_sample_idx,
+        "input_text":    input_text,
+        "output_text":   output_text,
+        "duration_s":    duration_s,
+        "parse_ok":      parse_ok,
+        "parsed_scores": parsed_scores,
+    })
+
+
+def get_log_entry(
+    *,
+    prompt_id: Optional[int] = None,
+    iteration_idx: Optional[int] = None,
+    k_sample_idx: Optional[int] = None,
+    phase: Optional[str] = None,
+    case: Optional[str] = None,
+    judge_key: Optional[str] = None,
+    model_key: Optional[str] = None,
+) -> List[Dict]:
+    """
+    Return all log entries matching every supplied filter (AND logic).
+    Omit a parameter to skip that filter.
+
+    Example — get the raw text for the 5th prompt's 4th iteration, 3rd K-sample:
+        get_log_entry(prompt_id=4, iteration_idx=3, k_sample_idx=2)
+    """
+    results = _event_log
+    if prompt_id     is not None: results = [e for e in results if e["prompt_id"]     == prompt_id]
+    if iteration_idx is not None: results = [e for e in results if e["iteration_idx"] == iteration_idx]
+    if k_sample_idx  is not None: results = [e for e in results if e["k_sample_idx"]  == k_sample_idx]
+    if phase         is not None: results = [e for e in results if e["phase"]         == phase]
+    if case          is not None: results = [e for e in results if e["case"]          == case]
+    if judge_key     is not None: results = [e for e in results if e["judge_key"]     == judge_key]
+    if model_key     is not None: results = [e for e in results if e["model_key"]     == model_key]
+    return results
+
+
+def save_event_log(output_dir: str, tag: str = "") -> str:
+    """Write _event_log to a JSONL file. Returns the path."""
+    os.makedirs(output_dir, exist_ok=True)
+    suffix = f"_{tag}" if tag else ""
+    path = os.path.join(output_dir, f"event_log{suffix}.jsonl")
+    with open(path, "w") as f:
+        for entry in _event_log:
+            f.write(json.dumps(entry, default=str) + "\n")
+    print(f"[EventLog] Saved {len(_event_log)} events → {path}")
+    return path
+
+
+# ============================================================
 # K-SAMPLING HELPER
 # ============================================================
 

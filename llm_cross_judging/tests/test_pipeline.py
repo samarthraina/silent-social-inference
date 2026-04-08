@@ -15,11 +15,13 @@ def reset_pipeline_state():
     pipe._loaded_tokenizer = None
     pipe._loaded_key = None
     pipe._failed_models = set()
+    pipe._reset_event_log()
     yield
     pipe._loaded_model = None
     pipe._loaded_tokenizer = None
     pipe._loaded_key = None
     pipe._failed_models = set()
+    pipe._reset_event_log()
 
 def test_model_config_keys_match_models():
     pipe = _load_pipeline_config()
@@ -69,3 +71,54 @@ def test_load_model_skips_if_already_loaded():
     with patch("transformers.AutoModelForCausalLM.from_pretrained") as mock_load:
         pipe.load_model("llama")
         mock_load.assert_not_called()
+
+def test_log_event_appends_to_log():
+    import llm_cross_judging.LLM_Cross_Judging_Pipeline_KSampling as pipe
+    pipe._reset_event_log()
+    pipe.log_event("generation", prompt_id=0, model_key="llama", phase="collect",
+                   iteration_idx=2, input_text="hi", output_text="hello", duration_s=1.0)
+    assert len(pipe._event_log) == 1
+    entry = pipe._event_log[0]
+    assert entry["event"] == "generation"
+    assert entry["prompt_id"] == 0
+    assert entry["iteration_idx"] == 2
+    assert entry["model_key"] == "llama"
+    assert "ts" in entry
+
+def test_get_log_entry_filters_prompt_id():
+    import llm_cross_judging.LLM_Cross_Judging_Pipeline_KSampling as pipe
+    pipe._reset_event_log()
+    pipe.log_event("generation", prompt_id=0, model_key="llama", phase="collect",
+                   iteration_idx=0, input_text="a", output_text="b", duration_s=1.0)
+    pipe.log_event("generation", prompt_id=1, model_key="llama", phase="collect",
+                   iteration_idx=0, input_text="c", output_text="d", duration_s=1.0)
+    results = pipe.get_log_entry(prompt_id=1)
+    assert len(results) == 1
+    assert results[0]["prompt_id"] == 1
+
+def test_get_log_entry_multi_filter():
+    import llm_cross_judging.LLM_Cross_Judging_Pipeline_KSampling as pipe
+    pipe._reset_event_log()
+    # Add 3 entries: same prompt/iteration but different k_sample_idx
+    for k in range(3):
+        pipe.log_event("judge_draw", prompt_id=4, model_key="qwen", phase="judge",
+                       iteration_idx=None, case="case1_blind", judge_key="qwen",
+                       k_sample_idx=k, input_text="x", output_text="y",
+                       duration_s=0.5, parse_ok=True, parsed_scores=[])
+    # Different prompt
+    pipe.log_event("judge_draw", prompt_id=5, model_key="qwen", phase="judge",
+                   iteration_idx=None, case="case1_blind", judge_key="qwen",
+                   k_sample_idx=0, input_text="x", output_text="y",
+                   duration_s=0.5, parse_ok=True, parsed_scores=[])
+
+    results = pipe.get_log_entry(prompt_id=4, k_sample_idx=2)
+    assert len(results) == 1
+    assert results[0]["k_sample_idx"] == 2
+
+def test_get_log_entry_no_filters_returns_all():
+    import llm_cross_judging.LLM_Cross_Judging_Pipeline_KSampling as pipe
+    pipe._reset_event_log()
+    for i in range(5):
+        pipe.log_event("generation", prompt_id=i, model_key="llama", phase="collect",
+                       iteration_idx=0, input_text="x", output_text="y", duration_s=1.0)
+    assert len(pipe.get_log_entry()) == 5
