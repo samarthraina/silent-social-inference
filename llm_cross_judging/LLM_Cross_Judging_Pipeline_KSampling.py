@@ -459,7 +459,7 @@ def save_event_log(output_dir: str, tag: str = "") -> str:
     with open(path, "w") as f:
         for entry in _event_log:
             f.write(json.dumps(entry, default=str) + "\n")
-    print(f"[EventLog] Saved {len(_event_log)} events → {path}")
+    print(f"[EventLog] Saved {len(_event_log)} events to {path}")
     return path
 
 
