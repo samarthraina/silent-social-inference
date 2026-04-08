@@ -491,35 +491,35 @@ def sample_judge_scores(
     judge_key: str,
     messages: List[Dict],
     k: int = None,
+    log_ctx: Dict = None,       # NEW: forwarded to each generate_response call
 ) -> Tuple[Optional[List[Dict]], List[str]]:
     """
     Call the judge k times and return (averaged_evals, all_raw_responses).
-
-    averaged_evals mirrors the output of parse_judge_response but each
-    score is the mean across all K valid samples.  Extra fields stored:
-      - k_valid          : how many of the K calls parsed successfully
-      - relevance_samples        : raw per-sample scores (for variance)
-      - reasoning_quality_samples: raw per-sample scores (for variance)
-      - relevance_std            : std-dev across samples
-      - reasoning_quality_std    : std-dev across samples
-
-    If no sample parses successfully, returns (None, all_raw_responses).
+    log_ctx should contain at minimum: phase, prompt_id, case, judge_key.
+    k_sample_idx is added per draw inside this function.
     """
     if k is None:
         k = K_JUDGE_SAMPLES
 
     all_raw: List[str] = []
-    all_evals: List[List[Dict]] = []  # one list of evals per successful sample
+    all_evals: List[List[Dict]] = []
 
     for sample_idx in range(k):
-        raw = generate_response(judge_key, messages, JUDGE_PARAMS)
+        draw_ctx = dict(log_ctx or {})
+        draw_ctx["k_sample_idx"] = sample_idx
+
+        raw = generate_response(judge_key, messages, JUDGE_PARAMS, log_ctx=draw_ctx)
         all_raw.append(raw)
         evals = parse_judge_response(raw)
         if evals:
             all_evals.append(evals)
             print(f"      [K-sample {sample_idx+1}/{k}] parsed OK ({len(evals)} answers)")
         else:
-            print(f"      [K-sample {sample_idx+1}/{k}] parse FAILED — skipped")
+            print(f"      [K-sample {sample_idx+1}/{k}] parse FAILED -- skipped")
+            _parse_failure_counts[judge_key] = _parse_failure_counts.get(judge_key, 0) + 1
+            # Mark the last log entry as a parse failure
+            if _event_log:
+                _event_log[-1]["parse_ok"] = False
 
     if not all_evals:
         return None, all_raw
@@ -554,7 +554,6 @@ def sample_judge_scores(
             "relevance":                    avg_rel,
             "reasoning_quality":            avg_reas,
             "justification":                justifications[aid],
-            # k-sampling diagnostics
             "k_valid":                      len(rel_list),
             "relevance_samples":            rel_list,
             "reasoning_quality_samples":    reas_list,
