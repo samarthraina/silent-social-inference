@@ -702,7 +702,15 @@ ANSWERS:
         messages = build_judge_messages(judge_key, judge_prompt)
 
         print(f"  [Case1] Judge={judge_key}, Prompt {prompt_id+1} — K={K_JUDGE_SAMPLES} samples...")
-        evals, all_raw = sample_judge_scores(judge_key, messages)
+        evals, all_raw = sample_judge_scores(
+            judge_key, messages,
+            log_ctx={
+                "phase":     "judge",
+                "prompt_id": prompt_id,
+                "case":      "case1_blind",
+                "judge_key": judge_key,
+            },
+        )
 
         result_entry = {
             "prompt_id":     prompt_id,
@@ -782,7 +790,15 @@ Use the model name as the answer_id in your JSON output."""
         messages = build_judge_messages(judge_key, judge_prompt)
 
         print(f"  [Case2] Judge={judge_key}, Prompt {prompt_id+1} — K={K_JUDGE_SAMPLES} samples...")
-        evals, all_raw = sample_judge_scores(judge_key, messages)
+        evals, all_raw = sample_judge_scores(
+            judge_key, messages,
+            log_ctx={
+                "phase":     "judge",
+                "prompt_id": prompt_id,
+                "case":      "case2_competition",
+                "judge_key": judge_key,
+            },
+        )
 
         result_entry = {
             "prompt_id":       prompt_id,
@@ -861,7 +877,15 @@ Note: there is only one answer. Use "Answer_1" as the answer_id."""
             messages = build_judge_messages(evaluator_key, eval_prompt)
 
             print(f"  [IndivScore] {evaluator_key} judging {judge_key}, Prompt {prompt_id+1} — K={K_JUDGE_SAMPLES} samples...")
-            evals, _ = sample_judge_scores(evaluator_key, messages)
+            evals, _ = sample_judge_scores(
+                evaluator_key, messages,
+                log_ctx={
+                    "phase":     "judge",
+                    "prompt_id": prompt_id,
+                    "case":      "case3_individual_score",
+                    "judge_key": evaluator_key,
+                },
+            )
 
             if evals and len(evals) > 0:
                 ev = evals[0]
@@ -925,7 +949,15 @@ ANSWERS:
         messages = build_judge_messages(judge_key, judge_prompt)
 
         print(f"  [Case3] Judge={judge_key} (self_score={self_score:.2f}), Prompt {prompt_id+1} — K={K_JUDGE_SAMPLES} samples...")
-        evals, all_raw = sample_judge_scores(judge_key, messages)
+        evals, all_raw = sample_judge_scores(
+            judge_key, messages,
+            log_ctx={
+                "phase":     "judge",
+                "prompt_id": prompt_id,
+                "case":      "case3_self_aware",
+                "judge_key": judge_key,
+            },
+        )
 
         result_entry = {
             "prompt_id":       prompt_id,
@@ -1016,7 +1048,15 @@ ANSWERS:
         messages = build_judge_messages(judge_key, judge_prompt)
 
         print(f"  [Case4] Judge={judge_key}, Prompt {prompt_id+1} — K={K_JUDGE_SAMPLES} samples...")
-        evals, all_raw = sample_judge_scores(judge_key, messages)
+        evals, all_raw = sample_judge_scores(
+            judge_key, messages,
+            log_ctx={
+                "phase":     "judge",
+                "prompt_id": prompt_id,
+                "case":      "case4_revenge",
+                "judge_key": judge_key,
+            },
+        )
 
         result_entry = {
             "prompt_id":                    prompt_id,
