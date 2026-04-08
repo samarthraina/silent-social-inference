@@ -1192,14 +1192,16 @@ def resume_from_collected(collected_path: str, start_from_judge: str = None,
 
 # %% Cell 11
 # Full run — all 8 prompts
-all_series = run_pipeline()
+if __name__ == "__main__":
+    all_series = run_pipeline()
 
 # %% Cell 13
 # Resume from saved collected responses
-all_series = resume_from_collected(
-    "/root/results/collected_responses.json",
-    start_from_judge="gemma"
-)
+if __name__ == "__main__":
+    all_series = resume_from_collected(
+        "/root/results/collected_responses.json",
+        start_from_judge="gemma"
+    )
 
 
 # %% Cell 15
