@@ -2426,18 +2426,100 @@ def run_pipeline(
         save_results(all_series, OUTPUT_DIR, temperature=temp)
         print_summary_table(all_series, temperature=temp)
 
-    save_event_log(OUTPUT_DIR, tag="case2c")
-    timer_mark("Case 2c results saved")
+    # ============================================================
+    # PART 2 — FAKING EXPERIMENTS (inverted: one load per judge)
+    # ============================================================
+    print("\n" + "#" * 60)
+    print("# PART 2 — FAKING EXPERIMENTS")
+    print("#   Identity faking | Reverse identity faking | Score faking")
+    print("#" * 60)
+
+    case1a_scores_by_temp = load_case1a_scores(EXISTING_RESULTS_DIR, TEMPERATURES)
+
+    identity_results_by_temp: Dict[float, List[Dict]] = {t: [] for t in TEMPERATURES}
+    reverse_results_by_temp:  Dict[float, List[Dict]] = {t: [] for t in TEMPERATURES}
+    score_results_by_temp:    Dict[float, List[Dict]] = {t: [] for t in TEMPERATURES}
+
+    for judge_key in model_keys:
+        print(f"\n{'='*60}\n>>> JUDGE = {judge_key}  (Faking experiments)\n{'='*60}")
+        if not load_model(judge_key):
+            continue
+
+        for temp in TEMPERATURES:
+            entries = collected_by_temp[temp]
+            print(f"\n  --- T={temp} ---")
+
+            fmt_if,  metas_if  = _build_identity_faking_batch(
+                judge_key, model_keys, entries)
+            fmt_rif, metas_rif = _build_reverse_identity_faking_batch(
+                judge_key, model_keys, entries)
+            fmt_sf,  metas_sf  = _build_score_faking_batch(
+                judge_key, model_keys, entries,
+                case1a_scores_by_temp.get(temp, {}), seed_offset=10)
+
+            # One merged vLLM call; split outputs back by experiment
+            all_fmt = fmt_if + fmt_rif + fmt_sf
+            split_sizes = [len(fmt_if), len(fmt_rif), len(fmt_sf)]
+
+            if not all_fmt:
+                continue
+
+            assert _loaded_llm is not None
+            n_total = len(all_fmt)
+            print(f"    [faking] merged: {n_total} prompts x K={K_JUDGE_SAMPLES} "
+                  f"(IF={split_sizes[0]}, RIF={split_sizes[1]}, SF={split_sizes[2]})")
+            t0 = time.time()
+            all_outputs = _loaded_llm.generate(all_fmt, _judge_sampling_params())
+            dur = time.time() - t0
+            print(f"    [faking] merged done: {n_total * K_JUDGE_SAMPLES} draws "
+                  f"in {dur:.1f}s ({n_total * K_JUDGE_SAMPLES / dur:.1f} call/s)")
+
+            # Split outputs by experiment and process
+            idx = 0
+            if_outputs  = all_outputs[idx: idx + split_sizes[0]]; idx += split_sizes[0]
+            rif_outputs = all_outputs[idx: idx + split_sizes[1]]; idx += split_sizes[1]
+            sf_outputs  = all_outputs[idx: idx + split_sizes[2]]
+
+            if_res  = _process_faking_outputs(
+                judge_key, if_outputs,  metas_if,  "identity_faking")
+            rif_res = _process_faking_outputs(
+                judge_key, rif_outputs, metas_rif, "reverse_identity_faking")
+            sf_res  = _process_faking_outputs(
+                judge_key, sf_outputs,  metas_sf,  "score_faking")
+
+            identity_results_by_temp[temp].extend(if_res)
+            reverse_results_by_temp[temp].extend(rif_res)
+            score_results_by_temp[temp].extend(sf_res)
+
+        unload_current_model()
+
+    timer_mark("Faking experiments complete")
+
+    # Save per-temperature faking CSVs
+    for temp in TEMPERATURES:
+        save_faking_results(
+            identity_results_by_temp[temp],
+            reverse_results_by_temp[temp],
+            score_results_by_temp[temp],
+            OUTPUT_DIR, temperature=temp,
+        )
+
+    save_event_log(OUTPUT_DIR, tag="final")
+    timer_mark("Faking results saved")
 
     if _parse_failure_counts:
         lines = [f"{mk}: {n}" for mk, n in sorted(_parse_failure_counts.items())]
         print(f"\n[Parse failures] {', '.join(lines)}")
 
+    # Heatmap plots for faking experiments
+    make_faking_plots(OUTPUT_DIR)
+    timer_mark("Faking plots saved")
+
     if _failed_models:
         print(f"\n[WARNING] Models that failed to load: {_failed_models}")
 
     print("\n" + "=" * 60)
-    print("PIPELINE COMPLETE (Case 2c + faking experiments to follow)")
+    print("PIPELINE COMPLETE")
     print(f"Output directory: {OUTPUT_DIR}")
     print("=" * 60)
     timer_summary()
