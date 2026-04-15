@@ -1679,6 +1679,37 @@ def make_plots(all_series_all_temps: Dict[float, List[Dict]], output_dir: str) -
 # MAIN PIPELINE
 # ============================================================
 
+# ============================================================
+# LOAD PRE-GENERATED RESPONSES
+# ============================================================
+
+def load_collected_responses(
+    collected_dir: str,
+    temperatures: List[float],
+) -> Dict[float, List[Dict]]:
+    """
+    Load pre-generated responses from collected_T{temp}.json files.
+    Returns {temperature: [per-prompt entry dict]} — same shape as
+    collect_responses_all_temps() so the rest of the pipeline is unchanged.
+
+    Each entry dict: {prompt_id, prompt, temperature, responses: {mk: [N runs]}}
+    """
+    by_temp: Dict[float, List[Dict]] = {}
+    for temp in temperatures:
+        path = os.path.join(collected_dir, f"collected_T{temp}.json")
+        if not os.path.exists(path):
+            raise FileNotFoundError(
+                f"[LoadCollected] Expected {path} — run 15426 pipeline first."
+            )
+        with open(path) as f:
+            entries = json.load(f)
+        by_temp[temp] = entries
+        n_models = len(entries[0]["responses"]) if entries else 0
+        print(f"[LoadCollected] T={temp}: {len(entries)} prompts, "
+              f"{n_models} models loaded from {path}")
+    return by_temp
+
+
 def run_pipeline(
     prompts: Optional[List[str]] = None,
     num_prompts: Optional[int] = None,
@@ -1712,6 +1743,8 @@ def run_pipeline(
     print(f"max_model_len:       {MAX_MODEL_LEN}")
     print(f"gpu_memory_util:     {GPU_MEM_UTIL}")
     print(f"Output dir:          {OUTPUT_DIR}")
+    print(f"Collected source:    {COLLECTED_DIR}")
+    print(f"Existing results:    {EXISTING_RESULTS_DIR}")
     print("=" * 60)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -1730,43 +1763,27 @@ def run_pipeline(
     model_keys = [mk for mk in MODELS if mk not in _failed_models]
 
     # ============================================================
-    # PART 1 — GENERATION (inverted: one load per model for ALL temps)
+    # PART 0 — LOAD PRE-GENERATED RESPONSES
     # ============================================================
     print("\n" + "#" * 60)
-    print("# PART 1 — GENERATION (all temperatures per model)")
+    print("# PART 0 — LOADING COLLECTED RESPONSES (no generation)")
+    print(f"#          source: {COLLECTED_DIR}")
     print("#" * 60)
-    t_gen_start = time.time()
-    collected_by_temp = collect_responses_all_temps(prompts, TEMPERATURES)
-    print(f"\n[Part 1 done] {time.time() - t_gen_start:.1f}s")
-    timer_mark("Generation complete")
-
-    # Checkpoint all generations
-    for temp, entries in collected_by_temp.items():
-        p = os.path.join(OUTPUT_DIR, f"collected_T{temp}.json")
-        with open(p, "w") as f:
-            json.dump(entries, f, indent=2)
-        print(f"[Checkpoint] {p}")
+    collected_by_temp = load_collected_responses(COLLECTED_DIR, TEMPERATURES)
+    timer_mark("Responses loaded")
 
     # ============================================================
-    # PART 2 — JUDGING (inverted: one load per judge, all temps)
+    # PART 1 — CASE 2c JUDGING (inverted: one load per judge, all temps)
     # ============================================================
     print("\n" + "#" * 60)
-    print("# PART 2 — JUDGING (all cases x all temperatures per judge)")
+    print("# PART 1 — CASE 2c JUDGING (competition anonymous, no identity)")
     print("#" * 60)
 
-    # Structure we need at the end:
-    #   all_series_by_temp: {temp: [series_dict_per_judge, ...]}
-    all_series_by_temp: Dict[float, List[Dict]] = {t: [] for t in TEMPERATURES}
+    # {temp: [series_dict_per_judge]}
+    case2c_series_by_temp: Dict[float, List[Dict]] = {t: [] for t in TEMPERATURES}
 
-    # For Case 3 reuse, we need {temp: {judge_key: case1_results}}
-    case1_by_temp_judge: Dict[float, Dict[str, List[Dict]]] = {t: {} for t in TEMPERATURES}
-
-    # --- Phase 2a: run Case 1 + Case 2a + Case 2b for every (judge, temp) ---
-    # We do Cases 1/2a/2b for every judge first, so Case 1 for EVERY judge is
-    # available when we do Case 3 for any judge. This preserves the research
-    # design (Case 3 pre-step uses Case 1 scores FROM THE SAME TEMPERATURE).
     for judge_key in model_keys:
-        print(f"\n{'='*60}\n>>> JUDGE = {judge_key}  (Cases 1, 2a, 2b across all temps)\n{'='*60}")
+        print(f"\n{'='*60}\n>>> JUDGE = {judge_key}  (Case 2c across all temps)\n{'='*60}")
         if not load_model(judge_key):
             continue
 
@@ -1774,32 +1791,13 @@ def run_pipeline(
             entries = collected_by_temp[temp]
             print(f"\n  --- T={temp} ---")
 
-            # Build all four case batches, then submit as ONE generate() call.
-            # Cases 1a/2c/2a/2b share identical SamplingParams → safe to merge.
-            fmt1a, metas1a = _build_judge_task_batch(
-                judge_key, model_keys, entries, "case1a_blind", seed_offset=0,
-            )
             fmt2c, metas2c = _build_judge_task_batch(
-                judge_key, model_keys, entries, "case2c_competition_anonymous", seed_offset=4,
+                judge_key, model_keys, entries,
+                "case2c_competition_anonymous", seed_offset=5,
             )
-            fmt2a, metas2a = _build_judge_task_batch(
-                judge_key, model_keys, entries, "case2a_identity", seed_offset=1,
-            )
-            fmt2b, metas2b = _build_judge_task_batch(
-                judge_key, model_keys, entries, "case2b_competition", seed_offset=2,
-            )
-            case1a_res, case2c_res, case2a_res, case2b_res = _run_cases_merged(
-                judge_key,
-                [
-                    (fmt1a, metas1a, "case1a_blind"),
-                    (fmt2c, metas2c, "case2c_competition_anonymous"),
-                    (fmt2a, metas2a, "case2a_identity"),
-                    (fmt2b, metas2b, "case2b_competition"),
-                ],
-            )
-            case1_by_temp_judge[temp][judge_key] = case1a_res
+            case2c_res = _run_judge_batch(judge_key, fmt2c, metas2c,
+                                          "case2c_competition_anonymous")
 
-            # Stash into a series dict (Case 3 appended in phase 2b)
             series_data = {
                 "judge":            judge_key,
                 "judge_model":      MODELS[judge_key],
@@ -1807,76 +1805,38 @@ def run_pipeline(
                 "k_judge_samples":  K_JUDGE_SAMPLES,
                 "temperature":      temp,
                 "cases": {
-                    "case1a_blind":                 case1a_res,
                     "case2c_competition_anonymous": case2c_res,
-                    "case2a_identity":              case2a_res,
-                    "case2b_competition":           case2b_res,
                 },
             }
-            all_series_by_temp[temp].append(series_data)
+            series_data["summary"] = aggregate_series(series_data["cases"])
+            case2c_series_by_temp[temp].append(series_data)
 
-    # --- Phase 2b: Case 3 for every (judge, temp), using Case 1 scores from same temp ---
-    for judge_key in model_keys:
-        print(f"\n{'='*60}\n>>> JUDGE = {judge_key}  (Case 3 across all temps)\n{'='*60}")
-        if not load_model(judge_key):
-            continue
+        unload_current_model()
 
-        for temp in TEMPERATURES:
-            entries = collected_by_temp[temp]
-            individual_scores = extract_case1_scores_for_judge(
-                judge_key, case1_by_temp_judge[temp],
-            )
-            print(f"\n  --- T={temp} --- {judge_key} received: {individual_scores}")
-            score_lines = "\n".join(
-                f"  - {MODEL_CONFIG[ek]['label']}: {score:.3f}/10"
-                for ek, score in individual_scores.items()
-            )
-            fmt, metas = _build_judge_task_batch(
-                judge_key, model_keys, entries, "case3_revenge",
-                seed_offset=3, score_lines=score_lines,
-            )
-            case3_res = _run_judge_batch(judge_key, fmt, metas, "case3_revenge")
-
-            # Find the existing series_data for (temp, judge_key)
-            for series_data in all_series_by_temp[temp]:
-                if series_data["judge"] == judge_key:
-                    series_data["cases"]["case3_revenge"] = case3_res
-                    series_data["individual_scores_received"] = individual_scores
-                    series_data["summary"] = aggregate_series(series_data["cases"])
-                    break
-
-    unload_current_model()
-    timer_mark("Judging complete")
+    timer_mark("Case 2c judging complete")
 
     # ============================================================
-    # SAVE + SUMMARIES + PLOTS
+    # SAVE CASE 2c RESULTS
     # ============================================================
     for temp in TEMPERATURES:
-        all_series = all_series_by_temp[temp]
+        all_series = case2c_series_by_temp.get(temp, [])
         if not all_series:
             continue
         save_results(all_series, OUTPUT_DIR, temperature=temp)
         print_summary_table(all_series, temperature=temp)
 
-    save_event_log(OUTPUT_DIR, tag="final")
+    save_event_log(OUTPUT_DIR, tag="case2c")
+    timer_mark("Case 2c results saved")
 
     if _parse_failure_counts:
         lines = [f"{mk}: {n}" for mk, n in sorted(_parse_failure_counts.items())]
         print(f"\n[Parse failures] {', '.join(lines)}")
 
-    # Plots across all temps
-    make_plots(all_series_by_temp, OUTPUT_DIR)
-    timer_mark("Plots saved")
-
-    # HEADLINE ANALYSIS — print as the very last thing so it's visible in the log tail
-    headline_analysis(all_series_by_temp, OUTPUT_DIR)
-    timer_mark("Headline analysis complete")
-
     if _failed_models:
         print(f"\n[WARNING] Models that failed to load: {_failed_models}")
 
     print("\n" + "=" * 60)
-    print("PIPELINE COMPLETE")
+    print("PIPELINE COMPLETE (Case 2c + faking experiments to follow)")
     print(f"Output directory: {OUTPUT_DIR}")
     print("=" * 60)
     timer_summary()
