@@ -1630,7 +1630,7 @@ def make_plots(all_series_all_temps: Dict[float, List[Dict]], output_dir: str) -
     primary_idx = [0, 2, 3, 4]   # indices of 1a, 2a, 2b, 3
     ax.plot([xx[i] for i in primary_idx], [cas_means[i] for i in primary_idx],
             linestyle="--", color="#2E5984", linewidth=1.5, zorder=1, alpha=0.6)
-    # Draw branch 1a→1b
+    # Draw branch 1a→2c
     ax.plot([xx[0], xx[1]], [cas_means[0], cas_means[1]],
             linestyle=":", color="#8172B3", linewidth=1.5, zorder=1, alpha=0.6)
     bar_colors = ["#2E5984", "#8172B3", "#4C72B0", "#DD8452", "#55A868"]
@@ -1643,7 +1643,7 @@ def make_plots(all_series_all_temps: Dict[float, List[Dict]], output_dir: str) -
     ax.set_xticklabels(case_short)
     ax.set_ylabel("Avg total score (across all judges, models, temps, prompts)")
     ax.set_title("Score across the 5 cases\n"
-                 "Dashed: primary path (1a→2a→2b→3). Dotted: 1b branch (competition without identity).")
+                 "Dashed: primary path (1a→2a→2b→3). Dotted: 2c branch (competition without identity).")
     ax.grid(True, axis="y", alpha=0.3)
     fig.tight_layout()
     save(fig, "fig6_cascade")
@@ -1790,11 +1790,11 @@ def run_pipeline(
             print(f"\n  --- T={temp} ---")
 
             # Build all four case batches, then submit as ONE generate() call.
-            # Cases 1a/1b/2a/2b share identical SamplingParams → safe to merge.
+            # Cases 1a/2c/2a/2b share identical SamplingParams → safe to merge.
             fmt1a, metas1a = _build_judge_task_batch(
                 judge_key, model_keys, entries, "case1a_blind", seed_offset=0,
             )
-            fmt1b, metas1b = _build_judge_task_batch(
+            fmt2c, metas2c = _build_judge_task_batch(
                 judge_key, model_keys, entries, "case2c_competition_anonymous", seed_offset=4,
             )
             fmt2a, metas2a = _build_judge_task_batch(
@@ -1807,7 +1807,7 @@ def run_pipeline(
                 judge_key,
                 [
                     (fmt1a, metas1a, "case1a_blind"),
-                    (fmt1b, metas1b, "case2c_competition_anonymous"),
+                    (fmt2c, metas2c, "case2c_competition_anonymous"),
                     (fmt2a, metas2a, "case2a_identity"),
                     (fmt2b, metas2b, "case2b_competition"),
                 ],
