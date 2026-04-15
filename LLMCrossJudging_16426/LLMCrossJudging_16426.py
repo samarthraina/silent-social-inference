@@ -2426,6 +2426,8 @@ def run_pipeline(
         save_results(all_series, OUTPUT_DIR, temperature=temp)
         print_summary_table(all_series, temperature=temp)
 
+    save_event_log(OUTPUT_DIR, tag="case2c")
+
     # ============================================================
     # PART 2 — FAKING EXPERIMENTS (inverted: one load per judge)
     # ============================================================
