@@ -1223,6 +1223,137 @@ def aggregate_series(cases_by_name: Dict[str, List[Dict]]) -> Dict:
     return summary
 
 # ============================================================
+# FAKING EXPERIMENT RESULT PROCESSING + SAVING
+# ============================================================
+
+def _process_faking_outputs(
+    judge_key: str,
+    outputs,           # vLLM RequestOutput list (slice for this sub-batch)
+    metas: List[Dict],
+    experiment: str,   # "identity_faking" | "reverse_identity_faking" | "score_faking"
+) -> List[Dict]:
+    """
+    Parse and aggregate K judge draws for faking experiment items.
+    One vLLM item = one response shown to judge. Each item has K draws.
+
+    Returns list of result dicts, one per meta entry.
+    """
+    results: List[Dict] = []
+    for req_out, meta in zip(outputs, metas):
+        raw_responses = [c.text.strip() for c in req_out.outputs]
+        all_evals: List[List[Dict]] = []
+        for k_idx, raw in enumerate(raw_responses):
+            evals = parse_judge_response(raw)
+            parse_ok = evals is not None
+            log_event(
+                f"{experiment}_draw",
+                judge_key=judge_key,
+                prompt_id=meta["prompt_id"],
+                temperature=meta["temperature"],
+                k_sample_idx=k_idx,
+                parse_ok=parse_ok,
+                **{k: v for k, v in meta.items()
+                   if k not in ("prompt", "label_map")},
+                output_text=raw,
+            )
+            if parse_ok:
+                all_evals.append(evals)
+            else:
+                fail_key = f"{judge_key}_{experiment}"
+                _parse_failure_counts[fail_key] = (
+                    _parse_failure_counts.get(fail_key, 0) + 1
+                )
+
+        entry: Dict = {
+            "judge":       judge_key,
+            "experiment":  experiment,
+            **{k: v for k, v in meta.items() if k != "label_map"},
+        }
+
+        if not all_evals:
+            entry["parse_error"] = True
+            entry["relevance_avg"] = None
+            entry["rq_avg"] = None
+            entry["total_avg"] = None
+            results.append(entry)
+            continue
+
+        rel_vals: List[float] = []
+        rq_vals:  List[float] = []
+        for evals in all_evals:
+            for ev in evals:
+                try:
+                    rel_vals.append(float(ev.get("relevance", 0)))
+                    rq_vals.append(float(ev.get("reasoning_quality", 0)))
+                except (TypeError, ValueError):
+                    pass
+
+        if rel_vals:
+            entry["relevance_avg"] = round(sum(rel_vals) / len(rel_vals), 3)
+            entry["rq_avg"]        = round(sum(rq_vals)  / len(rq_vals),  3)
+            entry["total_avg"]     = round(
+                (entry["relevance_avg"] + entry["rq_avg"]) / 2, 3
+            )
+            entry["relevance_std"] = _std(rel_vals)
+            entry["rq_std"]        = _std(rq_vals)
+            entry["k_valid"]       = len(rel_vals)
+        else:
+            entry["parse_error"]   = True
+            entry["relevance_avg"] = None
+            entry["rq_avg"]        = None
+            entry["total_avg"]     = None
+
+        results.append(entry)
+    return results
+
+
+def save_faking_results(
+    identity_results:         List[Dict],
+    reverse_identity_results: List[Dict],
+    score_results:            List[Dict],
+    output_dir: str,
+    temperature: float,
+) -> None:
+    """
+    Write three CSVs (one per faking experiment) for a given temperature.
+
+    identity_faking_T{temp}.csv        — judge, fake_attribution, actual_generator,
+                                         prompt_id, temperature, relevance_avg, rq_avg, total_avg
+    reverse_identity_faking_T{temp}.csv — judge, actual_generator, fake_attribution,
+                                         prompt_id, temperature, relevance_avg, rq_avg, total_avg
+    score_faking_T{temp}.csv           — judge, evaluated_model, score_condition,
+                                         alleged_score, prompt_id, temperature,
+                                         relevance_avg, rq_avg, total_avg
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    def _write_csv(rows: List[Dict], filename: str) -> None:
+        if not rows:
+            print(f"[SaveFaking] No rows for {filename}, skipping.")
+            return
+        path = os.path.join(output_dir, filename)
+        fieldnames = list(rows[0].keys())
+        with open(path, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
+            writer.writeheader()
+            writer.writerows(rows)
+        print(f"[SaveFaking] {path}  ({len(rows)} rows)")
+
+    _write_csv(
+        [r for r in identity_results if not r.get("parse_error")],
+        f"identity_faking_T{temperature}.csv",
+    )
+    _write_csv(
+        [r for r in reverse_identity_results if not r.get("parse_error")],
+        f"reverse_identity_faking_T{temperature}.csv",
+    )
+    _write_csv(
+        [r for r in score_results if not r.get("parse_error")],
+        f"score_faking_T{temperature}.csv",
+    )
+
+
+# ============================================================
 # SAVE / SUMMARY
 # ============================================================
 
@@ -1916,6 +2047,179 @@ def make_plots(all_series_all_temps: Dict[float, List[Dict]], output_dir: str) -
     print("       fig5_headline_2b_minus_2a.{png,pdf}    <-- HEADLINE")
     print("       fig6_cascade.{png,pdf}")
     print("       fig7_trajectory_across_temperature.{png,pdf}")
+
+
+def make_faking_plots(output_dir: str) -> None:
+    """
+    Generate heatmaps for all three faking experiments.
+
+    Reads the CSVs saved by save_faking_results() (aggregated across temperatures).
+
+    Heatmaps produced:
+      identity_faking_heatmap         — rows=judge, cols=fake_attribution
+      reverse_identity_faking_heatmap — rows=judge, cols=actual_generator
+      score_faking_heatmap_<cond>     — rows=judge, cols=evaluated_model, per condition
+      score_faking_heatmap_delta_<cond> — rows=judge, cols=evaluated_model,
+                                          cell = condition_score − original_score
+    """
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import pandas as pd
+        import glob as _glob
+    except Exception as e:
+        print(f"[FakingPlots] matplotlib/pandas unavailable ({e}); skipping.")
+        return
+
+    fig_dir = os.path.join(output_dir, "figures")
+    os.makedirs(fig_dir, exist_ok=True)
+
+    plt.rcParams.update({
+        "font.family": "DejaVu Sans", "font.size": 10,
+        "axes.titlesize": 11, "axes.labelsize": 10,
+        "savefig.dpi": 300, "savefig.bbox": "tight",
+        "axes.spines.top": False, "axes.spines.right": False,
+    })
+
+    model_keys   = list(MODELS.keys())
+    model_labels = [MODEL_CONFIG[k]["label"] for k in model_keys]
+
+    def _save(fig, name: str) -> None:
+        for ext in ("png", "pdf"):
+            fig.savefig(os.path.join(fig_dir, f"{name}.{ext}"))
+        plt.close(fig)
+        print(f"[FakingPlots] saved {name}.{{png,pdf}}")
+
+    def _load_and_avg(pattern: str, row_col: str, col_col: str) -> "pd.DataFrame":
+        """Load all CSVs matching pattern, average total_avg over temps and prompts."""
+        files = _glob.glob(os.path.join(output_dir, pattern))
+        if not files:
+            return pd.DataFrame()
+        dfs = [pd.read_csv(f) for f in files]
+        df  = pd.concat(dfs, ignore_index=True)
+        df  = df.dropna(subset=["total_avg"])
+        return df.groupby([row_col, col_col])["total_avg"].mean().reset_index()
+
+    def _pivot_heatmap(
+        df: "pd.DataFrame",
+        row_col: str, col_col: str,
+        row_keys: List[str], col_keys: List[str],
+    ) -> "np.ndarray":
+        """Convert grouped df into a matrix aligned to row_keys × col_keys."""
+        M = np.full((len(row_keys), len(col_keys)), np.nan)
+        for _, row in df.iterrows():
+            try:
+                ri = row_keys.index(row[row_col])
+                ci = col_keys.index(row[col_col])
+                M[ri, ci] = row["total_avg"]
+            except ValueError:
+                pass
+        return M
+
+    def _draw_heatmap(
+        ax, M: "np.ndarray",
+        row_labels: List[str], col_labels: List[str], title: str,
+    ):
+        im = ax.imshow(M, cmap="viridis", vmin=1, vmax=10, aspect="auto")
+        ax.set_xticks(range(len(col_labels)))
+        ax.set_xticklabels(col_labels, rotation=45, ha="right", fontsize=8)
+        ax.set_yticks(range(len(row_labels)))
+        ax.set_yticklabels(row_labels, fontsize=8)
+        ax.set_xlabel("Evaluated / attributed model")
+        ax.set_ylabel("Judge model")
+        ax.set_title(title)
+        for i in range(len(row_labels)):
+            for j in range(len(col_labels)):
+                if not np.isnan(M[i, j]):
+                    ax.text(j, i, f"{M[i,j]:.2f}", ha="center", va="center",
+                            color="white" if M[i, j] < 6 else "black", fontsize=7)
+        return im
+
+    # ---- 1. Identity faking heatmap ----
+    df_if = _load_and_avg("identity_faking_T*.csv", "judge", "fake_attribution")
+    if not df_if.empty:
+        fig, ax = plt.subplots(figsize=(11, 8))
+        M = _pivot_heatmap(df_if, "judge", "fake_attribution", model_keys, model_keys)
+        im = _draw_heatmap(ax, M, model_labels, model_labels,
+                           "Identity Faking\n"
+                           "(judge scores its OWN response, attributed to column model)")
+        fig.colorbar(im, ax=ax, shrink=0.7, label="Avg total score (1–10)")
+        fig.tight_layout()
+        _save(fig, "identity_faking_heatmap")
+
+    # ---- 2. Reverse identity faking heatmap ----
+    df_rif = _load_and_avg("reverse_identity_faking_T*.csv", "judge", "actual_generator")
+    if not df_rif.empty:
+        fig, ax = plt.subplots(figsize=(11, 8))
+        M = _pivot_heatmap(df_rif, "judge", "actual_generator", model_keys, model_keys)
+        im = _draw_heatmap(ax, M, model_labels, model_labels,
+                           "Reverse Identity Faking\n"
+                           "(judge scores column model's response, told it is its own)")
+        fig.colorbar(im, ax=ax, shrink=0.7, label="Avg total score (1–10)")
+        fig.tight_layout()
+        _save(fig, "reverse_identity_faking_heatmap")
+
+    # ---- 3. Score faking heatmaps (one per condition + deltas) ----
+    sf_files = _glob.glob(os.path.join(output_dir, "score_faking_T*.csv"))
+    if sf_files:
+        dfs_sf = [pd.read_csv(f) for f in sf_files]
+        df_sf  = pd.concat(dfs_sf, ignore_index=True).dropna(subset=["total_avg"])
+
+        condition_names = [c for c, _ in SCORE_CONDITIONS]
+
+        cond_matrices: Dict[str, "np.ndarray"] = {}
+        for cond in condition_names:
+            sub = df_sf[df_sf["score_condition"] == cond]
+            agg = (sub.groupby(["judge", "evaluated_model"])["total_avg"]
+                      .mean().reset_index())
+            cond_matrices[cond] = _pivot_heatmap(
+                agg, "judge", "evaluated_model", model_keys, model_keys
+            )
+
+        # Per-condition heatmaps
+        for cond in condition_names:
+            M = cond_matrices[cond]
+            fig, ax = plt.subplots(figsize=(11, 8))
+            im = _draw_heatmap(ax, M, model_labels, model_labels,
+                               f"Score Faking — condition: {cond}\n"
+                               f"(judge scores column model after being told it gave "
+                               f"judge a {dict(SCORE_CONDITIONS).get(cond, 'original')} score)")
+            fig.colorbar(im, ax=ax, shrink=0.7, label="Avg total score (1–10)")
+            fig.tight_layout()
+            _save(fig, f"score_faking_heatmap_{cond}")
+
+        # Delta heatmaps: condition − original
+        orig_M = cond_matrices.get("original")
+        if orig_M is not None:
+            for cond in ("low", "mid", "high"):
+                delta_M = cond_matrices[cond] - orig_M
+                fig, ax = plt.subplots(figsize=(11, 8))
+                vmax = float(max(abs(np.nanmin(delta_M)), abs(np.nanmax(delta_M)), 0.5))
+                im = ax.imshow(delta_M, cmap="RdBu_r",
+                               vmin=-vmax, vmax=vmax, aspect="auto")
+                ax.set_xticks(range(len(model_labels)))
+                ax.set_xticklabels(model_labels, rotation=45, ha="right", fontsize=8)
+                ax.set_yticks(range(len(model_labels)))
+                ax.set_yticklabels(model_labels, fontsize=8)
+                ax.set_xlabel("Evaluated model")
+                ax.set_ylabel("Judge model")
+                ax.set_title(f"Score Faking \u0394  ({cond} \u2212 original)\n"
+                             f"Red = judge gave higher score when told score was {cond}")
+                for i in range(len(model_labels)):
+                    for j in range(len(model_labels)):
+                        if not np.isnan(delta_M[i, j]):
+                            ax.text(j, i, f"{delta_M[i,j]:+.2f}", ha="center",
+                                    va="center", fontsize=7,
+                                    color="black" if abs(delta_M[i, j]) < vmax * 0.6
+                                    else "white")
+                fig.colorbar(im, ax=ax, shrink=0.7, label="\u0394 avg total score")
+                fig.tight_layout()
+                _save(fig, f"score_faking_heatmap_delta_{cond}")
+
+    print(f"\n[FakingPlots] All figures saved to {fig_dir}/")
+
 
 # ============================================================
 # MAIN PIPELINE
