@@ -12,18 +12,18 @@
 #
 # Case design (each case adds exactly ONE variable on top of the previous):
 #   Case 1a Blind:                 no self-identity, anonymous Response_N labels
-#   Case 1b Competition Anonymous: competition framing in user prompt, still anonymous (no identity)
+#   Case 2c Competition Anonymous: competition framing in user prompt, still anonymous (no identity)
 #   Case 2a Identity:              "You are X" in system prompt + named labels
 #   Case 2b Competition:           same as 2a + competition framing in user prompt
 #   Case 3 Revenge:                same as 2b + concrete scores received from peers
 #
-# Case 1b isolates the effect of competition framing ALONE, without any identity
-# information. Comparing Case 1b − Case 1a measures "does competition framing
+# Case 2c isolates the effect of competition framing ALONE, without any identity
+# information. Comparing Case 2c − Case 1a measures "does competition framing
 # change scoring when models don't know who they are?"
 #
 # Headline statistics:
 #   Case 2b − Case 2a  (competition framing given identity)
-#   Case 1b − Case 1a  (competition framing without identity)
+#   Case 2c − Case 1a  (competition framing without identity)
 # Both are printed as final results.
 #
 # KEY OPTIMIZATIONS vs. original:
@@ -419,7 +419,7 @@ def build_judge_messages(judge_key: str, judge_prompt: str, case: str = "case1a_
     else:
         base_system = "You are a strict evaluator. Output only valid JSON."
 
-    if case in ("case1a_blind", "case1b_competition_anonymous"):
+    if case in ("case1a_blind", "case2c_competition_anonymous"):
         # Truly blind — no self-identity reveal (1b adds competition framing
         # in the user prompt only; the system prompt stays anonymous)
         system_content = base_system
@@ -599,7 +599,7 @@ def _judge_prompt_blind(entry: Dict, labeled_runs: List[Dict]) -> str:
 
 def _judge_prompt_competition_anonymous(entry: Dict, labeled_runs: List[Dict]) -> str:
     """
-    Case 1b user prompt. No identity is revealed — the judge does NOT know which
+    Case 2c user prompt. No identity is revealed — the judge does NOT know which
     model it is, and the answers use anonymous Response_N labels. The ONLY
     difference vs. Case 1a (blind) is the competition framing added here.
     This isolates the effect of competition framing independent of identity.
@@ -721,7 +721,7 @@ def _build_judge_task_batch(
             lr_copy = [dict(lr) for lr in labeled_runs]
             if case == "case1a_blind":
                 judge_prompt_text = _judge_prompt_blind(entry, lr_copy)
-            elif case == "case1b_competition_anonymous":
+            elif case == "case2c_competition_anonymous":
                 judge_prompt_text = _judge_prompt_competition_anonymous(entry, lr_copy)
             elif case == "case2a_identity":
                 judge_prompt_text = _judge_prompt_identity(entry, lr_copy, evaluated_model)
@@ -1089,7 +1089,7 @@ def print_summary_table(all_series: List[Dict], temperature: Optional[float] = N
 
     case_labels = {
         "case1a_blind":                 "Case 1a (Blind)",
-        "case1b_competition_anonymous": "Case 1b (Competition Anonymous)",
+        "case2c_competition_anonymous": "Case 2c (Competition Anonymous)",
         "case2a_identity":              "Case 2a (Identity)",
         "case2b_competition":           "Case 2b (Competition)",
         "case3_revenge":                "Case 3 (Revenge)",
@@ -1187,7 +1187,7 @@ def headline_analysis(all_series_by_temp: Dict[float, List[Dict]], output_dir: s
     """
     print("\n" + "#" * 70)
     print("# HEADLINE ANALYSIS — Δ(Case 2b Competition − Case 2a Identity)")
-    print("#              also — Δ(Case 1b Comp.Anon.  − Case 1a Blind)")
+    print("#              also — Δ(Case 2c Comp.Anon.  − Case 1a Blind)")
     print("# Testing: does explicit competition framing change scoring?")
     print("#          (with and without identity reveal)")
     print("#" * 70)
@@ -1286,7 +1286,7 @@ def headline_analysis(all_series_by_temp: Dict[float, List[Dict]], output_dir: s
     print(f"  {'Step':<45} {'Mean Δ':>12} {'Std':>10} {'N':>5}")
     print(f"  {'-'*75}")
     for label, (a, b) in [
-        ("Case 1b − Case 1a  (competition, no identity) ★", ("case1a_blind",                 "case1b_competition_anonymous")),
+        ("Case 2c − Case 1a  (competition, no identity) ★", ("case1a_blind",                 "case2c_competition_anonymous")),
         ("Case 2a − Case 1a  (identity reveal)",            ("case1a_blind",                 "case2a_identity")),
         ("Case 2b − Case 2a  (competition framing) ★",      ("case2a_identity",              "case2b_competition")),
         ("Case 3  − Case 2b  (received scores)",            ("case2b_competition",           "case3_revenge")),
@@ -1349,14 +1349,14 @@ def make_plots(all_series_all_temps: Dict[float, List[Dict]], output_dir: str) -
     n = len(model_keys)
     case_names = [
         "case1a_blind",
-        "case1b_competition_anonymous",
+        "case2c_competition_anonymous",
         "case2a_identity",
         "case2b_competition",
         "case3_revenge",
     ]
     case_titles = {
         "case1a_blind":                 "Case 1a — Blind",
-        "case1b_competition_anonymous": "Case 1b — Competition (Anonymous)",
+        "case2c_competition_anonymous": "Case 2c — Competition (Anonymous)",
         "case2a_identity":              "Case 2a — Identity",
         "case2b_competition":           "Case 2b — Competition",
         "case3_revenge":                "Case 3 — Revenge",
@@ -1461,7 +1461,7 @@ def make_plots(all_series_all_temps: Dict[float, List[Dict]], output_dir: str) -
 
     blind = per_model_avg("case1a_blind")
     deltas = {
-        "Comp. Anon. − Blind (1b−1a)": {mk: per_model_avg("case1b_competition_anonymous")[mk] - blind[mk] for mk in model_keys},
+        "Comp. Anon. − Blind (2c−1a)": {mk: per_model_avg("case2c_competition_anonymous")[mk] - blind[mk] for mk in model_keys},
         "Identity − Blind (2a−1a)":    {mk: per_model_avg("case2a_identity")[mk]    - blind[mk] for mk in model_keys},
         "Competition − Blind (2b−1a)": {mk: per_model_avg("case2b_competition")[mk] - blind[mk] for mk in model_keys},
         "Revenge − Blind (3−1a)":      {mk: per_model_avg("case3_revenge")[mk]      - blind[mk] for mk in model_keys},
@@ -1795,7 +1795,7 @@ def run_pipeline(
                 judge_key, model_keys, entries, "case1a_blind", seed_offset=0,
             )
             fmt1b, metas1b = _build_judge_task_batch(
-                judge_key, model_keys, entries, "case1b_competition_anonymous", seed_offset=4,
+                judge_key, model_keys, entries, "case2c_competition_anonymous", seed_offset=4,
             )
             fmt2a, metas2a = _build_judge_task_batch(
                 judge_key, model_keys, entries, "case2a_identity", seed_offset=1,
@@ -1803,11 +1803,11 @@ def run_pipeline(
             fmt2b, metas2b = _build_judge_task_batch(
                 judge_key, model_keys, entries, "case2b_competition", seed_offset=2,
             )
-            case1a_res, case1b_res, case2a_res, case2b_res = _run_cases_merged(
+            case1a_res, case2c_res, case2a_res, case2b_res = _run_cases_merged(
                 judge_key,
                 [
                     (fmt1a, metas1a, "case1a_blind"),
-                    (fmt1b, metas1b, "case1b_competition_anonymous"),
+                    (fmt1b, metas1b, "case2c_competition_anonymous"),
                     (fmt2a, metas2a, "case2a_identity"),
                     (fmt2b, metas2b, "case2b_competition"),
                 ],
@@ -1823,7 +1823,7 @@ def run_pipeline(
                 "temperature":      temp,
                 "cases": {
                     "case1a_blind":                 case1a_res,
-                    "case1b_competition_anonymous": case1b_res,
+                    "case2c_competition_anonymous": case2c_res,
                     "case2a_identity":              case2a_res,
                     "case2b_competition":           case2b_res,
                 },
