@@ -2535,10 +2535,17 @@ if __name__ == "__main__":
                         help="Limit to the first N prompts (for quick dry runs).")
     parser.add_argument("--preflight-only", action="store_true",
                         help="Run only the preflight check, then exit.")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="End-to-end smoke run: 1 prompt, skip preflight. "
+                             "Exercises Case 2c + all faking experiments without "
+                             "running the full prompt set.")
     args = parser.parse_args()
 
     if args.preflight_only:
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         preflight_check(OUTPUT_DIR)
+    elif args.dry_run:
+        print("[DRY RUN] num_prompts=1, skip_preflight=True")
+        run_pipeline(num_prompts=1, skip_preflight=True)
     else:
         run_pipeline(num_prompts=args.num_prompts, skip_preflight=args.skip_preflight)
