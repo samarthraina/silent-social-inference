@@ -420,7 +420,7 @@ def build_judge_messages(judge_key: str, judge_prompt: str, case: str = "case1a_
         base_system = "You are a strict evaluator. Output only valid JSON."
 
     if case in ("case1a_blind", "case2c_competition_anonymous"):
-        # Truly blind — no self-identity reveal (1b adds competition framing
+        # Truly blind — no self-identity reveal (2c adds competition framing
         # in the user prompt only; the system prompt stays anonymous)
         system_content = base_system
     else:
@@ -1618,7 +1618,7 @@ def make_plots(all_series_all_temps: Dict[float, List[Dict]], output_dir: str) -
     cas_stds  = [grand_mean(c)[1] for c in case_names]
     case_short = [
         "Blind\n(1a)",
-        "Comp. Anon.\n(1b)",
+        "Comp. Anon.\n(2c)",
         "Identity\n(2a)",
         "Competition\n(2b)",
         "Revenge\n(3)",
