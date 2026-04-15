@@ -45,8 +45,10 @@
 #      (per-case heatmaps, trend-vs-temperature lines, bias deltas).
 #
 # RESEARCH-PRESERVING CHANGES YOU ASKED FOR:
-#   - TEMPERATURES: step 0.2  -> 6 values: [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
-#   - N_RUNS_PER_PROMPT: 4    (consistency sampling of generated responses)
+#   - TEMPERATURES: 4 values: [0.0, 0.3, 0.6, 0.9]
+#   - N_RUNS_PER_PROMPT: 4    (consistency sampling of generated responses;
+#                              collapses to n=1 at T=0.0 — vLLM requires n=1
+#                              for greedy decoding; result is replicated × N)
 #   - K_JUDGE_SAMPLES:   3    (consistency sampling of the judge itself)
 #     -> renamed in print/labels as "judge_repeats" for clarity, config name unchanged
 #        to minimize diff with any downstream analysis you may already have.
@@ -278,7 +280,10 @@ def load_model(model_key: str) -> bool:
             max_model_len=MAX_MODEL_LEN,
             tokenizer_mode="auto",
             trust_remote_code=True,
-            enable_prefix_caching=True,   # <-- optimization #4
+            enable_prefix_caching=True,    # KV reuse for shared rubric/system prompt
+            enable_chunked_prefill=True,   # overlap prefill and decode → better GPU util
+            max_num_seqs=1024,             # allow larger in-flight batches
+            disable_log_stats=True,        # suppress per-step stats logging overhead
         )
     except Exception as e:
         print(f"  [ERROR] Failed to load {model_key}: {e}")
@@ -481,11 +486,15 @@ def generate_all_for_model(
 
     out: Dict[float, List[List[str]]] = {}
     for temp in temperatures:
+        # vLLM raises ValueError when n > 1 and temperature=0 (greedy decoding
+        # is deterministic, so multiple draws are identical and disallowed).
+        # Use n=1 at T=0 and replicate the single result to fill N slots.
+        effective_n = 1 if temp == 0.0 else N_RUNS_PER_PROMPT
         params = SamplingParams(
             temperature=temp,
             top_p=0.9 if temp > 0.0 else 1.0,
             max_tokens=GENERATION_MAX_TOKENS,
-            n=N_RUNS_PER_PROMPT,   # <-- vLLM samples N completions per prompt in one call
+            n=effective_n,
         )
         t0 = time.time()
         outputs = _loaded_llm.generate(formatted_prompts, params)
@@ -494,15 +503,20 @@ def generate_all_for_model(
         per_prompt_runs: List[List[str]] = []
         for req_out in outputs:
             runs = [c.text.strip() for c in req_out.outputs]
+            # At T=0 we requested n=1; replicate to fill N_RUNS_PER_PROMPT slots
+            # (all copies are identical — greedy output is deterministic).
+            if temp == 0.0:
+                runs = runs * N_RUNS_PER_PROMPT
             # pad if vLLM ever returns < N (shouldn't happen)
             while len(runs) < N_RUNS_PER_PROMPT:
                 runs.append("")
             per_prompt_runs.append(runs)
 
         out[temp] = per_prompt_runs
-        total_gens = len(prompts) * N_RUNS_PER_PROMPT
+        total_gens = len(prompts) * effective_n
         print(f"    [gen T={temp}] {total_gens} responses in {dur:.1f}s "
-              f"({total_gens/dur:.1f} resp/s)")
+              f"({total_gens/dur:.1f} resp/s)"
+              + (" [n=1, result replicated ×4]" if temp == 0.0 else ""))
 
         for pid, runs in enumerate(per_prompt_runs):
             for run_idx, text in enumerate(runs):
@@ -747,35 +761,16 @@ def _build_judge_task_batch(
     return formatted_list, metas
 
 
-def _run_judge_batch(
+def _process_judge_outputs(
     judge_key: str,
-    formatted_list: List[str],
+    outputs: list,
     metas: List[Dict],
     case: str,
 ) -> List[Dict]:
     """
-    One big batched vLLM call with n=K_JUDGE_SAMPLES. Parses the K draws per
-    request, averages, and returns a list of result entries aligned with `metas`.
+    Convert raw vLLM RequestOutput objects into result entry dicts.
+    Shared by _run_judge_batch (single case) and _run_cases_merged (multi-case).
     """
-    if not formatted_list:
-        return []
-
-    judge_params = SamplingParams(
-        temperature=JUDGE_TEMPERATURE,
-        top_p=JUDGE_TOP_P,
-        max_tokens=JUDGE_MAX_TOKENS,
-        n=K_JUDGE_SAMPLES,   # <-- K sampled completions per prompt in one forward pass
-    )
-
-    assert _loaded_llm is not None
-    print(f"    [judge] {case}: batching {len(formatted_list)} prompts x K={K_JUDGE_SAMPLES}...")
-    t0 = time.time()
-    outputs = _loaded_llm.generate(formatted_list, judge_params)
-    dur = time.time() - t0
-    total_calls = len(formatted_list) * K_JUDGE_SAMPLES
-    print(f"    [judge] {case}: {total_calls} judgements in {dur:.1f}s "
-          f"({total_calls/dur:.1f} call/s)")
-
     results: List[Dict] = []
     for req_out, meta in zip(outputs, metas):
         raw_responses = [c.text.strip() for c in req_out.outputs]
@@ -820,7 +815,6 @@ def _run_judge_batch(
             results.append(result_entry)
             continue
 
-        # Average scores per answer_id across valid K draws
         accumulator: Dict[str, Dict[str, List[float]]] = {}
         justifications: Dict[str, str] = {}
         for evals in all_evals:
@@ -864,6 +858,82 @@ def _run_judge_batch(
         results.append(result_entry)
 
     return results
+
+
+def _judge_sampling_params() -> SamplingParams:
+    return SamplingParams(
+        temperature=JUDGE_TEMPERATURE,
+        top_p=JUDGE_TOP_P,
+        max_tokens=JUDGE_MAX_TOKENS,
+        n=K_JUDGE_SAMPLES,
+    )
+
+
+def _run_judge_batch(
+    judge_key: str,
+    formatted_list: List[str],
+    metas: List[Dict],
+    case: str,
+) -> List[Dict]:
+    """Single-case batched judge call. Used for Case 3 (can't be merged upfront)."""
+    if not formatted_list:
+        return []
+    assert _loaded_llm is not None
+    print(f"    [judge] {case}: {len(formatted_list)} prompts x K={K_JUDGE_SAMPLES}...")
+    t0 = time.time()
+    outputs = _loaded_llm.generate(formatted_list, _judge_sampling_params())
+    dur = time.time() - t0
+    total_calls = len(formatted_list) * K_JUDGE_SAMPLES
+    print(f"    [judge] {case}: {total_calls} judgements in {dur:.1f}s "
+          f"({total_calls/dur:.1f} call/s)")
+    return _process_judge_outputs(judge_key, outputs, metas, case)
+
+
+def _run_cases_merged(
+    judge_key: str,
+    batches: List[Tuple[List[str], List[Dict], str]],
+) -> List[List[Dict]]:
+    """
+    Run multiple judge cases in ONE vLLM generate() call.
+
+    All cases share the same SamplingParams, so their prompts can be concatenated
+    into a single scheduler submission. This keeps the H100/A100 fully saturated
+    across cases rather than paying scheduler + Python overhead for each case
+    separately. For 4 cases × 64 prompts × K=3 this cuts generate() calls from
+    4 → 1 per (judge, temperature) block.
+
+    batches: [(formatted_list, metas, case_name), ...]
+    Returns: [results_for_case_0, results_for_case_1, ...]  (same order as input)
+    """
+    all_formatted: List[str] = []
+    split_sizes: List[int] = []
+    for fmt_list, _, _ in batches:
+        split_sizes.append(len(fmt_list))
+        all_formatted.extend(fmt_list)
+
+    if not all_formatted:
+        return [[] for _ in batches]
+
+    assert _loaded_llm is not None
+    case_names_str = " + ".join(c for _, _, c in batches)
+    total_items = len(all_formatted)
+    print(f"    [judge] merged [{case_names_str}]: "
+          f"{total_items} prompts x K={K_JUDGE_SAMPLES}...")
+    t0 = time.time()
+    all_outputs = _loaded_llm.generate(all_formatted, _judge_sampling_params())
+    dur = time.time() - t0
+    total_calls = total_items * K_JUDGE_SAMPLES
+    print(f"    [judge] merged done: {total_calls} judgements in {dur:.1f}s "
+          f"({total_calls/dur:.1f} call/s)")
+
+    results_per_batch: List[List[Dict]] = []
+    idx = 0
+    for (_, metas, case), size in zip(batches, split_sizes):
+        results_per_batch.append(
+            _process_judge_outputs(judge_key, all_outputs[idx: idx + size], metas, case)
+        )
+        idx += size
+    return results_per_batch
 
 
 def extract_case1_scores_for_judge(
@@ -1719,30 +1789,30 @@ def run_pipeline(
             entries = collected_by_temp[temp]
             print(f"\n  --- T={temp} ---")
 
-            # Case 1a — blind
-            fmt, metas = _build_judge_task_batch(
+            # Build all four case batches, then submit as ONE generate() call.
+            # Cases 1a/1b/2a/2b share identical SamplingParams → safe to merge.
+            fmt1a, metas1a = _build_judge_task_batch(
                 judge_key, model_keys, entries, "case1a_blind", seed_offset=0,
             )
-            case1a_res = _run_judge_batch(judge_key, fmt, metas, "case1a_blind")
-            case1_by_temp_judge[temp][judge_key] = case1a_res
-
-            # Case 1b — competition framing, anonymous (no identity reveal)
-            fmt, metas = _build_judge_task_batch(
+            fmt1b, metas1b = _build_judge_task_batch(
                 judge_key, model_keys, entries, "case1b_competition_anonymous", seed_offset=4,
             )
-            case1b_res = _run_judge_batch(judge_key, fmt, metas, "case1b_competition_anonymous")
-
-            # Case 2a — identity
-            fmt, metas = _build_judge_task_batch(
+            fmt2a, metas2a = _build_judge_task_batch(
                 judge_key, model_keys, entries, "case2a_identity", seed_offset=1,
             )
-            case2a_res = _run_judge_batch(judge_key, fmt, metas, "case2a_identity")
-
-            # Case 2b — competition
-            fmt, metas = _build_judge_task_batch(
+            fmt2b, metas2b = _build_judge_task_batch(
                 judge_key, model_keys, entries, "case2b_competition", seed_offset=2,
             )
-            case2b_res = _run_judge_batch(judge_key, fmt, metas, "case2b_competition")
+            case1a_res, case1b_res, case2a_res, case2b_res = _run_cases_merged(
+                judge_key,
+                [
+                    (fmt1a, metas1a, "case1a_blind"),
+                    (fmt1b, metas1b, "case1b_competition_anonymous"),
+                    (fmt2a, metas2a, "case2a_identity"),
+                    (fmt2b, metas2b, "case2b_competition"),
+                ],
+            )
+            case1_by_temp_judge[temp][judge_key] = case1a_res
 
             # Stash into a series dict (Case 3 appended in phase 2b)
             series_data = {
