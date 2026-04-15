@@ -1253,7 +1253,7 @@ def _process_faking_outputs(
                 k_sample_idx=k_idx,
                 parse_ok=parse_ok,
                 **{k: v for k, v in meta.items()
-                   if k not in ("prompt", "label_map")},
+                   if k not in ("prompt", "label_map", "prompt_id", "temperature")},
                 output_text=raw,
             )
             if parse_ok:
