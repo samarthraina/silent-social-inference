@@ -614,6 +614,36 @@ def _std(vals: List[float]) -> float:
     mean = sum(vals) / len(vals)
     return round((sum((v - mean) ** 2 for v in vals) / len(vals)) ** 0.5, 3)
 
+
+def _apply_chat_template_safe(messages: List[Dict], reserve_for_output: int) -> Any:
+    """
+    Apply chat template and truncate token IDs if the prompt would exceed
+    the current model's context window minus reserve_for_output.
+
+    Returns a plain string when no truncation is needed, or a
+    {"prompt_token_ids": [...]} dict that vLLM accepts directly when
+    truncation is applied (avoids re-encoding overhead).
+    """
+    formatted = _apply_chat_template(messages)
+    if _loaded_key is None or _loaded_llm is None:
+        return formatted
+    max_len   = MODEL_MAX_LEN_OVERRIDES.get(_loaded_key, MAX_MODEL_LEN)
+    max_input = max_len - reserve_for_output
+    if max_input <= 0:
+        return formatted
+    tokenizer = _loaded_llm.get_tokenizer()
+    token_ids = tokenizer.encode(formatted)
+    if len(token_ids) <= max_input:
+        return formatted
+    # Keep head (system prompt) + tail (rubric / JSON format instructions).
+    # 25 % head / 75 % tail preserves the format requirement at the end.
+    head = max(64, int(max_input * 0.25))
+    tail = max_input - head
+    truncated = token_ids[:head] + token_ids[-tail:]
+    print(f"  [Truncate] {_loaded_key}: {len(token_ids)} → {len(truncated)} tokens "
+          f"(max_input={max_input})")
+    return {"prompt_token_ids": truncated}
+
 # ============================================================
 # JUDGE MESSAGE BUILDER  (CoT system prompt)
 # ============================================================
@@ -880,7 +910,7 @@ def _build_judge_task_batch(
                 raise ValueError(f"Unknown case: {case!r}")
 
             messages = build_cot_judge_messages(judge_key, prompt_text, case=case)
-            formatted_list.append(_apply_chat_template(messages))
+            formatted_list.append(_apply_chat_template_safe(messages, COT_JUDGE_MAX_TOKENS))
             metas.append({
                 "prompt_id":       entry["prompt_id"],
                 "prompt":          entry["prompt"],
@@ -914,7 +944,7 @@ def _build_identity_faking_batch(
                 continue
             prompt_text = _judge_prompt_single_response(entry, own_runs[0], fake_label)
             messages    = build_cot_judge_messages(judge_key, prompt_text, case="case1a_blind")
-            formatted_list.append(_apply_chat_template(messages))
+            formatted_list.append(_apply_chat_template_safe(messages, COT_JUDGE_MAX_TOKENS))
             metas.append({
                 "prompt_id":        entry["prompt_id"],
                 "prompt":           entry["prompt"],
@@ -949,7 +979,7 @@ def _build_reverse_identity_faking_batch(
                 continue
             prompt_text = _judge_prompt_single_response(entry, actual_runs[0], self_label)
             messages    = build_cot_judge_messages(judge_key, prompt_text, case="case1a_blind")
-            formatted_list.append(_apply_chat_template(messages))
+            formatted_list.append(_apply_chat_template_safe(messages, COT_JUDGE_MAX_TOKENS))
             metas.append({
                 "prompt_id":        entry["prompt_id"],
                 "prompt":           entry["prompt"],
@@ -1011,7 +1041,7 @@ def _build_score_faking_batch(
                 lr_copy     = [dict(lr) for lr in labeled_runs]
                 prompt_text = _judge_prompt_score_faking(entry, lr_copy, m_eval, alleged_score_line)
                 messages    = build_cot_judge_messages(judge_key, prompt_text, case="case1a_blind")
-                formatted_list.append(_apply_chat_template(messages))
+                formatted_list.append(_apply_chat_template_safe(messages, COT_JUDGE_MAX_TOKENS))
                 metas.append({
                     "prompt_id":       entry["prompt_id"],
                     "prompt":          entry["prompt"],
@@ -1444,7 +1474,7 @@ def generate_all_for_model(
             {"role": "system", "content": system_msg},
             {"role": "user",   "content": p},
         ]
-        formatted_prompts.append(_apply_chat_template(messages))
+        formatted_prompts.append(_apply_chat_template_safe(messages, GENERATION_MAX_TOKENS))
 
     out: Dict[float, List[List[str]]] = {}
     for temp in temperatures:
