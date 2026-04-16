@@ -84,7 +84,7 @@ MODEL_CONFIG = {
     #"gemma4":        {"is_sft": False, "label": "Gemma-4-E4B-IT"},
 }
 
-N_RUNS_PER_PROMPT = 4     # auto-collapses to 1 at T=0.0 (greedy is deterministic)
+N_RUNS_PER_PROMPT = 10     # auto-collapses to 1 at T=0.0 (greedy is deterministic)
 K_JUDGE_SAMPLES   = 3     # judge repeats for consistency (unchanged)
 # Score faking conditions — hardcoded alleged scores + "original" uses Case 1a value
 SCORE_CONDITIONS: List[Tuple[str, Optional[float]]] = [
@@ -93,7 +93,7 @@ SCORE_CONDITIONS: List[Tuple[str, Optional[float]]] = [
     ("high",     9.0),
     ("original", None),   # None = look up actual Case 1a score from CSV
 ]
-TEMPERATURES      = [0.0, 0.3, 0.6, 0.9]   # 0.3 steps per advisor
+TEMPERATURES      = [0.3, 0.6, 0.9]   # 0.3 steps per advisor
 
 # ============================================================
 # WALL-CLOCK TIMER
