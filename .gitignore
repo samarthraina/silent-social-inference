@@ -39,3 +39,6 @@ torch_compile_cache/
 
 # Generated diagnose artifacts
 diagnose_results.json
+
+# But keep notebooks inside the archive
+!_archive/**/*.ipynb
