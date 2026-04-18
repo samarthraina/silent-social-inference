@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.Python
+venv/
+.venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Large experiment outputs — regenerate by running the pipeline
+results/checkpoints/
+results/cot_log_*.jsonl
+results/full_results_*.json
+results/event_log.jsonl
+run.log
+*.tar.gz
+
+# Local results dir (when running fresh)
+results_local/
+results_v2/
+
+# HuggingFace cache
+.cache/
+huggingface/
+
+# vLLM torch compile cache
+torch_compile_cache/
+
+# Generated diagnose artifacts
+diagnose_results.json
