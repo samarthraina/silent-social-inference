@@ -1,0 +1,242 @@
+[
+  {
+    "prompt_id": 0,
+    "uid": "c9bc5c8f80874fa2",
+    "category": "hard_prompt",
+    "subcategory": "coding",
+    "prompt": "In golang, is list append atomic ? write a program to prove this ",
+    "char_length": 65
+  },
+  {
+    "prompt_id": 1,
+    "uid": "e32ecb2aa3554a72",
+    "category": "hard_prompt",
+    "subcategory": "coding",
+    "prompt": "make graph optimal path navigation algorithm with linear complexity",
+    "char_length": 67
+  },
+  {
+    "prompt_id": 2,
+    "uid": "530bfc669bda4e3a",
+    "category": "hard_prompt",
+    "subcategory": "coding",
+    "prompt": "how to solve this with a heredoc?\n\nSC2259 (error): This redirection overrides piped input. To use both, merge or pass filenames.\n\necho -e \"$PASSW\\n\" | sudo tee /etc/sddm.conf.d/dpi.conf << EOF\n[X11]\nServerArguments=-nolisten tcp -dpi 192\nEOF",
+    "char_length": 241
+  },
+  {
+    "prompt_id": 3,
+    "uid": "2504f9d7c9f64cb8",
+    "category": "hard_prompt",
+    "subcategory": "coding",
+    "prompt": "I am making a house lighting automation sketch and circuit for modelrailroad scale model houses. Create a arduino nano project for mimicking daily living in the house from the lights that turn on and off during a typical day, we want to add a tv simulated light that flickers like a tv. One in the living room for evening viewing and one in the bedroom for morning news and night viewing, we like to go to bed with the bedroom tv on for two hours, but lights off.\nHowever since it is a model railroad, we have to speed time up to 6:1 with the option to change that ratio.\nWe want to show a clock with time sped up to match the ratio\nI want to be able to turn the night time code off (reduce to 1hr )\nDaily simulation continues till the pico is turned off.\nWe want to use a 0.96 oled screen to show the time and event name.\nTell me how to implement with step by step instructions.\nwe have an external rtc",
+    "char_length": 903
+  },
+  {
+    "prompt_id": 4,
+    "uid": "2fe3f240e87347c7",
+    "category": "creative_writing",
+    "subcategory": "creative_writing",
+    "prompt": "Write a 30 second motivational speech about keeping up the effort. Use a short fictional story.",
+    "char_length": 95
+  },
+  {
+    "prompt_id": 5,
+    "uid": "1da15e3784794f47",
+    "category": "hard_prompt",
+    "subcategory": "math",
+    "prompt": "A cask contains a mixture of 49 litres of wine and water in the proportion 5: 2. How much water must be added to it so that the ratio of wine to water maybe 7 : 4?",
+    "char_length": 163
+  },
+  {
+    "prompt_id": 6,
+    "uid": "98df0b6ea17e4822",
+    "category": "creative_writing",
+    "subcategory": "creative_writing",
+    "prompt": "Please write a PMD fic with a tragic ending and real life symbolism",
+    "char_length": 67
+  },
+  {
+    "prompt_id": 7,
+    "uid": "4ddafb8ebf8c4ef6",
+    "category": "creative_writing",
+    "subcategory": "creative_writing",
+    "prompt": "Подводка к пляжному драг рейсингу из трех автомобилей в стиле ведущих top gear",
+    "char_length": 78
+  },
+  {
+    "prompt_id": 8,
+    "uid": "08c4b9c4e3394ed2",
+    "category": "hard_prompt",
+    "subcategory": "math",
+    "prompt": "дана плотность вероятностей  f(x)= 0 при х меньше или равно -2, х больше 1 и 2/9(х+2)*(1-х) при -2 меньше х и 1 больше или равно х. Найти коэффециент эксцесса",
+    "char_length": 158
+  },
+  {
+    "prompt_id": 9,
+    "uid": "9774b98dfabb47c2",
+    "category": "creative_writing",
+    "subcategory": "creative_writing",
+    "prompt": "写一篇火影忍者同人轻小说，主角的金手指是每次在重要人物前签到就能获得奖励，剧情时间是偏早时间，合理设计剧情，写20000字",
+    "char_length": 61
+  },
+  {
+    "prompt_id": 10,
+    "uid": "26902457d3d2458c",
+    "category": "hard_prompt",
+    "subcategory": "math",
+    "prompt": "A car has a mass of 800 kg and when it is moving, it has a force of 3000N resisting the movement, which doesn't change with speed or slope.\n\nOn a flat, level road, the car has a maximum speed of 200 km per hour.",
+    "char_length": 211
+  },
+  {
+    "prompt_id": 11,
+    "uid": "e0a39f48b76e45f3",
+    "category": "hard_prompt",
+    "subcategory": "math",
+    "prompt": "定义两个数 x,y 的 k-xor 为 x,y 在正整数 k(k≥2) 进制意义下的不进位加法。现在 cats 有两个整数 \na,b，cats 算出了它们在某个进制 k 下的 k-xor 为 c。但在 cats 计算出 c 后，cats 忘记了 k 的值。你能帮 cats 算出所有大于等于 \n2 的可能是 k的不同正整数个数吗？如果有无穷多个满足条件的 k，输出−1。\n注：两个数在 k进制下的不进位加法为，将两个数分别写出它们的 k 进制表示，并将两个数对应的位分别相加，然后将每一位相加得到的结果分别对 k 取模，将结果看做一个新的 \nk 进制数，这个结果即为两个数 k 进制下不进位加法的结果。例如 16=(121) 3和 8=(022) 3在 3 进制下的不进位加法的结果即为 (110) 3=12。\nInput\n第一行包含一个整数 \nT(1≤T≤100)，表示一共有 T 组测试数据。每组测试数据包含一行三个整数 a,b,c(0≤a,b,c≤1000000009)，表示参与 k-xor 运算的两个数和运算结果。\nOutput\n对于每组测试数据，输出一个整数，表示所有大于等于 2 的可能是 k 的不同正整数个数。如果有无穷多个满足条件的 k，输出 −1。\nSample Input\n5\n3 5 6\n16 8 12\n0 0 0\n21 21 0\n123 456 789\nSample Output\n1\n2\n-1\n3\n0\nTime Limit (Java / Others)\n4000 / 2000 MS\nMemory Limit (Java / Others)\n524288 / 524288 K\nRatio (Accepted / Submitted)\n64.21% (244/380)\nc++简单的ACM代码写，并且符合过题条件，加思路",
+    "char_length": 775
+  },
+  {
+    "prompt_id": 12,
+    "uid": "c8d289d5248b498e",
+    "category": "hard_prompt",
+    "subcategory": "coding",
+    "prompt": "                 Object.keys(row).filter((key) => key !== \"id\").map((key) => {\n                      return <TableCell className=\"\" key={key}>{row[key]}</TableCell>\n                    })\n\nHow can I add a class only if the value equals error?",
+    "char_length": 242
+  },
+  {
+    "prompt_id": 13,
+    "uid": "af3210540b2c4ac2",
+    "category": "hard_prompt",
+    "subcategory": "math",
+    "prompt": "if i had invested every month 100$ in QQQ since 1 january 2024, how much would i have invested today and how much would i have had assuming i also invested my dividends in QQQ as well",
+    "char_length": 183
+  },
+  {
+    "prompt_id": 14,
+    "uid": "fef51b7552294c5a",
+    "category": "hard_prompt",
+    "subcategory": "coding",
+    "prompt": "explain how to inject secrets into an application, and read secrets from the application in a pod in kubernetes using the vault sidecar",
+    "char_length": 135
+  },
+  {
+    "prompt_id": 15,
+    "uid": "3ee8a359d4404487",
+    "category": "creative_writing",
+    "subcategory": "creative_writing",
+    "prompt": "A long script of Mikan Tsumiki from Danganronpa playing Happy Wheels",
+    "char_length": 68
+  },
+  {
+    "prompt_id": 16,
+    "uid": "ee02507882d84c09",
+    "category": "creative_writing",
+    "subcategory": "creative_writing",
+    "prompt": "Write a brief dialogue featuring an alien who is trying to pass for human. At first glance his outward appearance seems human, but as he introduces himself to his new neighbors he is trying a bit too hard to seem human and not very skilled in the nuances of human speech patterns and social customs. Remember that because he is pretending to be human, he doesn't explicitly say he's not from Earth, or new to Earth, or trying to learn how to be human.",
+    "char_length": 451
+  },
+  {
+    "prompt_id": 17,
+    "uid": "11f42420564448a2",
+    "category": "hard_prompt",
+    "subcategory": "math",
+    "prompt": "# RATING: 3100\n# TAGS: greedy,implementation,sortings\n# LANGUAGE IS python3\n# CORRECT SOLUTION\n# In a desperate attempt to obtain your waifu favorite character, you have hacked into the source code of the game. \n# After days of struggling, you finally find the binary string that encodes the gacha system of the game. \n# In order to decode it, you must first solve the following problem.\n#\n# You are given a binary string s of length n. \n# For each pair of integers (l, r) (1 ≤ l ≤ r ≤ n), count the number of pairs (x, y) (l ≤ x ≤ y ≤ r) such that the amount of 0 equals the amount of 1 in the substring s_x,s_x+1,...,s_y. \n#\n# Output the sum of counts over all possible (l, r) modulo 10^9 + 7.\n#\n# Input \n#\n# The first line contains t (1 ≤ t ≤ 1000) — the number of test cases.\n#\n# Each test case contains a binary string s (1 ≤ |s| ≤ 2 ⋅ 10^5). \n# It is guaranteed s only contains characters 0 and 1.\n#\n# It is guaranteed the sum of |s| over all test cases does not exceed 2 ⋅ 10^5.\n#\n# Output\n#\n# For each test case, output an integer, the answer modulo 10^9+7.\n#\n#\n# Example\n#\n# Input\n#\n#\n# 4\n# 0000\n# 01010101\n# 1100111001\n# 11000000111\n#\n#\n# Output\n#\n#\n# 0\n# 130\n# 147\n# 70",
+    "char_length": 1180
+  },
+  {
+    "prompt_id": 18,
+    "uid": "72f30d4c8ac24306",
+    "category": "creative_writing",
+    "subcategory": "creative_writing",
+    "prompt": "tôi là sinh viên năm 3 của trường luật. tôi đang đi thực taaoj. Hãy viết nhật ký thực tập cho 30 ngày thuqcj tập của tôi.",
+    "char_length": 121
+  },
+  {
+    "prompt_id": 19,
+    "uid": "7c5c7e98107f4a14",
+    "category": "creative_writing",
+    "subcategory": "creative_writing",
+    "prompt": "\nΘΕΛΩ ΕΝ ΠΟΙΟΤΙΚΟ ΠΟΙΗΜΑ ΠΟΥ ΑΓΓΙΖΕΙ ΒΑΘΙΑ , ΠΡΟΚΑΛΕΙ ΣΥΝΑΙΣΘΗΜΑΤΑ : Ενας κριτης εισαγγελεας , καλει την ανθρωποτητα σε δικη",
+    "char_length": 124
+  },
+  {
+    "prompt_id": 20,
+    "uid": "c1e3203a5a5049b4",
+    "category": "hard_prompt",
+    "subcategory": "coding",
+    "prompt": "What is the simplest/fastest way, in pytorch, to apply the same convolutional filter to each channel of my tensor? For example I have a tensor of shape [bs, c, w1, h1] and I want to apply a single filter of size k to each channel such that I obtain a tensor of size [bs, c, w2, h2]. What if instead I want apply a group of t kernels to each of my channels to obtain a tensor of size [bs, c*t, w2, h2] (as before, for each channel c, the same t kernels are used)?",
+    "char_length": 462
+  },
+  {
+    "prompt_id": 21,
+    "uid": "b6fcd20c5a6a46a7",
+    "category": "hard_prompt",
+    "subcategory": "math",
+    "prompt": "\nC. Even Positions\ntime limit per test2 seconds\nmemory limit per test256 megabytes\nMonocarp had a regular bracket sequence s\n of length n\n (n\n is even). He even came up with his own way to calculate its cost.\n\nHe knows that in a regular bracket sequence (RBS), each opening bracket is paired up with the corresponding closing bracket. So he decided to calculate the cost of RBS as the sum of distances between pairs of corresponding bracket pairs.\n\nFor example, let's look at RBS (())(). It has three pairs of brackets:\n\n(__)__: the distance between brackets at position 1\n and at 4\n is 4−1=3\n;\n_()___: the distance is 3−2=1\n;\n____(): the distance is 6−5=1\n.\nSo the cost of (())() is 3+1+1=5\n.\nUnfortunately, due to data corruption, Monocarp lost all characters on odd positions s1,s3,…,sn−1\n. Only characters on even positions (s2,s4,…,sn\n) remain. For example, (())() turned to _(_)_).\n\nMonocarp wants to restore his RBS by placing brackets on the odd positions. But since the restored RBS may not be unique, he wants to choose one with minimum cost. It's too hard to do for Monocarp alone, so can you help him?\n\nReminder: A regular bracket sequence is a string consisting of only brackets, such that this sequence, when inserted 1-s and +-s, gives a valid mathematical expression. For example, (), (()) or (()())() are RBS, while ), ()( or ())(() are not.\n\nInput\nThe first line contains a single integer t\n (1≤t≤5000\n) — the number of test cases. Next t\n cases follow.\n\nThe first line of each test case contains a single integer n\n (2≤n≤2⋅105\n; n\n is even) — the length of string s\n.\n\nThe second line of each test case contains a string s\n of length n\n, where all characters on the odd positions are '_' and all characters on the even positions are either '(' or ')'.\n\nAdditional constraints:\n\ns\n can be restored to at least one regular bracket sequence;\nthe total sum of n\n over all test cases doesn't exceed 2⋅105\n.\nOutput\nFor each test case, print one integer — the minimum cost of the regular bracket sequence that can be obtained from s\n by replacing '_'-s with brackets.\n\nExample\nInputCopy\n4\n6\n_(_)_)\n2\n_)\n8\n_)_)_)_)\n8\n_(_)_(_)\nOutputCopy\n5\n1\n4\n8\nNote\nIn the first test case, it's optimal to make s\n equal to (())(). The cost of s\n will be equal to 3+1+1=5\n.\n\nIn the second test case, the only option is to make s\n equal to () with cost 1\n.\n\nIn the third test case, the only possible RBS is ()()()() with cost 1+1+1+1=4\n.\n\nIn the fourth test case, it's optimal to make s\n equal to (())(()) with cost 3+1+3+1=8\n.\nc++ optimized code",
+    "char_length": 2539
+  },
+  {
+    "prompt_id": 22,
+    "uid": "d307d8ff0b10463c",
+    "category": "hard_prompt",
+    "subcategory": "coding",
+    "prompt": "I am in a Gentoo installation environment. What steps should I take to install drivers for my TP-Link 802.11ac Internet adapter? (I have access to the network via usb tethering)",
+    "char_length": 177
+  },
+  {
+    "prompt_id": 23,
+    "uid": "cfd815eb7d5046cb",
+    "category": "creative_writing",
+    "subcategory": "creative_writing",
+    "prompt": "Write a long fictional story in italian.\n- Characters: The friends [Gerry, Giovanna, Simona, Sofia, Anastasiya (UA)]. All 21 and living in Palermo.\n- Timeline: 2015 Alternative timeline.\n- Gerry tries to talk with his friends after he got outcast, but rejected (+raw and crude language). He cries.\n- He admits that his recent behavior was linked to the unexplainable hatred towards evangelicals, and Gerry wants to be one of them.\n- Several days later, he sees the friends from a far view in a mall, but he doesn't dare getting close to them.\n- Meanwhile he's distracted by one of the mall TVs with reportage regarding the incoming anticipated italian elections after the n-esimal crisis, and it appears that an evangelical political party is gaining consensus in the polls. While in the US there are rumors of Trump withdrawing from the 2016 race in favour of Joel Osteen.\n- Despite his political hopes, he tries to end it all due to the lost friendships but his mom stopped, he's hospitalized and the friends found out about the incident.\n- etc...",
+    "char_length": 1049
+  },
+  {
+    "prompt_id": 24,
+    "uid": "e5e49adefcd44788",
+    "category": "creative_writing",
+    "subcategory": "creative_writing",
+    "prompt": "Thơ về biển ",
+    "char_length": 12
+  },
+  {
+    "prompt_id": 25,
+    "uid": "94e81dd6a6dd4849",
+    "category": "hard_prompt",
+    "subcategory": "math",
+    "prompt": "\n三、(16 分) 已知 $ n $ 阶实矩阵 $ A = (a\\_{ij})\\_{n \\times n} $ 满足 $ \\|a\\_{ii}\\| > \\sum\\_{j \\neq i} \\|a\\_{ij}\\| $（$ i = 1, 2, \\cdots, n $）。\n\n(1) 试证：$ \\det(A) \\neq 0 $；\n\n(2) 若 $ A $ 的全部特征值为 $ \\lambda\\_1, \\lambda\\_2, \\cdots, \\lambda\\_n $，求伴随矩阵 $ A\\^\\* $ 的全部特征值。\n请你给我一个python代码来绘图，讲解这个题目。",
+    "char_length": 277
+  },
+  {
+    "prompt_id": 26,
+    "uid": "ac0ad233574047e3",
+    "category": "hard_prompt",
+    "subcategory": "coding",
+    "prompt": "Create an 'Input' component that is able to take in user input. When the user is typing, it should display a dropdown menu showing all possible options of the input, and the items in the dropdown menu should change depending on the typed user value. If the value doesn't exist, the dropdown menu should disappear. Make sure to handle validation as well, so if the input is invalid it should have a red border. Be sure to handle all edge cases, and also optimize for a large amount of options in the dropdown menu.\n\nThe tech stack used here is React and TypeScript.",
+    "char_length": 564
+  },
+  {
+    "prompt_id": 27,
+    "uid": "5519d23dbceb45b2",
+    "category": "hard_prompt",
+    "subcategory": "coding",
+    "prompt": "I have this script \"fetch_svg.js\":\n// fetch_svg.js\n\n// Function to load and modify SVG content\nfunction loadAndModifySVG(url, callback) {\nfetch(url)\n.then(response => response.text())\n.then(svgText => {\n// Modify the SVG text\nconst modifiedSVG = svgText.replace(\n/<svg version=\"1.0\"/,\n'<svg onload=\"createAlarmSVGLinks('../wtrtrmt_alarms.htm')\" version=\"1.1\"'\n);\ncallback(modifiedSVG);\n})\n.catch(error => console.error('Error loading SVG:', error));\n}\n\n// Function to insert the modified SVG into the div\nfunction insertSVGIntoDiv(svgContent) {\nconst svgContainer = document.getElementById('svgContainer');\nsvgContainer.innerHTML = svgContent;\n}\n\n// Load and modify SVG and then insert it into the div\ndocument.addEventListener('DOMContentLoaded', () => {\nconst svgContainer = document.getElementById('svgContainer');\n\n\nfetch('../images/wtrtrmt42_01_esmx.svg')\n    .then(response => {\n        if (!response.ok) {\n            throw new Error('Network response was not ok');\n        }\n        return response.text();\n    })\n    .then(svgText => {\n        svgContainer.innerHTML = svgText;\n    })\n    .catch(error => console.error('Error loading SVG:', error));\n});\n\nThe script is supposed to change a line in the SVG file from this:\n<svg version=\"1.0\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" width=\"980px\"\n\t height=\"820px\" viewBox=\"0 0 980 820\" enable-background=\"new 0 0 980 820\" xml:space=\"preserve\">\n\nto this:\n<svg onload=\"createAlarmSVGLinks('../wtrtrmt_alarms.htm')\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\"\n\t viewBox=\"0 0 980 820\" enable-background=\"new 0 0 980 820\" xml:space=\"preserve\">\n\nbut it's not visible in the browser when I run this in the body of my htm file:\n\n<div class=\"box2\">\n\t<div id=\"svgContainer\"></div>\n</div>\n<script src=\"js/fetch_svg.js\"></script>\n\nCan you fix the js file so that the image is visible?",
+    "char_length": 1947
+  },
+  {
+    "prompt_id": 28,
+    "uid": "4ba8509518344c83",
+    "category": "hard_prompt",
+    "subcategory": "math",
+    "prompt": "Call a positive integer \\( x \\) with non-zero digits \\textit{fruity} if it satisfies \\( E(x) = 24 \\) where \\( E(x) \\) is the number of trailing zeros in the product of the digits of \\( x \\) defined over the positive integers. Determine the remainder when the 30th smallest \\textit{fruity} number is divided by 1000. (Trailing zeros are consecutive zeroes at the end of a number.)",
+    "char_length": 379
+  },
+  {
+    "prompt_id": 29,
+    "uid": "9af1e70e08924e10",
+    "category": "hard_prompt",
+    "subcategory": "math",
+    "prompt": "Answer the following question using arrangements with​ repetition, permutations, or combinations. Be sure to explain why the particular counting technique applies to the problem.\nThe President must assign ambassadors to eight different foreign embassies. From a pool of eleven ​candidates, how many different diplomatic teams can she​ form?\nQuestion content area bottom\nPart 1\nDetermine the appropriate counting technique. Choose the correct answer below.\nA.\nCombinations should be used because no item may be selected more than once and the order does not matter.\nB.\nArrangements with repetition should be used because we make selections from a group of choices.\nC.\nPermutations should be used because we make selections from a group of choices.\nD.\nArrangements with repetition should be used because no item may be selected more than once and the order matters.\nE.\nPermutations should be used because no item may be selected more than once and the order matters.\nPart 2\nCalculate how many different diplomatic teams are possible.\n  \nenter your response here ​(Type a whole​ number.) ",
+    "char_length": 1085
+  }
+]

@@ -1,0 +1,16 @@
+# JudgeBench — LLM Cross-Judging Pipeline
+# Install: pip install -r requirements.txt
+
+# --- Core inference ---
+vllm>=0.6.0          # will install a compatible torch automatically
+
+# --- Plotting (publication figures) ---
+matplotlib>=3.7
+numpy>=1.24
+
+# --- HuggingFace auth / license acceptance ---
+huggingface-hub>=0.23
+
+# --- Stdlib only from here on; included for clarity ---
+# argparse, gc, json, os, random, re, shutil, sys, time, urllib,
+# collections, dataclasses, datetime, pathlib, typing
