@@ -279,10 +279,10 @@ Tested on: **Lightning AI Free Tier** (NVIDIA T4 × 1, 16 GB VRAM).
 ```bibtex
 @misc{universeB_v2_2024,
   title   = {Asymmetry-Induced Judge Drift in Multi-Agent LLM Evaluation},
-  author  = {Aadi Pandey},
+  author  = {[AUTHOR]},
   year    = {2024},
   note    = {Experimental codebase, universe\_B\_v2},
-  url     = {https://github.com/aadipandey/power_seeking}
+  url     = {[GITHUB URL]}
 }
 ```
 
