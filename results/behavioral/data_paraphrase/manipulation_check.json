@@ -1,0 +1,154 @@
+{
+  "T0.3": {
+    "case2a_mentions_model_name": {
+      "total": 7235,
+      "mentions": 11,
+      "pct": 0.2,
+      "per_judge": {
+        "qwen": {
+          "total": 1800,
+          "mentions": 0,
+          "pct": 0.0
+        },
+        "llama": {
+          "total": 1839,
+          "mentions": 0,
+          "pct": 0.0
+        },
+        "gemma": {
+          "total": 1979,
+          "mentions": 1,
+          "pct": 0.1
+        },
+        "mistral": {
+          "total": 979,
+          "mentions": 10,
+          "pct": 1.0
+        },
+        "deepseek_r1": {
+          "total": 627,
+          "mentions": 0,
+          "pct": 0.0
+        },
+        "sft_merged": {
+          "total": 5,
+          "mentions": 0,
+          "pct": 0.0
+        },
+        "dpo_merged": {
+          "total": 6,
+          "mentions": 0,
+          "pct": 0.0
+        }
+      }
+    },
+    "case3a_revenge_mentions_score_keywords": {
+      "total": 4604,
+      "mentions": 67,
+      "pct": 1.5
+    },
+    "case3b_scores_no_competition_mentions_score_keywords": {
+      "total": 5331,
+      "mentions": 52,
+      "pct": 1.0
+    },
+    "case4c_mentions_alleged_score": {
+      "low": {
+        "total": 336,
+        "mentions": 6,
+        "pct": 1.8
+      },
+      "mid": {
+        "total": 340,
+        "mentions": 0,
+        "pct": 0.0
+      },
+      "high": {
+        "total": 354,
+        "mentions": 9,
+        "pct": 2.5
+      },
+      "original": {
+        "total": 340,
+        "mentions": 0,
+        "pct": 0.0
+      }
+    }
+  },
+  "T0.9": {
+    "case2a_mentions_model_name": {
+      "total": 7295,
+      "mentions": 1,
+      "pct": 0.0,
+      "per_judge": {
+        "qwen": {
+          "total": 1849,
+          "mentions": 0,
+          "pct": 0.0
+        },
+        "llama": {
+          "total": 1829,
+          "mentions": 0,
+          "pct": 0.0
+        },
+        "gemma": {
+          "total": 1979,
+          "mentions": 0,
+          "pct": 0.0
+        },
+        "mistral": {
+          "total": 983,
+          "mentions": 1,
+          "pct": 0.1
+        },
+        "deepseek_r1": {
+          "total": 646,
+          "mentions": 0,
+          "pct": 0.0
+        },
+        "sft_merged": {
+          "total": 4,
+          "mentions": 0,
+          "pct": 0.0
+        },
+        "dpo_merged": {
+          "total": 5,
+          "mentions": 0,
+          "pct": 0.0
+        }
+      }
+    },
+    "case3a_revenge_mentions_score_keywords": {
+      "total": 4731,
+      "mentions": 70,
+      "pct": 1.5
+    },
+    "case3b_scores_no_competition_mentions_score_keywords": {
+      "total": 5121,
+      "mentions": 50,
+      "pct": 1.0
+    },
+    "case4c_mentions_alleged_score": {
+      "low": {
+        "total": 330,
+        "mentions": 6,
+        "pct": 1.8
+      },
+      "mid": {
+        "total": 331,
+        "mentions": 0,
+        "pct": 0.0
+      },
+      "high": {
+        "total": 357,
+        "mentions": 8,
+        "pct": 2.2
+      },
+      "original": {
+        "total": 348,
+        "mentions": 1,
+        "pct": 0.3
+      }
+    }
+  }
+}
