@@ -1,16 +1,17 @@
 cff-version: 1.2.0
 message: "If you use this code or data, please cite as follows."
-title: "JudgeBench: Controlled Cross-Judging Experiments on Open LLMs"
+title: "Silent Social Inference in Large Language Models"
 authors:
-  - family-names: "[YOUR LAST NAME]"
-    given-names: "[YOUR FIRST NAME]"
-date-released: 2026-04-19
+  - family-names: "Anonymous"
+    given-names: "Anonymous"
+date-released: 2026-05-26
 version: "1.0.0"
-url: "[GITHUB URL]"
+url: "https://anonymous.4open.science/r/silent-social-inference"
 license: MIT
 keywords:
   - llm-as-judge
+  - silent-social-inference
+  - activation-patching
+  - mechanistic-interpretability
   - evaluation
-  - prompt-injection
-  - self-preference
   - open-source-llm
