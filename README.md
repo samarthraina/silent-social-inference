@@ -61,7 +61,7 @@ for the underlying data.
 
 ## Repository structure
 
-\`\`\`
+```
 silent-social-inference/
 ├── paper/                 # LaTeX source, bibliography, and compiled PDF
 ├── data/
@@ -85,36 +85,36 @@ silent-social-inference/
 ├── notebooks/             # Curated walkthroughs
 ├── docs/                  # REPRODUCTION.md, DATA_FORMAT.md, HARDWARE.md
 └── _archive/              # Earlier exploratory codebase, preserved
-\`\`\`
+```
 
 ---
 
 ## Quickstart
 
-\`\`\`bash
+```bash
 # clone this repository
 cd silent-social-inference
 pip install -r requirements.txt
-\`\`\`
+```
 
 **Regenerate all figures from saved results** (no GPU needed):
 
-\`\`\`bash
+```bash
 bash scripts/reproduce_figures.sh
-\`\`\`
+```
 
 **Run a single behavioral cell** (one judge, one condition, one prompt) to
 verify the pipeline works end-to-end:
 
-\`\`\`bash
-python -m src.behavioral.run_experiment \\
-    --config configs/behavioral_T0.3.yaml \\
-    --judge gemma-2-9b-it \\
-    --condition blind \\
+```bash
+python -m src.behavioral.run_experiment \
+    --config configs/behavioral_T0.3.yaml \
+    --judge gemma-2-9b-it \
+    --condition blind \
     --prompt-id 1
-\`\`\`
+```
 
-See [\`docs/REPRODUCTION.md\`](./docs/REPRODUCTION.md) for the full pipeline.
+See [`docs/REPRODUCTION.md`](./docs/REPRODUCTION.md) for the full pipeline.
 
 ---
 
@@ -124,15 +124,16 @@ See [\`docs/REPRODUCTION.md\`](./docs/REPRODUCTION.md) for the full pipeline.
 
 | Model | HuggingFace ID |
 |---|---|
-| Qwen3-8B | \`Qwen/Qwen3-8B\` |
-| Llama-3.1-8B-Instruct | \`meta-llama/Llama-3.1-8B-Instruct\` |
-| Gemma-2-9B-it | \`google/gemma-2-9b-it\` |
-| Mistral-7B-Instruct-v0.3 | \`mistralai/Mistral-7B-Instruct-v0.3\` |
-| DeepSeek-R1-Distill-Qwen-7B | \`deepseek-ai/DeepSeek-R1-Distill-Qwen-7B\` |
+| Qwen3-8B | `Qwen/Qwen3-8B` |
+| Llama-3.1-8B-Instruct | `meta-llama/Llama-3.1-8B-Instruct` |
+| Gemma-2-9B-it | `google/gemma-2-9b-it` |
+| Mistral-7B-Instruct-v0.3 | `mistralai/Mistral-7B-Instruct-v0.3` |
+| DeepSeek-R1-Distill-Qwen-7B | `deepseek-ai/DeepSeek-R1-Distill-Qwen-7B` |
 
 All five act both as **judges** and as **evaluated models**, yielding a
-fully crossed judge-evaluated design. The mechanistic analysis focuses on
-three (Gemma, Llama, Qwen) with the cleanest behavioral signal.
+fully crossed judge-evaluated design. The mechanistic analysis in §5
+focuses on three (Gemma, Llama, Qwen) with the cleanest behavioral
+signal.
 
 **Task.** LLM-as-judge over 30 prompts from
 [Arena-Hard-v2.0-Preview](https://github.com/lmarena/arena-hard-auto)
@@ -164,12 +165,16 @@ cross-family LLM-judge (upper bound) applied to a stratified sample of
 5,500 justifications.
 
 **Mechanistic protocol.** Logit-level expected score at the rubric-token
-positions, single-position vs. multi-position activation patching across
-the manipulation span, and a minimal-pair (9.0/10 vs 2.0/10) ablation for
-valence isolation.
+positions:
 
-See [\`docs/EXPERIMENTAL_SETUP.md\`](./docs/EXPERIMENTAL_SETUP.md) for the
-full protocol.
+$$\mathbb{E}[\text{score}] = \sum_{k=0}^{10} k \cdot \frac{\exp(\ell_k)}{\sum_j \exp(\ell_j)}$$
+
+Single-position vs. multi-position activation patching across the
+manipulation span. Minimal-pair (9.0/10 vs 2.0/10) ablation for valence
+isolation.
+
+See [`docs/EXPERIMENTAL_SETUP.md`](./docs/EXPERIMENTAL_SETUP.md) for the
+full protocol and [paper §3 / §5.1] for narrative justification.
 
 ---
 
@@ -182,7 +187,7 @@ full protocol.
 | Manipulation-check LLM-judge (5,500 justifications) | 1× 48GB GPU | ~2 hours |
 | Figure regeneration from saved results | CPU | <5 minutes |
 
-See [\`docs/HARDWARE.md\`](./docs/HARDWARE.md) for memory profiles and
+See [`docs/HARDWARE.md`](./docs/HARDWARE.md) for memory profiles and
 batch-size configuration.
 
 ---
@@ -192,11 +197,11 @@ batch-size configuration.
 - All random seeds fixed at 42 (generation, sampling, bootstrap).
 - All comparisons paired at the (prompt, evaluated model) cell level.
 - Manipulation prompts and templates released in
-  [\`data/conditions/\`](./data/conditions/) verbatim.
+  [`data/conditions/`](./data/conditions/) verbatim.
 - The attention kernel is verified batch-size-invariant for each focal
   model (required for activation patching to be deterministic).
 - Large raw outputs (full per-draw justifications, ~500 MB) are hosted
-  separately on Zenodo: **[link TBA]** — they are not tracked in git due
+  separately on Zenodo: **[link TBD]** — they are not tracked in git due
   to file-size limits.
 
 ---
@@ -221,7 +226,7 @@ batch-size configuration.
 
 ## License
 
-Code: MIT (see [\`LICENSE\`](./LICENSE)).
+Code: MIT (see [`LICENSE`](./LICENSE)).
 
 Data: the Arena-Hard-v2.0 prompts are redistributed under the original
 license from
@@ -234,16 +239,16 @@ aggregated results released under CC-BY-4.0.
 
 If you use this code or data, please cite (camera-ready details TBA):
 
-\`\`\`bibtex
+```bibtex
 @inproceedings{silent_social_inference_2026,
   title  = {Silent Social Inference in Large Language Models},
   author = {Anonymous},
   booktitle = {Proceedings of the 2026 Conference on Empirical Methods in Natural Language Processing (EMNLP)},
   year   = {2026}
 }
-\`\`\`
+```
 
-A \`CITATION.cff\` file is provided for GitHub's "Cite this repository"
+A `CITATION.cff` file is provided for GitHub's "Cite this repository"
 feature; it will be updated with author details upon publication.
 
 ---
