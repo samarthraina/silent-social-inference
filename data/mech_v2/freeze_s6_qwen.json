@@ -1,0 +1,58 @@
+{
+ "bootstrap": {
+  "ci": "95% percentile",
+  "n": 10000,
+  "seed": 20261030,
+  "strata": "benchmark"
+ },
+ "code_sha256": {
+  "src/mech_v2/analysis.py": "d26965099675fbf06a1b223f26ab7a9ed0f4c74ecef973d1e1633f529628c5ce",
+  "src/mech_v2/core.py": "f37de6336e0a834fc62568288ab6e2784bc30c876bb33862da78630d72347b5a",
+  "src/mech_v2/modal_app.py": "df92d5199c7363d47efb65f5aec82dc84c3f993cd4e83d88e2ee7dfd5ccc3672",
+  "src/mech_v2/stages.py": "4643eae62bcb9269be845a7f2d0839bc5df5a51a0628cfe6bab6eb142a893ab0"
+ },
+ "control_layer": 2,
+ "control_windows": [
+  [
+   0,
+   8
+  ],
+  [
+   27,
+   35
+  ]
+ ],
+ "frozen_utc": "2026-10-30T14:36:16Z",
+ "gen_per_dataset": 12,
+ "limitations": [
+  "control windows are 9 blocks wide vs 18 for the target window"
+ ],
+ "model": "qwen",
+ "patch_layer": 27,
+ "readout": "direct",
+ "record": "mech_v2 S6 frozen validation spec (Qwen3-8B)",
+ "secondary": [
+  "patch_cont: low<->no_history at the same site",
+  "mask-path vs default baseline difference"
+ ],
+ "selected_on": "D only (Qwen S1-S5); no V task has been run for Qwen",
+ "site": {
+  "necessity": "block attention from every post-history position (incl. generated tokens) to NUM+HIST tokens in decoder blocks 9-26",
+  "sufficiency": "replace hidden_states[27] at every post-history prompt position with the source condition's states (aligned from the end; token identity asserted)"
+ },
+ "splits_sha256": "ed8f9c2a5054f2c9f8d9c7d2d6d755a47f53818609af52fca943473cd86b2b59",
+ "success_rules": {
+  "behavioral_knockout": "greedy high-low gap reduction, CI lower bound > 0 (36 V tasks)",
+  "behavioral_patch": "greedy score shift toward source, CI lower bound > 0, both directions (36 V tasks)",
+  "necessity": "gap reduction >= 0.5 AND its CI lower bound exceeds the CI upper bound of both control windows",
+  "sufficiency_both_dirs": "mean normalized move >= 0.5 in both directions AND 95% CI of (site - L2 control) excludes 0"
+ },
+ "thresholds": {
+  "necessity_min": 0.5,
+  "sufficiency_min": 0.5
+ },
+ "window": [
+  9,
+  26
+ ]
+}

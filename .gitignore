@@ -42,3 +42,6 @@ diagnose_results.json
 
 # But keep notebooks inside the archive
 !_archive/**/*.ipynb
+
+# credentials (never commit)
+.secrets/

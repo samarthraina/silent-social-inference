@@ -1,0 +1,2 @@
+# hashed pre-registration files: keep bytes exact
+data/mech_v2/** -text

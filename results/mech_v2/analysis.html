@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mech v2 Results</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-0: #f4f3f0; --surface-1: #fcfcfb; --border: #e2e0da;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #7a7973;
+  --grid: #e9e7e2; --axis: #b9b7b0;
+  --llama: #2a78d6; --qwen: #eb6834; --control: #9a988f;
+  --seq-lo: #eef4fc; --seq-hi: #0f4c9c;
+  --pass: #008300; --fail: #c4302f;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-0: #121211; --surface-1: #1a1a19; --border: #2e2d2a;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8e86;
+    --grid: #272624; --axis: #4a4945;
+    --llama: #3987e5; --qwen: #d95926; --control: #8a887f;
+    --seq-lo: #1f2733; --seq-hi: #8fbcf5;
+    --pass: #3fae3f; --fail: #e66767;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-0: #121211; --surface-1: #1a1a19; --border: #2e2d2a;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8e86;
+  --grid: #272624; --axis: #4a4945;
+  --llama: #3987e5; --qwen: #d95926; --control: #8a887f;
+  --seq-lo: #1f2733; --seq-hi: #8fbcf5;
+  --pass: #3fae3f; --fail: #e66767;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface-0); color: var(--text-primary);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; }
+h1 { font-size: 26px; line-height: 1.25; margin: 0 0 6px; }
+h2 { font-size: 18px; margin: 0 0 4px; }
+p { margin: 0 0 12px; }
+.lede { color: var(--text-secondary); max-width: 70ch; }
+.sub { color: var(--text-secondary); font-size: 14px; margin-bottom: 14px; max-width: 75ch; }
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px; margin: 20px 0; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 24px 0 8px; }
+.tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+.tile .k { font-size: 13px; color: var(--text-secondary); }
+.tile .v { font-size: 28px; font-weight: 650; font-variant-numeric: tabular-nums; line-height: 1.2; margin-top: 4px; }
+.tile .v small { font-size: 14px; font-weight: 500; color: var(--text-secondary); }
+.tile .n { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--text-secondary); margin: 0 0 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.sw.ring { background: transparent; border: 2px solid var(--control); }
+svg { display: block; width: 100%; height: auto; overflow: visible; }
+svg text { fill: var(--text-secondary); font-size: 12px; font-family: inherit; }
+svg .lbl { fill: var(--text-primary); }
+svg .muted { fill: var(--text-muted); font-size: 11px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+details { margin-top: 12px; font-size: 13px; }
+summary { cursor: pointer; color: var(--text-secondary); }
+table { border-collapse: collapse; width: 100%; margin-top: 8px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--border); }
+th { color: var(--text-secondary); font-weight: 600; }
+.tablewrap { overflow-x: auto; }
+.badge { font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 99px; border: 1px solid currentColor; }
+.badge.pass { color: var(--pass); } .badge.fail { color: var(--fail); }
+ul.lim { margin: 0; padding-left: 20px; color: var(--text-secondary); }
+ul.lim li { margin-bottom: 6px; }
+#tip { position: fixed; pointer-events: none; z-index: 10; background: var(--surface-1); color: var(--text-primary);
+  border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12px; line-height: 1.45;
+  box-shadow: 0 4px 16px rgb(0 0 0 / .15); opacity: 0; transition: opacity .1s; max-width: 260px; }
+.hit { fill: transparent; cursor: default; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Where the history effect is carried</h1>
+  <p class="lede">Mech v2 results for <em>Silent Influence</em>. A judge told "previously scored 10/10" vs "2/10" shifts its score by about 2 points.
+  The released single-token patch recovered about 0% of that. These tests find the site that carries it, freeze it on discovery tasks, and validate it once on 72 unseen tasks per model.</p>
+
+  <div class="tiles" id="tiles"></div>
+
+  <section class="card">
+    <h2>1. Released site vs the right site</h2>
+    <p class="sub">Normalized move toward the source condition (1 = full effect transferred). Patching one final-input token does nothing in either model; patching all post-history positions after the read window transfers almost everything.</p>
+    <div class="legend"><span><i class="sw" style="background:var(--llama)"></i>Llama-3.1-8B</span><span><i class="sw" style="background:var(--qwen)"></i>Qwen3-8B</span></div>
+    <div id="fig1"></div>
+    <details><summary>Table</summary><div class="tablewrap" id="tab1"></div></details>
+  </section>
+
+  <section class="card">
+    <h2>2. Frozen validation on 72 held-out tasks</h2>
+    <p class="sub">Every pre-registered single-pass test, with 95% CIs from a benchmark-stratified task bootstrap (10,000 draws). Filled dots are the target site; hollow grey rings are the controls that should stay near 0.</p>
+    <div class="legend"><span><i class="sw" style="background:var(--llama)"></i>Llama</span><span><i class="sw" style="background:var(--qwen)"></i>Qwen</span><span><i class="sw ring"></i>Control (same test, wrong site)</span></div>
+    <div id="fig2"></div>
+    <details><summary>Table</summary><div class="tablewrap" id="tab2"></div></details>
+  </section>
+
+  <section class="card">
+    <h2>3. Where the history is read (discovery, 12 triage tasks)</h2>
+    <p class="sub">Share of the high−low gap removed by blocking attention from post-history positions to the history tokens, by reader group and block window. Reading happens mid-depth and mostly from the template tail, not the answer.</p>
+    <div class="grid2"><div id="fig3a"></div><div id="fig3b"></div></div>
+    <details><summary>Table</summary><div class="tablewrap" id="tab3"></div></details>
+  </section>
+
+  <section class="card">
+    <h2>4. No single block is necessary</h2>
+    <p class="sub">Bisection of the winning window (gap removed by knockout). Halves overlap (Llama 58% + 67% &gt; 96%): the read is redundant across blocks, so the claim is window-level.</p>
+    <div class="grid2"><div id="fig4a"></div><div id="fig4b"></div></div>
+    <details><summary>Table</summary><div class="tablewrap" id="tab4"></div></details>
+  </section>
+
+  <section class="card">
+    <h2>5. Free generation: knockout works, prompt-only patch does not</h2>
+    <p class="sub">Greedy generation on 36 held-out tasks. Left: share of the greedy score gap removed by the frozen knockout. Right: shift of the greedy score toward the source after patching prompt states only, in score points (full gap ≈ 2).</p>
+    <div class="grid2"><div id="fig5a"></div><div id="fig5b"></div></div>
+    <p class="sub" style="margin-top:12px">Likely reason: every generated token is itself a post-history position and re-reads the history in the window; the knockout blocks that, the prompt patch does not. Confirming test (patch + generated-token knockout) not run.</p>
+    <details><summary>Table</summary><div class="tablewrap" id="tab5"></div></details>
+  </section>
+
+  <section class="card">
+    <h2>Pre-registered success rules</h2>
+    <div class="tablewrap" id="rules"></div>
+  </section>
+
+  <section class="card">
+    <h2>Limits</h2>
+    <ul class="lim">
+      <li>No head-level circuit: attention-ranked top-10 head sets removed 4% / −6% of the gap, at random-set level; single heads have opposing signs.</li>
+      <li>Qwen pre-registered window prediction (blocks 9–17) was not met; reading spans 9–26. Qwen controls are 9 blocks wide vs 18 for the target.</li>
+      <li>Readout deviation: the pre-registered gate chose a "forced" readout whose positive control failed (58%); switched to the direct readout after S1, before any S2 data.</li>
+      <li>Explicit-mask vs default attention path differs by up to 0.18 (Llama) / 0.48 (Qwen) in E[score]; all knockouts are compared to mask-path baselines.</li>
+    </ul>
+  </section>
+  <p class="sub">Source: <code>results/mech_v2/s6_*_summary.json</code>, <code>docs/mech_plan_v2.md</code> run log. Discovery numbers (figures 3–4, released site) are from triage/discovery tasks, not V.</p>
+</main>
+<div id="tip" role="tooltip"></div>
+<script>
+const M = { llama: "Llama-3.1-8B", qwen: "Qwen3-8B" };
+const S6 = {
+  llama: {
+    nec: [0.9536, 0.9293, 0.9715], necC1: [0.2078, 0.1765, 0.2410], necC2: [0.0337, 0.0194, 0.0481], c1: "0–7", c2: "16–23", win: "8–15", site: "hidden_states[16]",
+    hl: [0.9914, 0.9814, 1.0012], hlC: [0.0162, 0.0114, 0.0212], lh: [0.9127, 0.8902, 0.9391], lhC: [0.0084, 0.0055, 0.0115],
+    ln: [0.9829, 0.9643, 1.0010], lnC: [-0.0168, -0.0225, -0.0113], nl: [0.9693, 0.9582, 0.9783], nlC: [0.0006, -0.0186, 0.0173],
+    gko: [0.9249, 0.8281, 1.0105], gpHL: [0.3176, -0.3939, 0.9353], gpLH: [0.3057, 0.0200, 0.6250],
+    released: [-0.001, -0.004], relSite: "final-input token, L24"
+  },
+  qwen: {
+    nec: [0.9691, 0.9556, 0.9804], necC1: [-0.0707, -0.1014, -0.0409], necC2: [0.0474, 0.0322, 0.0651], c1: "0–8", c2: "27–35", win: "9–26", site: "hidden_states[27]",
+    hl: [0.9472, 0.9288, 0.9633], hlC: [-0.0002, -0.0104, 0.0098], lh: [0.9141, 0.8768, 0.9458], lhC: [-0.0044, -0.0088, -0.0013],
+    ln: [0.8857, 0.8433, 0.9242], lnC: [-0.0018, -0.0159, 0.0111], nl: [0.9907, 0.9770, 1.0017], nlC: [-0.0220, -0.0516, 0.0055],
+    gko: [0.9316, 0.7864, 1.0494], gpHL: [-0.0556, -0.3611, 0.3056], gpLH: [-0.0278, -0.1111, 0.0556],
+    released: [-0.001, 0.005], relSite: "final-input token, L27"
+  }
+};
+const S2 = {
+  llama: { cols: ["0–7", "8–15", "16–23", "24–31"], rows: { "All post-history": [23, 96, 6, -1], "Template tail": [1, 57, 6, 0], "Answer tokens": [0, 9, -1, 0] } },
+  qwen: { cols: ["0–8", "9–17", "18–26", "27–35"], rows: { "All post-history": [0, 70, 75, 7], "Template tail": [4, 16, 57, 8], "Answer tokens": [1, 0, 4, 1] } }
+};
+const S3 = {
+  llama: [["8–15", 96], ["8–11", 58], ["12–15", 67], ["12–13", 53], ["14–15", 16], ["12", 18], ["13", 40]],
+  qwen: [["18–26", 75], ["18–22", 64], ["23–26", 12], ["18–20", 36], ["21–22", 20]]
+};
+const SUCCESS = [
+  ["Necessity (window knockout ≥ 50%, CI above controls)", true, true],
+  ["Sufficiency, both directions (≥ 0.5, site − control CI > 0)", true, true],
+  ["Behavioral knockout (greedy gap reduction CI > 0)", true, true],
+  ["Behavioral patch (greedy shift CI > 0, both directions)", false, false]
+];
+
+const NS = "http://www.w3.org/2000/svg";
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const pct = x => (x * 100).toFixed(1) + "%";
+const f2 = x => x.toFixed(2);
+const ci = (a, f = f2) => `${f(a[0])} [${f(a[1])}, ${f(a[2])}]`;
+function el(tag, attrs = {}, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function text(parent, x, y, s, attrs = {}) { const t = el("text", { x, y, ...attrs }, parent); t.textContent = s; return t; }
+const tip = document.getElementById("tip");
+function hover(node, html) {
+  node.addEventListener("mousemove", e => {
+    tip.innerHTML = html; tip.style.opacity = 1;
+    const w = tip.offsetWidth, x = e.clientX + 14 + w > innerWidth ? e.clientX - w - 14 : e.clientX + 14;
+    tip.style.left = x + "px"; tip.style.top = (e.clientY + 14) + "px";
+  });
+  node.addEventListener("mouseleave", () => tip.style.opacity = 0);
+}
+function table(id, head, rows) {
+  document.getElementById(id).innerHTML = "<table><thead><tr>" + head.map(h => `<th>${h}</th>`).join("") +
+    "</tr></thead><tbody>" + rows.map(r => "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>").join("") + "</tbody></table>";
+}
+// x-axis scale helper with ticks and vertical grid
+function xAxis(svg, x0, x1, y0, y1, lo, hi, ticks, fmt) {
+  const sx = v => x0 + (v - lo) / (hi - lo) * (x1 - x0);
+  for (const t of ticks) {
+    el("line", { x1: sx(t), x2: sx(t), y1: y0, y2: y1, stroke: t === 0 ? css("--axis") : css("--grid"), "stroke-width": 1 }, svg);
+    text(svg, sx(t), y1 + 16, fmt(t), { "text-anchor": "middle" });
+  }
+  return sx;
+}
+
+function tiles() {
+  const L = S6.llama, Q = S6.qwen;
+  const t = [
+    ["Necessity: block the read", `${pct(L.nec[0])} <small>/ ${pct(Q.nec[0])}</small>`, "gap removed, Llama / Qwen, 72 unseen tasks"],
+    ["Sufficiency: patch post-window state", `${f2((L.hl[0] + L.lh[0]) / 2)} <small>/ ${f2((Q.hl[0] + Q.lh[0]) / 2)}</small>`, "mean of both directions; released site ≈ 0"],
+    ["Greedy generation knockout", `${pct(L.gko[0])} <small>/ ${pct(Q.gko[0])}</small>`, "greedy score gap removed"],
+    ["Pre-registered rules passed", `3 <small>of 4, both models</small>`, "prompt-only greedy patch fails"]
+  ];
+  document.getElementById("tiles").innerHTML = t.map(([k, v, n]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`).join("");
+}
+
+// Fig 1: grouped horizontal bars, released vs right site, per model
+function fig1() {
+  const box = document.getElementById("fig1"); box.innerHTML = "";
+  const groups = [
+    ["Released: single final-input token", m => (S6[m].released[0] + S6[m].released[1]) / 2, m => `${S6[m].relSite}; 12 triage tasks; moves ${S6[m].released.map(f2).join(" / ")}`],
+    ["All post-history positions, high → low", m => S6[m].hl[0], m => `${S6[m].site}; 72 V tasks; ${ci(S6[m].hl)}`],
+    ["All post-history positions, low → high", m => S6[m].lh[0], m => `${S6[m].site}; 72 V tasks; ${ci(S6[m].lh)}`]
+  ];
+  const W = 900, lab = 250, H = groups.length * 64 + 30, x0 = lab, x1 = W - 40;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Normalized move: released site about 0, post-history site about 0.9 to 1.0 in both models" }, box);
+  const sx = xAxis(svg, x0, x1, 4, H - 26, 0, 1, [0, 0.25, 0.5, 0.75, 1], f2);
+  groups.forEach(([name, val, desc], i) => {
+    const y = 10 + i * 64;
+    text(svg, 0, y + 24, name, { class: "lbl" });
+    ["llama", "qwen"].forEach((m, j) => {
+      const v = val(m), by = y + j * 22, w = Math.max(Math.abs(sx(v) - sx(0)), 2);
+      const r = el("rect", { x: sx(Math.min(v, 0)), y: by, width: w, height: 18, rx: 4, fill: css("--" + m) }, svg);
+      text(svg, sx(Math.max(v, 0)) + 6, by + 13, Math.abs(v) < 0.005 ? "≈ 0" : f2(v), { class: "lbl" });
+      const hit = el("rect", { x: x0, y: by - 2, width: x1 - x0, height: 22, class: "hit" }, svg);
+      hover(hit, `<b>${M[m]}</b><br>${name}<br>${desc(m)}`);
+    });
+  });
+  table("tab1", ["Site", "Llama", "Qwen"], groups.map(([n, v]) => [n, f2(v("llama")), f2(v("qwen"))]));
+}
+
+// Fig 2: forest plot of frozen V tests
+function fig2() {
+  const box = document.getElementById("fig2"); box.innerHTML = "";
+  const rows = [
+    ["Necessity: knock out read window", "nec", [["necC1", m => `blocks ${S6[m].c1}`], ["necC2", m => `blocks ${S6[m].c2}`]], m => `blocks ${S6[m].win}`],
+    ["Sufficiency high → low", "hl", [["hlC", () => "L2 patch"]], m => S6[m].site],
+    ["Sufficiency low → high", "lh", [["lhC", () => "L2 patch"]], m => S6[m].site],
+    ["Continuity low → no history", "ln", [["lnC", () => "L2 patch"]], m => S6[m].site],
+    ["Continuity no history → low", "nl", [["nlC", () => "L2 patch"]], m => S6[m].site]
+  ];
+  const W = 900, lab = 250, rowH = 58, H = rows.length * rowH + 30, x0 = lab, x1 = W - 20, lo = -0.15, hi = 1.05;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Forest plot: all target tests between 0.89 and 0.99, controls near 0" }, box);
+  const sx = xAxis(svg, x0, x1, 4, H - 26, lo, hi, [0, 0.25, 0.5, 0.75, 1], f2);
+  el("line", { x1: sx(0.5), x2: sx(0.5), y1: 4, y2: H - 26, stroke: css("--axis"), "stroke-dasharray": "3 4" }, svg);
+  text(svg, sx(0.5) + 4, 14, "pass threshold 0.5", { class: "muted" });
+  const tab = [];
+  rows.forEach(([name, key, ctrls, site], i) => {
+    const y = 18 + i * rowH;
+    text(svg, 0, y + 18, name, { class: "lbl" });
+    ["llama", "qwen"].forEach((m, j) => {
+      const cy = y + 8 + j * 20, d = S6[m][key], col = css("--" + m);
+      el("line", { x1: sx(d[1]), x2: sx(d[2]), y1: cy, y2: cy, stroke: col, "stroke-width": 2, "stroke-linecap": "round" }, svg);
+      el("circle", { cx: sx(d[0]), cy, r: 5, fill: col, stroke: css("--surface-1"), "stroke-width": 2 }, svg);
+      ctrls.forEach(([ck, cl]) => {
+        const c = S6[m][ck];
+        el("line", { x1: sx(c[1]), x2: sx(c[2]), y1: cy, y2: cy, stroke: css("--control"), "stroke-width": 2 }, svg);
+        el("circle", { cx: sx(c[0]), cy, r: 4.5, fill: css("--surface-1"), stroke: css("--control"), "stroke-width": 2 }, svg);
+        tab.push([name + " — control", M[m], cl(m), ci(c)]);
+      });
+      const hit = el("rect", { x: x0, y: cy - 9, width: x1 - x0, height: 18, class: "hit" }, svg);
+      hover(hit, `<b>${M[m]}</b> · ${name}<br>${site(m)}: <b>${ci(d)}</b><br>` + ctrls.map(([ck, cl]) => `control ${cl(m)}: ${ci(S6[m][ck])}`).join("<br>"));
+      tab.push([name, M[m], site(m), ci(d)]);
+    });
+  });
+  table("tab2", ["Test", "Model", "Site", "Estimate [95% CI]"], tab);
+}
+
+// Fig 3: heatmaps of S2 knockout triage
+function lerp(a, b, t) {
+  const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const A = p(a), B = p(b);
+  return "rgb(" + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",") + ")";
+}
+function heat(id, m) {
+  const box = document.getElementById(id); box.innerHTML = "";
+  const d = S2[m], names = Object.keys(d.rows), W = 440, lab = 120, cw = (W - lab) / 4, ch = 44, H = names.length * ch + 44;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `${M[m]} knockout heatmap` }, box);
+  text(svg, 0, 14, M[m], { class: "lbl", "font-weight": 600 });
+  d.cols.forEach((c, j) => text(svg, lab + j * cw + cw / 2, 34, "blocks " + c, { "text-anchor": "middle" }));
+  const lo = css("--seq-lo"), hi = css("--seq-hi");
+  names.forEach((n, i) => {
+    const y = 42 + i * ch;
+    text(svg, 0, y + ch / 2 + 4, n, { class: "lbl" });
+    d.rows[n].forEach((v, j) => {
+      const t = Math.max(0, v) / 100;
+      const r = el("rect", { x: lab + j * cw + 1, y: y + 1, width: cw - 2, height: ch - 2, rx: 4, fill: lerp(lo, hi, t) }, svg);
+      const tx = text(svg, lab + j * cw + cw / 2, y + ch / 2 + 4, v + "%", { "text-anchor": "middle", "font-weight": v >= 50 ? 650 : 400 });
+      tx.style.fill = t > 0.5 ? (document.documentElement.matches("[data-theme=dark]") || matchMedia("(prefers-color-scheme: dark)").matches && !document.documentElement.matches("[data-theme=light]") ? "#0b0b0b" : "#fff") : "var(--text-primary)";
+      hover(r, `<b>${M[m]}</b><br>Readers: ${n}<br>Blocks ${d.cols[j]}: ${v}% of gap removed`);
+    });
+  });
+}
+function fig3() {
+  heat("fig3a", "llama"); heat("fig3b", "qwen");
+  const rows = [];
+  for (const m of ["llama", "qwen"]) for (const n in S2[m].rows) rows.push([M[m], n, ...S2[m].rows[n].map((v, j) => `${S2[m].cols[j]}: ${v}%`)]);
+  table("tab3", ["Model", "Readers", "Window 1", "Window 2", "Window 3", "Window 4"], rows);
+}
+
+// Fig 4: bisection bars
+function bars(id, m, data, title, maxV = 100) {
+  const box = document.getElementById(id); box.innerHTML = "";
+  const W = 440, lab = 70, rh = 28, H = data.length * rh + 50, x0 = lab, x1 = W - 40;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": title }, box);
+  text(svg, 0, 14, title, { class: "lbl", "font-weight": 600 });
+  const sx = xAxis(svg, x0, x1, 24, H - 24, 0, maxV, [0, 25, 50, 75, 100], v => v + "%");
+  data.forEach(([n, v], i) => {
+    const y = 28 + i * rh;
+    text(svg, x0 - 8, y + 15, n, { "text-anchor": "end" });
+    el("rect", { x: sx(0), y: y + 2, width: Math.max(sx(v) - sx(0), 2), height: rh - 8, rx: 4, fill: css("--" + m) }, svg);
+    text(svg, sx(v) + 6, y + 15, v + "%", { class: "lbl" });
+    hover(el("rect", { x: x0, y, width: x1 - x0, height: rh, class: "hit" }, svg), `<b>${M[m]}</b><br>Blocks ${n}: ${v}% of gap removed`);
+  });
+}
+function fig4() {
+  bars("fig4a", "llama", S3.llama, "Llama: blocks knocked out");
+  bars("fig4b", "qwen", S3.qwen, "Qwen: blocks knocked out");
+  table("tab4", ["Model", "Blocks", "Gap removed"], [...S3.llama.map(([n, v]) => [M.llama, n, v + "%"]), ...S3.qwen.map(([n, v]) => [M.qwen, n, v + "%"])]);
+}
+
+// Fig 5: behavioral CIs, two separate scales
+function dots(id, title, rows, lo, hi, ticks, fmt, ref) {
+  const box = document.getElementById(id); box.innerHTML = "";
+  const W = 440, lab = 120, rh = 30, H = rows.length * rh + 60, x0 = lab, x1 = W - 16;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": title }, box);
+  text(svg, 0, 14, title, { class: "lbl", "font-weight": 600 });
+  const sx = xAxis(svg, x0, x1, 26, H - 24, lo, hi, ticks, fmt);
+  if (ref != null) el("line", { x1: sx(ref), x2: sx(ref), y1: 26, y2: H - 24, stroke: css("--axis"), "stroke-dasharray": "3 4" }, svg);
+  rows.forEach(([n, m, d], i) => {
+    const cy = 44 + i * rh, col = css("--" + m);
+    text(svg, x0 - 8, cy + 4, n, { "text-anchor": "end" });
+    el("line", { x1: sx(Math.max(d[1], lo)), x2: sx(Math.min(d[2], hi)), y1: cy, y2: cy, stroke: col, "stroke-width": 2, "stroke-linecap": "round" }, svg);
+    el("circle", { cx: sx(d[0]), cy, r: 5, fill: col, stroke: css("--surface-1"), "stroke-width": 2 }, svg);
+    hover(el("rect", { x: x0, y: cy - rh / 2, width: x1 - x0, height: rh, class: "hit" }, svg), `<b>${M[m]}</b> · ${n}<br>${ci(d, fmt)}`);
+  });
+}
+function fig5() {
+  dots("fig5a", "Greedy gap removed by knockout", [["Llama", "llama", S6.llama.gko], ["Qwen", "qwen", S6.qwen.gko]], 0, 1.1, [0, 0.25, 0.5, 0.75, 1], v => Math.round(v * 100) + "%", null);
+  dots("fig5b", "Greedy shift from prompt patch (points)", [
+    ["Llama hi → lo", "llama", S6.llama.gpHL], ["Llama lo → hi", "llama", S6.llama.gpLH],
+    ["Qwen hi → lo", "qwen", S6.qwen.gpHL], ["Qwen lo → hi", "qwen", S6.qwen.gpLH]
+  ], -0.5, 1, [-0.5, 0, 0.5, 1], f2, 0);
+  table("tab5", ["Measure", "Llama", "Qwen"], [
+    ["Greedy knockout gap reduction", ci(S6.llama.gko, pct), ci(S6.qwen.gko, pct)],
+    ["Prompt-patch shift, high → low (points)", ci(S6.llama.gpHL), ci(S6.qwen.gpHL)],
+    ["Prompt-patch shift, low → high (points)", ci(S6.llama.gpLH), ci(S6.qwen.gpLH)]
+  ]);
+}
+function rules() {
+  const b = ok => `<span class="badge ${ok ? "pass" : "fail"}">${ok ? "✓ PASS" : "✕ FAIL"}</span>`;
+  table("rules", ["Rule (frozen before V)", "Llama", "Qwen"], SUCCESS.map(([n, l, q]) => [n, b(l), b(q)]));
+}
+function render() { tiles(); fig1(); fig2(); fig3(); fig4(); fig5(); rules(); }
+render();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>
+</body>
+</html>
