@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "reader_policy": "generated",
+  "mask_blocks": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+  ],
+  "patch_sites": {
+    "llama": {
+      "layer": 12,
+      "span": "history_end"
+    },
+    "qwen": {
+      "layer": 16,
+      "span": "history_end"
+    }
+  },
+  "control_layer": 2,
+  "free_max_new": 512,
+  "rationale_max_new": 192,
+  "score_max_new": 32,
+  "engineering_max_new": 64,
+  "bootstrap_draws": 100000,
+  "bootstrap_seed": 20261031,
+  "primary_tests_total": 12,
+  "rationale_request": "\n\nFor this step, write a short qualitative evaluation only. Do not state, repeat, or suggest any numeric rating. Do not provide a final score.",
+  "score_prefix": "\n\nFinal score: ",
+  "family_alpha": 0.05,
+  "primary_endpoints": [
+    "history_gap_reduction",
+    "history_vs_control_specificity",
+    "patch_block_interaction",
+    "patch_interaction_vs_l2",
+    "neutral_rationale_gap_reduction",
+    "rationale_donor_effect"
+  ],
+  "seed": 42,
+  "generic_rationale": "An evaluation considers the response in relation to the question. Relevant details and clarity can be considered together. ",
+  "rationale_prefix_max_tokens": 96,
+  "rationale_prefix_min_tokens": 8
+}

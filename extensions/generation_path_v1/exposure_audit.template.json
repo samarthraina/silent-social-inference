@@ -1,0 +1,8 @@
+{
+  "plan_sha256": "d7da0ca9ee751a803a2fa8212e0d31c1cc0cf0de85de408a0769c6850c97add1",
+  "reviewer_name": "",
+  "reviewed_utc": "",
+  "additional_exposed_task_ids": [],
+  "author_attests_no_additional_mechanistic_exposure": false,
+  "instructions": "Have the team check every candidate validation task against all additional mechanistic work. Fill author/date and attest only when true. If additional exposed IDs overlap the plan, do not use this plan unchanged."
+}

@@ -1,0 +1,1 @@
+-r ../residual_discovery_v3/reference/extensions/context_controls/requirements-gpu.txt

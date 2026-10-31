@@ -1,0 +1,43 @@
+{
+  "research_gpu_inference_run": false,
+  "local_test_environments": [
+    {
+      "research_gpu_inference_run": false,
+      "weights_downloaded": false,
+      "test_device": "CPU",
+      "tests_run": 15,
+      "success": true,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "python": "3.13.7",
+      "torch": "2.15.0",
+      "transformers": "5.15.0",
+      "tokenizers": "0.22.2",
+      "huggingface_hub": "1.18.0",
+      "seconds": 5.84
+    },
+    {
+      "research_gpu_inference_run": false,
+      "weights_downloaded": false,
+      "test_device": "CPU",
+      "tests_run": 15,
+      "success": true,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "python": "3.13.7",
+      "torch": "2.15.0",
+      "transformers": "5.22.0",
+      "tokenizers": "0.23.3",
+      "huggingface_hub": "2.4.0",
+      "seconds": 5.13
+    }
+  ],
+  "additional_checks": {
+    "python_compile": true,
+    "bash_syntax": true,
+    "synthetic_plot_png_svg": true
+  },
+  "scope": "Randomly initialized tiny real Llama/Qwen architectures on CPU, including a 32-layer engineering path; synthetic adapter/analysis tests. Not validation of the 8B CUDA interventions or research outcomes."
+}
