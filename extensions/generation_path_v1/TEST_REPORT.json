@@ -1,4 +1,5 @@
 {
+  "protocol_version": 2,
   "research_gpu_inference_run": false,
   "local_test_environments": [
     {
@@ -15,7 +16,7 @@
       "transformers": "5.15.0",
       "tokenizers": "0.22.2",
       "huggingface_hub": "1.18.0",
-      "seconds": 5.84
+      "seconds": 5.95
     },
     {
       "research_gpu_inference_run": false,
@@ -31,13 +32,14 @@
       "transformers": "5.22.0",
       "tokenizers": "0.23.3",
       "huggingface_hub": "2.4.0",
-      "seconds": 5.13
+      "seconds": 5.28
     }
   ],
   "additional_checks": {
     "python_compile": true,
     "bash_syntax": true,
-    "synthetic_plot_png_svg": true
+    "synthetic_plot_png_svg": true,
+    "pinned_qwen_config_layers_verified": 36
   },
-  "scope": "Randomly initialized tiny real Llama/Qwen architectures on CPU, including a 32-layer engineering path; synthetic adapter/analysis tests. Not validation of the 8B CUDA interventions or research outcomes."
+  "scope": "CPU tiny real architectures: Llama 32 blocks and Qwen 36 blocks, plus generic two-layer mask tests; synthetic adapter and analysis tests. No real 8B GPU inference was performed locally."
 }

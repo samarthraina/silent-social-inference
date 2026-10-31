@@ -6,7 +6,7 @@ This follows the completed [residual discovery v3](../residual_discovery_v3/READ
 
 ## What the three experiments do
 
-1. **Block history reading during generation only.** The original prompt is processed normally. Starting with generated input tokens, attention to the history sentence is blocked in all 32 blocks. Compare with a baseline using the identical explicit causal mask, and a control blocking an equal number of non-history question/answer tokens. This tests direct generated-reader access to history. Other prompt states, previous generated tokens and cached states can still carry history information.
+1. **Block history reading during generation only.** The original prompt is processed normally. Starting with generated input tokens, attention to the history sentence is blocked in all decoder blocks (32 for Llama, 36 for Qwen). Compare with a baseline using the identical explicit causal mask, and a control blocking an equal number of non-history question/answer tokens. This tests direct generated-reader access to history. Other prompt states, previous generated tokens and cached states can still carry history information.
 2. **Combine that blocking with your state replacements.** Compare baseline, blocking alone, state replacement alone and both together, in both high-to-low and low-to-high directions. Use your discovery leads (Llama L12/history_end; Qwen L16/history_end), a fixed L2 control, and same-state identity controls. The interaction tests whether blocking changes the efficacy of the state replacement. A positive interaction would support that specific causal interaction, not establish a complete circuit.
 3. **Hold the written evaluation prefix fixed.** Generate short qualitative evaluations under high, low and no history. For each task, take the same token length from all three (minimum available length, capped at 96; at least 8). Reuse each prefix under both target histories, then generate a final score. Include an equal-length generic prefix and an empty-prefix reference. This tests controlled rationale-prefix dependence while reducing length confounding. It is a different output protocol from ordinary free generation; it does not by itself prove natural reasoning mediation or truthful explanations.
 
@@ -51,13 +51,13 @@ If required, authenticate interactively with `hf auth login` in that environment
 From this folder, start **engineering then pilot, Qwen then Llama, sequentially**:
 
 ```bash
-tmux new-session -d -s generation-path -c "$PWD" \
+tmux new-session -d -s generation-path-v2 -c "$PWD" \
   -e "HF_HOME=${HF_HOME:-$HOME/.cache/huggingface}" \
-  'bash run_pilot_both.sh /workspace/generation-path-results > /workspace/generation-path.log 2>&1'
-tail -f /workspace/generation-path.log
+  'bash run_pilot_both.sh /workspace/generation-path-results-v2 > /workspace/generation-path-v2.log 2>&1'
+tail -f /workspace/generation-path-v2.log
 ```
 
-The four-hour limit applies to each model/stage invocation, not the whole batch. If it pauses or is interrupted, rerun the same batch command; existing verified units are resumed. Do not start a second copy while one is active. `Ctrl-C` during `tail -f` stops watching the log; it does not stop the experiment. To interrupt the process in its tmux session, attach using `tmux attach -t generation-path`, then press `Ctrl-C`.
+The four-hour limit applies to each model/stage invocation, not the whole batch. If it pauses or is interrupted, rerun the same batch command; existing verified units are resumed. Do not start a second copy while one is active. `Ctrl-C` during `tail -f` stops watching the log; it does not stop the experiment. To interrupt the process in its tmux session, attach using `tmux attach -t generation-path-v2`, then press `Ctrl-C`.
 
 The batch exits on a failed engineering check or any other error. It **does not run validation, stop an instance, or destroy data**. Back up the result directory and stop the GPU instance in your provider dashboard when finished.
 
@@ -65,10 +65,10 @@ For one stage/model explicitly:
 
 ```bash
 python run.py --plan frozen/plan.json --stage engineering --model qwen \
-  --out /workspace/generation-path-results/qwen_engineering --max-seconds 3600
+  --out /workspace/generation-path-results-v2/qwen_engineering --max-seconds 3600
 python run.py --plan frozen/plan.json --stage pilot --model qwen \
-  --engineering /workspace/generation-path-results/qwen_engineering \
-  --out /workspace/generation-path-results/qwen_pilot --max-seconds 14400
+  --engineering /workspace/generation-path-results-v2/qwen_engineering \
+  --out /workspace/generation-path-results-v2/qwen_pilot --max-seconds 14400
 ```
 
 Use `--resume` with the same paths to continue an interrupted run. Do not re-upload/redefine code between interruptions; resume intentionally rejects changed source. For an unfinished final JSONL line after a hard shutdown, `python repair_tail.py /path/to/raw.jsonl` first creates a backup and removes only an invalid incomplete final line. It refuses to discard a complete JSON record.
@@ -84,21 +84,21 @@ Do not silently adjust the protocol after pilot results and call the original pi
 ```bash
 python lock_validation.py --model qwen --plan frozen/plan.json \
   --peer-split frozen/peer_splits.json \
-  --engineering /workspace/generation-path-results/qwen_engineering \
-  --pilot /workspace/generation-path-results/qwen_pilot \
+  --engineering /workspace/generation-path-results-v2/qwen_engineering \
+  --pilot /workspace/generation-path-results-v2/qwen_pilot \
   --exposure-audit /workspace/exposure-audit.json --out /workspace/qwen-validation-lock.json
 python run.py --plan frozen/plan.json --stage validation --model qwen \
-  --engineering /workspace/generation-path-results/qwen_engineering \
+  --engineering /workspace/generation-path-results-v2/qwen_engineering \
   --lock /workspace/qwen-validation-lock.json \
-  --out /workspace/generation-path-results/qwen_validation --max-seconds 28800
+  --out /workspace/generation-path-results-v2/qwen_validation --max-seconds 28800
 ```
 
 Repeat with `llama`; never run the two models concurrently on this 40 GB GPU. Analyze both complete validation runs together:
 
 ```bash
-python analyze.py --run /workspace/generation-path-results/qwen_validation \
-  --run /workspace/generation-path-results/llama_validation \
-  --out /workspace/generation-path-results/validation_summary.json
+python analyze.py --run /workspace/generation-path-results-v2/qwen_validation \
+  --run /workspace/generation-path-results-v2/llama_validation \
+  --out /workspace/generation-path-results-v2/validation_summary.json
 ```
 
 The same analysis command with `*_pilot` paths reconstructs the exploratory pilot summary. The batch does this automatically after both pilots finish. Optional figures can be made on your Mac or server after installing `requirements-analysis.txt`:
@@ -120,3 +120,8 @@ Tests use tiny randomly initialized real Llama/Qwen architectures and clearly sy
 Previous actual A100 discovery times were 167 minutes for Llama and 191 for Qwen. Those involved a different mixture of generations/captures; the new runner also uses caching to avoid full-prompt recomputation at every generation step. Budget roughly **3-6 GPU hours for the two-model pilot**, provisionally, and time it before estimating the 44-task confirmation. Confirmation has 3.67 times as many tasks as the pilot; longer tasks or invalid-donor rates can change throughput. There is no measured GPU runtime for this new protocol yet.
 
 No claim about frontier models, real agent interactions, or the frequency of factually incorrect criticisms follows from these interventions alone.
+
+
+## Protocol v2 correction
+
+The initial runner incorrectly assumed 32 decoder blocks for both models. The pinned Qwen3-8B configuration has 36; Llama has 32. Protocol v2 blocks all layers separately for each model and uses model-specific counts throughout the engineering checks and analysis. Architecture is checked before loading weights and again on the loaded model. The layer-count failure occurred before any engineering units ran. Start a fresh result directory under this corrected protocol; do not mix v1/v2 run metadata.

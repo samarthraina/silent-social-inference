@@ -8,7 +8,7 @@ import unittest
 import engine
 from protocol import (HERE, DEPENDENCY, ARMS, CONDS, canonical, sha, unit_key, load,
                       validate_protocol, build_plan, planned_units, ordered_units,
-                      read_journal, rationale_valid)
+                      read_journal, rationale_valid, validate_architecture)
 from analyze import expressions, evaluate, interval
 
 
@@ -215,7 +215,7 @@ class AdapterTests(unittest.TestCase):
                 r=scorer.run_unit(u,task,journal);journal[unit_key(u)]=dict(u,model='qwen',**r)
                 if u['kind']=='factorial':
                     kw=calls[-1]
-                    if u['arm']=='control_block':self.assertTrue(kw['keys']);self.assertEqual(len(kw['blocks']),32)
+                    if u['arm']=='control_block':self.assertTrue(kw['keys']);self.assertEqual(len(kw['blocks']),36)
                     if u['arm']=='cross_patch_generated_block':self.assertTrue(kw['keys']);self.assertIsNotNone(kw['patch'])
                     self.assertTrue(r['analysis_valid'])
                 if u['kind']=='score':
@@ -250,19 +250,22 @@ class AdapterTests(unittest.TestCase):
             n=len(calls);r=scorer.run_unit(u,task,journal)
             self.assertFalse(r['analysis_valid']);self.assertTrue(r['generation_skipped']);self.assertEqual(len(calls),n)
 
-    def test_engineering_gate_on_real_32_layer_tiny_models(self):
+    def test_engineering_gate_on_actual_32_and_36_layer_architectures(self):
         import torch
         from transformers import LlamaConfig,LlamaForCausalLM,Qwen3Config,Qwen3ForCausalLM
         from study import Study,eg
         task={'question':'What is two plus two?','answer':'Two plus two equals four. This answers the arithmetic question directly.'}
         for name,C,M in [('llama',LlamaConfig,LlamaForCausalLM),('qwen',Qwen3Config,Qwen3ForCausalLM)]:
             torch.manual_seed(42)
-            cfg=C(vocab_size=128,hidden_size=8,intermediate_size=16,num_hidden_layers=32,
+            cfg=C(vocab_size=128,hidden_size=8,intermediate_size=16,num_hidden_layers={'llama':32,'qwen':36}[name],
                   num_attention_heads=2,num_key_value_heads=1,head_dim=4,max_position_embeddings=2048,
                   eos_token_id=127,pad_token_id=127)
             cfg._attn_implementation='sdpa';model=M(cfg).eval()
             p=load(HERE/'protocol.json');p['engineering_max_new']=3
             spec=eg.ExactModelSpec(key=name,hf_id='local-tiny-test',revision='local',disable_thinking=name=='qwen')
+            validate_architecture(model,p,name)
+            wrong=dict(p,model_num_hidden_layers=dict(p['model_num_hidden_layers'],**{name:31}))
+            with self.assertRaises(ValueError):validate_architecture(model,wrong,name)
             scorer=Study(SimpleNamespace(model=model,tokenizer=CharacterTokenizer(),spec=spec),name,p)
             result=scorer.engineering(task,'self_low_2')
             self.assertTrue(result['all_checks_pass'],result['checks'])

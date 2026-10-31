@@ -8,7 +8,7 @@ import signal
 import sys
 import time
 from protocol import (HERE, DEPENDENCY, canonical, load, planned_units, ordered_units, read_journal,
-                      sha, source_hashes, unit_key, validate_protocol, write_json)
+                      sha, source_hashes, unit_key, validate_protocol, write_json, model_blocks, validate_model_config, validate_architecture)
 
 
 class BudgetStop(RuntimeError):
@@ -33,7 +33,7 @@ def gate_proof(path, *, model, stage, binding):
                 raise ValueError('Engineering token-hash identity differs')
             if r['baseline_prefill_logits_sha256']!=r['generated_block_prefill_logits_sha256']:
                 raise ValueError('Generated-reader block changed prompt logits')
-            if r['active_decode_events']['blocked_edges']!=len(r['history_keys'])*32 or r['prefill_block_events']['blocked_edges']!=0:
+            if r['active_decode_events']['blocked_edges']!=len(r['history_keys'])*len(model_blocks(load(p/'protocol.json'),model)) or r['prefill_block_events']['blocked_edges']!=0:
                 raise ValueError('Engineering reader-boundary checks differ')
             if not r['positive_control_max_logit_difference']>0:
                 raise ValueError('Engineering active mask control had no measurable effect')
@@ -116,10 +116,13 @@ def main():
     def interrupted(_signum,_frame):raise KeyboardInterrupt('Termination requested; saved units remain resumable')
     signal.signal(signal.SIGTERM,interrupted)
     try:
+        from transformers import AutoConfig
+        pinned_config=AutoConfig.from_pretrained(cfg['hf_id'],revision=cfg['revision'])
+        validate_model_config(pinned_config,protocol,a.model)
         loaded=eg.load_exact_model(eg.ExactModelSpec(key=a.model,hf_id=cfg['hf_id'],
                       revision=cfg['revision'],disable_thinking=cfg['disable_thinking']))
         if eg.check_gpu_residency(loaded.model):raise RuntimeError('Model is not fully resident in BF16 on GPU')
-        if len(loaded.model.model.layers)!=32:raise ValueError('Protocol requires exactly 32 decoder blocks')
+        validate_architecture(loaded.model,protocol,a.model)
         if getattr(loaded.model.config,'sliding_window',None) is not None and getattr(
                 loaded.model.config,'use_sliding_window',False):raise ValueError('Sliding-window attention is not supported')
         runtime=dict(device=torch.cuda.get_device_name(0),torch=torch.__version__,transformers=transformers.__version__,

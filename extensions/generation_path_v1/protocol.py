@@ -49,8 +49,8 @@ def source_hashes():
 
 
 def validate_protocol(p):
-    if p['version'] != 1 or p['primary_tests_total'] != len(PRIMARY)*2 or p['mask_blocks'] != list(range(32)):
-        raise ValueError('Primary protocol must retain all 32 attention blocks and 12 planned tests')
+    if p['version'] != 2 or p['primary_tests_total'] != len(PRIMARY)*2 or p.get('model_num_hidden_layers') != {'llama':32,'qwen':36} or p['mask_blocks'] != {'llama':list(range(32)), 'qwen':list(range(36))}:
+        raise ValueError('Protocol v2 requires all 32 Llama / 36 Qwen blocks and 12 planned tests')
     if p['reader_policy'] != 'generated' or p['control_layer'] != 2 or p['family_alpha'] != .05 or p['primary_endpoints'] != list(PRIMARY) or p.get('seed') != 42:
         raise ValueError('Changed reader policy/control requires a new protocol version')
     if not (1 <= p['free_max_new'] <= 1024 and 1 <= p['rationale_max_new'] <= 512
@@ -61,6 +61,24 @@ def validate_protocol(p):
     if p['patch_sites'] != {'llama': {'layer': 12, 'span': 'history_end'},
                             'qwen': {'layer': 16, 'span': 'history_end'}}:
         raise ValueError('This protocol tests the previously discovered leads, not a new site search')
+
+
+def model_blocks(protocol, model_key):
+    return list(protocol['mask_blocks'][model_key])
+
+
+def validate_model_config(config, protocol, model_key):
+    expected = protocol['model_num_hidden_layers'][model_key]
+    expected_type = {'llama':'llama','qwen':'qwen3'}[model_key]
+    if config.num_hidden_layers != expected or config.model_type != expected_type:
+        raise ValueError(f'{model_key}: pinned architecture must be {expected_type} with {expected} blocks; '
+                         f'got {config.model_type} / {config.num_hidden_layers}')
+
+
+def validate_architecture(model, protocol, model_key):
+    validate_model_config(model.config, protocol, model_key)
+    if len(model.model.layers) != protocol['model_num_hidden_layers'][model_key]:
+        raise ValueError('Loaded decoder-block count differs from its validated configuration')
 
 
 def planned_units(tasks, stage):

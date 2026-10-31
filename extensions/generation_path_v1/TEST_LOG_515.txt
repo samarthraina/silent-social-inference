@@ -1,5 +1,5 @@
 test_all_arms_and_rationale_dependencies_execute (test_generation_path.AdapterTests.test_all_arms_and_rationale_dependencies_execute) ... ok
-test_engineering_gate_on_real_32_layer_tiny_models (test_generation_path.AdapterTests.test_engineering_gate_on_real_32_layer_tiny_models) ... ok
+test_engineering_gate_on_actual_32_and_36_layer_architectures (test_generation_path.AdapterTests.test_engineering_gate_on_actual_32_and_36_layer_architectures) ... ok
 test_actual_attention_weights_zero_only_on_selected_edges (test_generation_path.ArchitectureTests.test_actual_attention_weights_zero_only_on_selected_edges) ... ok
 test_both_real_architectures_cached_and_uncached (test_generation_path.ArchitectureTests.test_both_real_architectures_cached_and_uncached) ... ok
 test_eos_on_token_ceiling_is_complete (test_generation_path.ArchitectureTests.test_eos_on_token_ceiling_is_complete) ... ok
@@ -15,6 +15,6 @@ test_rationale_cannot_smuggle_a_rating (test_generation_path.PureTests.test_rati
 test_resume_binding_gate_rejects_failed_checks (test_generation_path.PureTests.test_resume_binding_gate_rejects_failed_checks) ... ok
 
 ----------------------------------------------------------------------
-Ran 15 tests in 5.839s
+Ran 15 tests in 5.951s
 
 OK

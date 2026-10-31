@@ -3,7 +3,7 @@ import argparse
 import collections
 import json
 from pathlib import Path
-from protocol import (load, planned_units, read_journal, unit_key, sha, PRIMARY, validate_protocol)
+from protocol import (load, planned_units, read_journal, unit_key, sha, PRIMARY, validate_protocol, model_blocks)
 
 
 def combine(*terms):
@@ -95,8 +95,8 @@ def verify_run(directory):
             n=len(r['ids']);masked=r['arm'] in ['generated_block','control_block','cross_patch_generated_block','l2_patch_generated_block']
             nkeys=len(r['control_keys'] if r['arm']=='control_block' else r['history_keys'])
             if len(r['control_keys'])!=len(r['history_keys']) or set(r['control_keys'])&set(r['history_keys']):raise ValueError('Control-key mismatch')
-            if r['events']['mask_hooks']!=n*32*int(masked):raise ValueError('Mask hook coverage differs')
-            if r['events']['blocked_edges']!=(n-1)*nkeys*32*int(masked):raise ValueError('Wrong blocked reader boundary/edge count')
+            if r['events']['mask_hooks']!=n*len(model_blocks(p,meta['model']))*int(masked):raise ValueError('Mask hook coverage differs')
+            if r['events']['blocked_edges']!=(n-1)*nkeys*len(model_blocks(p,meta['model']))*int(masked):raise ValueError('Wrong blocked reader boundary/edge count')
             patched=r['arm'].startswith(('cross_patch','l2_patch')) or r['arm']=='same_state_patch'
             if r['events']['patch_writes']!=int(patched):raise ValueError('Patch did not fire exactly once')
     for t in tasks:

@@ -51,3 +51,8 @@ The exposure filter excludes recorded experiments by task ID and exact question 
 ## Provenance
 
 Prompt rendering, model pins, cap-aware validity and score parsing come from the original `silent-influence` repository at f8010273445adcf276c094cf5b228fc7bd0acf2a, through the adjacent `residual_discovery_v3/reference` snapshot. Previous residual leads come from the completed runs in that extension. The collaborator's task exposure file is copied from `silent-social-inference` branch `mech-v2-window-validation`, commit 630b1c6813a9b7578d9a7825f0ef1dd17a49faa8. The explicit-mask knockout concept follows the collaborator's `src/mech_v2/core.py`; this implementation uses cached generation, generated-only readers, matched baselines and separate local tests. The original reference licenses/notices continue to apply. No model weights are included.
+
+
+## Protocol v2 correction
+
+The initial runner incorrectly assumed 32 decoder blocks for both models. The pinned Qwen3-8B configuration has 36; Llama has 32. Protocol v2 blocks all layers separately for each model and uses model-specific counts throughout the engineering checks and analysis. Architecture is checked before loading weights and again on the loaded model. The layer-count failure occurred before any engineering units ran. Start a fresh result directory under this corrected protocol; do not mix v1/v2 run metadata.

@@ -2,7 +2,7 @@
 import sys
 import time
 from pathlib import Path
-from protocol import DEPENDENCY, CONDS, DONORS, RATIONALE_REQUEST, SCORE_PREFIX, GENERIC_RATIONALE, rationale_valid, sha, canonical
+from protocol import DEPENDENCY, CONDS, DONORS, RATIONALE_REQUEST, SCORE_PREFIX, GENERIC_RATIONALE, rationale_valid, sha, canonical, model_blocks
 import engine
 
 sys.path.insert(0, str(DEPENDENCY))
@@ -17,6 +17,7 @@ class Study:
     def __init__(self, loaded, model_key, protocol, budget=lambda: None):
         self.loaded, self.key, self.p = loaded, model_key, protocol
         self.model, self.tok = loaded.model, loaded.tokenizer
+        self.blocks = model_blocks(protocol, model_key)
         self.budget = budget
         self._capture = {}
         self._task_id = None
@@ -82,7 +83,7 @@ class Study:
         base, logits = self.generate(b, maximum=n)
         automatic, _ = self.generate(b, maximum=n, explicit=False)
         no_cache, _ = self.generate(b, maximum=n, use_cache=False)
-        noop, _ = self.generate(b, maximum=n, blocks=self.p['mask_blocks'])
+        noop, _ = self.generate(b, maximum=n, blocks=self.blocks)
         patch, _ = self.patch(task, condition, self.p['patch_sites'][self.key]['layer'], same=True)
         identity, _ = self.generate(b, maximum=n, patch=patch)
         self.budget()
@@ -97,19 +98,19 @@ class Study:
         # Structural boundary check: first-token logits cannot change when only
         # generated INPUT-token readers are blocked. Then force the same first token
         # for one cached step to exercise the active generated-reader edge.
-        blocked, first = self.generate(b, maximum=1, keys=b['positions']['history'], blocks=self.p['mask_blocks'])
+        blocked, first = self.generate(b, maximum=1, keys=b['positions']['history'], blocks=self.blocks)
         pre, _ = engine.forward(self.model, b['ids'], prompt_len=b['ids'].shape[1])
         post, ev = engine.forward(self.model, b['ids'].new_tensor([[base['ids'][0]]]),
                   prompt_len=b['ids'].shape[1], q_start=b['ids'].shape[1], cache=pre.past_key_values,
-                  keys=b['positions']['history'], blocks=self.p['mask_blocks'])
+                  keys=b['positions']['history'], blocks=self.blocks)
         del pre, post
         cut, positive = engine.forward(self.model,b['ids'],prompt_len=b['ids'].shape[1],
-                 keys=b['positions']['history'], blocks=self.p['mask_blocks'],reader_policy='last_prompt')
+                 keys=b['positions']['history'], blocks=self.blocks,reader_policy='last_prompt')
         difference = float((cut.logits[0,-1].float().cpu()-logits).abs().max())
         del cut
         checks = dict(identities, generated_prefill_identical=torch.equal(logits,first),
                       generated_prefill_edges_zero=blocked['events']['blocked_edges']==0,
-                      generated_decode_edges_active=ev['blocked_edges']==len(b['positions']['history'])*32,
+                      generated_decode_edges_active=ev['blocked_edges']==len(b['positions']['history'])*len(self.blocks),
                       prompt_cut_positive_control=difference>0)
         return {'checks':checks, 'all_checks_pass':all(checks.values()),
                 'positive_control_max_logit_difference':difference,
@@ -160,9 +161,9 @@ class Study:
                         protocol_note='Equal-token rationale-prefix intervention; not ordinary free-generation mediation')
         keys, blocks, patch, source = (),(),None,None
         if 'generated_block' in arm or arm == 'generated_block':
-            keys=b['positions']['history'];blocks=self.p['mask_blocks']
+            keys=b['positions']['history'];blocks=self.blocks
         elif arm == 'control_block':
-            keys=b['positions']['control'];blocks=self.p['mask_blocks']
+            keys=b['positions']['control'];blocks=self.blocks
         if arm.startswith('cross_patch') or arm.startswith('l2_patch') or arm=='same_state_patch':
             layer = self.p['control_layer'] if arm.startswith('l2_patch') else self.p['patch_sites'][self.key]['layer']
             patch, source = self.patch(task,c,layer,same=arm=='same_state_patch')
