@@ -1,0 +1,1 @@
+-r ../generation_path_v1/requirements-gpu.txt

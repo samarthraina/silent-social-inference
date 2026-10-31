@@ -1,0 +1,14 @@
+test_complete_summary_and_incomplete_coverage_rejection (test_confirmation.AnalysisAndRecoveryTests.test_complete_summary_and_incomplete_coverage_rejection) ... ok
+test_interrupted_task_resumes_exactly_once (test_confirmation.AnalysisAndRecoveryTests.test_interrupted_task_resumes_exactly_once) ... ok
+test_row_guard_rejects_wrong_reader_counts_and_scores (test_confirmation.AnalysisAndRecoveryTests.test_row_guard_rejects_wrong_reader_counts_and_scores) ... ok
+test_signs_and_missing_bounds (test_confirmation.AnalysisAndRecoveryTests.test_signs_and_missing_bounds) ... ok
+test_exact_four_arm_four_test_protocol (test_confirmation.ProtocolTests.test_exact_four_arm_four_test_protocol) ... ok
+test_exposure_filter_removes_ids_and_question_hashes (test_confirmation.ProtocolTests.test_exposure_filter_removes_ids_and_question_hashes) ... ok
+test_frozen_lock_detects_changes_before_inference (test_confirmation.ProtocolTests.test_frozen_lock_detects_changes_before_inference) ... ok
+test_missing_exposure_information_blocks_freeze (test_confirmation.ProtocolTests.test_missing_exposure_information_blocks_freeze) ... ok
+test_pilot_evidence_matches_immutable_backend (test_confirmation.ProtocolTests.test_pilot_evidence_matches_immutable_backend) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 1.216s
+
+OK

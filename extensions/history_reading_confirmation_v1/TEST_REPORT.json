@@ -1,0 +1,42 @@
+{
+  "research_gpu_inference_started": false,
+  "research_validation_locks_created": false,
+  "tests": [
+    {
+      "research_gpu_inference_started": false,
+      "research_validation_locks_created": false,
+      "synthetic_locks_temporary_only": true,
+      "tests_run": 9,
+      "success": true,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "python": "3.13.7",
+      "transformers": "5.15.0",
+      "torch": "2.15.0",
+      "seconds": 1.23
+    },
+    {
+      "research_gpu_inference_started": false,
+      "research_validation_locks_created": false,
+      "synthetic_locks_temporary_only": true,
+      "tests_run": 9,
+      "success": true,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "python": "3.13.7",
+      "transformers": "5.22.0",
+      "torch": "2.15.0",
+      "seconds": 1.23
+    }
+  ],
+  "additional_checks": {
+    "python_compile": true,
+    "bash_syntax": true,
+    "synthetic_figure_render": true,
+    "original_pilot_and_engineering_hashes_verified": true,
+    "backend_source_byte_identical_to_completed_pilot": true
+  },
+  "scope": "Temporary synthetic lock/recovery/analysis tests and read-only checks of original pilot evidence. No held-out model predictions generated."
+}
