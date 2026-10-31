@@ -1,0 +1,99 @@
+{
+  "archive_sha256_verified": true,
+  "extracted_files_verified": 184,
+  "saved_summary_exactly_reproduced": true,
+  "frozen_before_run_lock_sha256": "af1cf27cd6e2233a0345cb261018275f1f3360184805479c0788283c81a4e856",
+  "models": {
+    "llama": {
+      "status": "complete",
+      "records": 352,
+      "engineering_rechecks": 6,
+      "source_hashes_match": true,
+      "prospective_plan_protocol_audit_lock_exact_match": true,
+      "elapsed_minutes": 35.541711922176184,
+      "planned_tasks": 44,
+      "common_complete_tasks": 43,
+      "paired_arm_means": {
+        "baseline": {
+          "high": 8.813953488372093,
+          "low": 6.023255813953488,
+          "gap": 2.7906976744186047
+        },
+        "native_baseline": {
+          "high": 8.837209302325581,
+          "low": 6.093023255813954,
+          "gap": 2.744186046511628
+        },
+        "generated_block": {
+          "high": 8.220930232558139,
+          "low": 7.069767441860465,
+          "gap": 1.1511627906976745
+        },
+        "control_block": {
+          "high": 8.63953488372093,
+          "low": 6.023255813953488,
+          "gap": 2.616279069767442
+        }
+      },
+      "paired_gap_reduction_percent": 58.75,
+      "task_gap_reduced": 30,
+      "task_gap_unchanged": 10,
+      "task_gap_increased": 3,
+      "validity_counts": {
+        "valid": 349,
+        "capped_incomplete": 3
+      },
+      "invalid_tasks": [
+        "wildbench/ca7d8fdc596240d8"
+      ],
+      "first_token_boundary_checks": 88,
+      "identical_prompt_token_checks_across_all_four_arms": 88
+    },
+    "qwen": {
+      "status": "complete",
+      "records": 352,
+      "engineering_rechecks": 6,
+      "source_hashes_match": true,
+      "prospective_plan_protocol_audit_lock_exact_match": true,
+      "elapsed_minutes": 43.80583605932382,
+      "planned_tasks": 44,
+      "common_complete_tasks": 43,
+      "paired_arm_means": {
+        "baseline": {
+          "high": 9.209302325581396,
+          "low": 5.930232558139535,
+          "gap": 3.2790697674418605
+        },
+        "native_baseline": {
+          "high": 9.151162790697674,
+          "low": 6.069767441860465,
+          "gap": 3.0813953488372094
+        },
+        "generated_block": {
+          "high": 8.418604651162791,
+          "low": 7.267441860465116,
+          "gap": 1.1511627906976745
+        },
+        "control_block": {
+          "high": 9.209302325581396,
+          "low": 5.8604651162790695,
+          "gap": 3.3488372093023258
+        }
+      },
+      "paired_gap_reduction_percent": 64.8936170212766,
+      "task_gap_reduced": 36,
+      "task_gap_unchanged": 7,
+      "task_gap_increased": 0,
+      "validity_counts": {
+        "valid": 345,
+        "capped_incomplete": 7
+      },
+      "invalid_tasks": [
+        "wildbench/ca7d8fdc596240d8"
+      ],
+      "first_token_boundary_checks": 88,
+      "identical_prompt_token_checks_across_all_four_arms": 88
+    }
+  },
+  "interpretation": "Held out relative to documented mechanistic experiments; all 44 tasks now have confirmation exposure and must not be reused as a new tuning holdout."
+}

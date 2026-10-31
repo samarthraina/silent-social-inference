@@ -1,0 +1,386 @@
+{
+  "models": [
+    {
+      "both_predeclared_checks_positive": true,
+      "confirmatory": true,
+      "dataset_counts": {
+        "arena_hard": 21,
+        "mtbench": 1,
+        "wildbench": 22
+      },
+      "descriptive_arms": {
+        "baseline": {
+          "by_dataset": {
+            "arena_hard": {
+              "mean_gap": 3.238095238095238,
+              "n": 21
+            },
+            "mtbench": {
+              "mean_gap": 3.0,
+              "n": 1
+            },
+            "wildbench": {
+              "mean_gap": 3.3333333333333335,
+              "n": 21
+            }
+          },
+          "complete_pairs": 43,
+          "mean_gap": 3.2790697674418605,
+          "mean_high": 9.209302325581396,
+          "mean_low": 5.930232558139535,
+          "missing_by_reason": {
+            "capped_incomplete": 1
+          }
+        },
+        "control_block": {
+          "by_dataset": {
+            "arena_hard": {
+              "mean_gap": 3.5952380952380953,
+              "n": 21
+            },
+            "mtbench": {
+              "mean_gap": 1.0,
+              "n": 1
+            },
+            "wildbench": {
+              "mean_gap": 3.2142857142857144,
+              "n": 21
+            }
+          },
+          "complete_pairs": 43,
+          "mean_gap": 3.3488372093023258,
+          "mean_high": 9.209302325581396,
+          "mean_low": 5.8604651162790695,
+          "missing_by_reason": {
+            "capped_incomplete": 2
+          }
+        },
+        "generated_block": {
+          "by_dataset": {
+            "arena_hard": {
+              "mean_gap": 1.3095238095238095,
+              "n": 21
+            },
+            "mtbench": {
+              "mean_gap": 0.0,
+              "n": 1
+            },
+            "wildbench": {
+              "mean_gap": 1.0476190476190477,
+              "n": 21
+            }
+          },
+          "complete_pairs": 43,
+          "mean_gap": 1.1511627906976745,
+          "mean_high": 8.418604651162791,
+          "mean_low": 7.267441860465116,
+          "missing_by_reason": {
+            "capped_incomplete": 2
+          }
+        },
+        "native_baseline": {
+          "by_dataset": {
+            "arena_hard": {
+              "mean_gap": 2.9523809523809526,
+              "n": 21
+            },
+            "mtbench": {
+              "mean_gap": 3.0,
+              "n": 1
+            },
+            "wildbench": {
+              "mean_gap": 3.2142857142857144,
+              "n": 21
+            }
+          },
+          "complete_pairs": 43,
+          "mean_gap": 3.0813953488372094,
+          "mean_high": 9.151162790697674,
+          "mean_low": 6.069767441860465,
+          "missing_by_reason": {
+            "capped_incomplete": 2
+          }
+        }
+      },
+      "exposure_scope": "held_out_relative_to_documented_sources",
+      "interpretation_limits": [
+        "Direct access route during generation; no unique layer/head or complete circuit identified.",
+        "Mechanistic exposure is audited within the frozen documented/reviewer scope, not proof of global non-exposure, semantic novelty or behavioral non-exposure.",
+        "The content-token control can affect grading; inspect absolute scores and raw text for degradation.",
+        "Native-path sensitivity is descriptive; an interval spanning zero is not proof of equivalence.",
+        "No inference about retaliation versus anchoring/calibration, real agent interactions or frontier models."
+      ],
+      "model": "qwen",
+      "native_path_sensitivity": {
+        "ci": [
+          0.03488372093023256,
+          0.36046511627906974
+        ],
+        "complete_tasks": 43,
+        "confidence_level": 0.95,
+        "family_adjusted": false,
+        "mean_points": 0.19767441860465115,
+        "missing_tasks": [
+          {
+            "missing_units": [
+              "wildbench/ca7d8fdc596240d8|factorial|self_low_2|baseline",
+              "wildbench/ca7d8fdc596240d8|factorial|self_high_10|native_baseline",
+              "wildbench/ca7d8fdc596240d8|factorial|self_low_2|native_baseline"
+            ],
+            "task": "wildbench/ca7d8fdc596240d8"
+          }
+        ],
+        "planned_task_missing_bounds": [
+          -0.045454545454545456,
+          0.6363636363636364
+        ],
+        "planned_tasks": 44
+      },
+      "planned_tasks": 44,
+      "primary": {
+        "history_gap_reduction": {
+          "ci": [
+            1.5813953488372092,
+            2.7209302325581395
+          ],
+          "complete_tasks": 43,
+          "confidence_level": 0.9875,
+          "family_adjusted": true,
+          "mean_points": 2.127906976744186,
+          "missing_tasks": [
+            {
+              "missing_units": [
+                "wildbench/ca7d8fdc596240d8|factorial|self_low_2|baseline",
+                "wildbench/ca7d8fdc596240d8|factorial|self_high_10|generated_block",
+                "wildbench/ca7d8fdc596240d8|factorial|self_low_2|generated_block"
+              ],
+              "task": "wildbench/ca7d8fdc596240d8"
+            }
+          ],
+          "planned_task_missing_bounds": [
+            1.8409090909090908,
+            2.522727272727273
+          ],
+          "planned_tasks": 44,
+          "positive_with_ci_and_missingness_bounds": true
+        },
+        "history_vs_control_specificity": {
+          "ci": [
+            1.6395348837209303,
+            2.7674418604651163
+          ],
+          "complete_tasks": 43,
+          "confidence_level": 0.9875,
+          "family_adjusted": true,
+          "mean_points": 2.197674418604651,
+          "missing_tasks": [
+            {
+              "missing_units": [
+                "wildbench/ca7d8fdc596240d8|factorial|self_high_10|control_block",
+                "wildbench/ca7d8fdc596240d8|factorial|self_low_2|control_block",
+                "wildbench/ca7d8fdc596240d8|factorial|self_high_10|generated_block",
+                "wildbench/ca7d8fdc596240d8|factorial|self_low_2|generated_block"
+              ],
+              "task": "wildbench/ca7d8fdc596240d8"
+            }
+          ],
+          "planned_task_missing_bounds": [
+            1.6931818181818181,
+            2.602272727272727
+          ],
+          "planned_tasks": 44,
+          "positive_with_ci_and_missingness_bounds": true
+        }
+      },
+      "records": 352
+    },
+    {
+      "both_predeclared_checks_positive": true,
+      "confirmatory": true,
+      "dataset_counts": {
+        "arena_hard": 21,
+        "mtbench": 1,
+        "wildbench": 22
+      },
+      "descriptive_arms": {
+        "baseline": {
+          "by_dataset": {
+            "arena_hard": {
+              "mean_gap": 2.8095238095238093,
+              "n": 21
+            },
+            "mtbench": {
+              "mean_gap": 2.0,
+              "n": 1
+            },
+            "wildbench": {
+              "mean_gap": 2.8095238095238093,
+              "n": 21
+            }
+          },
+          "complete_pairs": 43,
+          "mean_gap": 2.7906976744186047,
+          "mean_high": 8.813953488372093,
+          "mean_low": 6.023255813953488,
+          "missing_by_reason": {
+            "capped_incomplete": 1
+          }
+        },
+        "control_block": {
+          "by_dataset": {
+            "arena_hard": {
+              "mean_gap": 2.857142857142857,
+              "n": 21
+            },
+            "mtbench": {
+              "mean_gap": 2.0,
+              "n": 1
+            },
+            "wildbench": {
+              "mean_gap": 2.4047619047619047,
+              "n": 21
+            }
+          },
+          "complete_pairs": 43,
+          "mean_gap": 2.616279069767442,
+          "mean_high": 8.63953488372093,
+          "mean_low": 6.023255813953488,
+          "missing_by_reason": {
+            "capped_incomplete": 1
+          }
+        },
+        "generated_block": {
+          "by_dataset": {
+            "arena_hard": {
+              "mean_gap": 1.2142857142857142,
+              "n": 21
+            },
+            "mtbench": {
+              "mean_gap": -1.0,
+              "n": 1
+            },
+            "wildbench": {
+              "mean_gap": 1.2272727272727273,
+              "n": 22
+            }
+          },
+          "complete_pairs": 44,
+          "mean_gap": 1.1704545454545454,
+          "mean_high": 8.238636363636363,
+          "mean_low": 7.068181818181818,
+          "missing_by_reason": {}
+        },
+        "native_baseline": {
+          "by_dataset": {
+            "arena_hard": {
+              "mean_gap": 2.8333333333333335,
+              "n": 21
+            },
+            "mtbench": {
+              "mean_gap": 2.0,
+              "n": 1
+            },
+            "wildbench": {
+              "mean_gap": 2.6904761904761907,
+              "n": 21
+            }
+          },
+          "complete_pairs": 43,
+          "mean_gap": 2.744186046511628,
+          "mean_high": 8.837209302325581,
+          "mean_low": 6.093023255813954,
+          "missing_by_reason": {
+            "capped_incomplete": 1
+          }
+        }
+      },
+      "exposure_scope": "held_out_relative_to_documented_sources",
+      "interpretation_limits": [
+        "Direct access route during generation; no unique layer/head or complete circuit identified.",
+        "Mechanistic exposure is audited within the frozen documented/reviewer scope, not proof of global non-exposure, semantic novelty or behavioral non-exposure.",
+        "The content-token control can affect grading; inspect absolute scores and raw text for degradation.",
+        "Native-path sensitivity is descriptive; an interval spanning zero is not proof of equivalence.",
+        "No inference about retaliation versus anchoring/calibration, real agent interactions or frontier models."
+      ],
+      "model": "llama",
+      "native_path_sensitivity": {
+        "ci": [
+          -0.1511627906976744,
+          0.2558139534883721
+        ],
+        "complete_tasks": 43,
+        "confidence_level": 0.95,
+        "family_adjusted": false,
+        "mean_points": 0.046511627906976744,
+        "missing_tasks": [
+          {
+            "missing_units": [
+              "wildbench/ca7d8fdc596240d8|factorial|self_high_10|baseline",
+              "wildbench/ca7d8fdc596240d8|factorial|self_high_10|native_baseline"
+            ],
+            "task": "wildbench/ca7d8fdc596240d8"
+          }
+        ],
+        "planned_task_missing_bounds": [
+          -0.18181818181818182,
+          0.2727272727272727
+        ],
+        "planned_tasks": 44
+      },
+      "planned_tasks": 44,
+      "primary": {
+        "history_gap_reduction": {
+          "ci": [
+            0.9767441860465116,
+            2.372093023255814
+          ],
+          "complete_tasks": 43,
+          "confidence_level": 0.9875,
+          "family_adjusted": true,
+          "mean_points": 1.6395348837209303,
+          "missing_tasks": [
+            {
+              "missing_units": [
+                "wildbench/ca7d8fdc596240d8|factorial|self_high_10|baseline"
+              ],
+              "task": "wildbench/ca7d8fdc596240d8"
+            }
+          ],
+          "planned_task_missing_bounds": [
+            1.4204545454545454,
+            1.6477272727272727
+          ],
+          "planned_tasks": 44,
+          "positive_with_ci_and_missingness_bounds": true
+        },
+        "history_vs_control_specificity": {
+          "ci": [
+            0.8488372093023255,
+            2.0930232558139537
+          ],
+          "complete_tasks": 43,
+          "confidence_level": 0.9875,
+          "family_adjusted": true,
+          "mean_points": 1.4651162790697674,
+          "missing_tasks": [
+            {
+              "missing_units": [
+                "wildbench/ca7d8fdc596240d8|factorial|self_high_10|control_block"
+              ],
+              "task": "wildbench/ca7d8fdc596240d8"
+            }
+          ],
+          "planned_task_missing_bounds": [
+            1.25,
+            1.4772727272727273
+          ],
+          "planned_tasks": 44,
+          "positive_with_ci_and_missingness_bounds": true
+        }
+      },
+      "records": 352
+    }
+  ],
+  "pilot_selection_disclosed": true,
+  "primary_family": "Four tests: two endpoints x two models; two-sided task-stratified bootstrap, alpha=.05/4."
+}

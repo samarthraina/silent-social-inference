@@ -1,6 +1,6 @@
 # Focused confirmation: does generated-token access to history carry the score effect?
 
-**Status: documented-source exposure audit complete; no held-out GPU outcomes have been collected by this package.** Prospective locks are frozen in `preregistered/`; a reachable current GPU instance is needed to start the real run. Tests create separate, temporary synthetic locks that are never research results.
+**Status: the 44-task confirmation is complete in both models.** All 704 planned records are present. The paired analysis supports a causal contribution from direct history access during generation. This does **not** establish which residual-stream layers carry the effect; layer localization in this free-generation setup remains unfinished. See [the audited results and reproducible analysis](../history_confirmation_analysis/README.md). The `preregistered/` files remain the unchanged pre-run snapshots. These 44 tasks are now exposed and must not be reused as a fresh tuning holdout.
 
 The completed pilot found history-gap reductions of about 45% (Llama) and 71% (Qwen), with positive history-versus-content-control contrasts. It did not establish a reliable patch interaction, and its rationale experiment was unusable because of generation limits. This confirmation therefore tests the history-reading result, while preserving those other pilot outcomes as reported. It is a prospectively selected follow-up, not an independent preregistration of the exploratory pilot.
 
