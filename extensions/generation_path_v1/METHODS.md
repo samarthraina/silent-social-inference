@@ -9,7 +9,7 @@ For each task let gap(arm) = score(high history, arm) - score(low history, arm).
 
 Both are in score points. A positive reduction alone is insufficient for a history-specific conclusion: broad content disruption, generic score collapse and missingness must be assessed using the competing-content control, raw responses, descriptive scores/gaps and missing-output bounds. Question/answer tokens are not inert. The control blocks the same number of native prompt keys in the same layers, deterministically choosing question/answer positions in prompt order. It can itself impair judging.
 
-Every experimental generation uses a newly allocated cache. Blocked keys are all native tokens overlapping the history sentence. Readers are only input positions at or beyond the native prompt length. The first sample comes from a prompt reader and is unchanged by this intervention. Prompt states are never recomputed under a blocked prompt mask. Later generated states can still encode history indirectly through unblocked prompt keys or previous generated tokens.
+Every generation uses a newly allocated cache. Intervention/control arms use the same explicit-mask path; an additional native-baseline arm calls the original Hugging Face generator and is reported separately. Blocked keys are all native tokens overlapping the history sentence. Readers are only input positions at or beyond the native prompt length. The first sample comes from a prompt reader and is unchanged by this intervention. Prompt states are never recomputed under a blocked prompt mask. Later generated states can still encode history indirectly through unblocked prompt keys or previous generated tokens.
 
 ## Experiment 2: state replacement x generated-reader blocking
 
@@ -56,3 +56,12 @@ Prompt rendering, model pins, cap-aware validity and score parsing come from the
 ## Protocol v2 correction
 
 The initial runner incorrectly assumed 32 decoder blocks for both models. The pinned Qwen3-8B configuration has 36; Llama has 32. Protocol v2 blocks all layers separately for each model and uses model-specific counts throughout the engineering checks and analysis. Architecture is checked before loading weights and again on the loaded model. The layer-count failure occurred before any engineering units ran. Start a fresh result directory under this corrected protocol; do not mix v1/v2 run metadata.
+
+
+## Protocol v3 numerical-path sensitivity
+
+Exact cross-path text equality is not a premise of the intervention estimand: explicit causal masks, automatic masks and recomputation can produce different floating-point predictions. Mandatory controls are exact repeated logits/tokens within the explicit path, same-state and no-op output identity, unchanged prompt predictions under generated-only blocking, correct blocked edge counts and an active mask control. The engineering gate verifies saved hashes and cannot pass if any of those controls fail. Cross-path token hashes and their agreement flags are retained regardless of sign.
+
+To quantify score-level consequences, add actual native Hugging Face cached generation under both histories for every pilot and validation task (two extra units per task). All original primary intervention contrasts remain within the explicit-mask path. Report the native gap, explicit gap, and paired explicit-minus-native gap difference, with a descriptive 95% task-stratified bootstrap interval and planned-task missing bounds. That diagnostic is not an extra confirmatory primary test and is not evidence of equivalence merely because its interval includes zero. It limits the scope of any result that fails to transfer across computational paths.
+
+The version change follows engineering-only evidence before the new pilot/validation; it is not a retroactive declaration that failed v2 checks passed. Preserve v2 records and freeze v3 before the new runs. No interventions are applied to the native baseline.

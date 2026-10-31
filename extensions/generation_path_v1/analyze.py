@@ -156,6 +156,20 @@ def summarize(directory):
             descriptive[kind+'|'+arm]={'complete_pairs':len(paired),'mean_high_minus_low':sum(paired)/len(paired) if paired else None,'missing_by_reason':dict(invalid),
                 'mean_high_complete_pairs':sum(hi_scores)/len(hi_scores) if hi_scores else None,
                 'mean_low_complete_pairs':sum(lo_scores)/len(lo_scores) if lo_scores else None}
+    native_values=[];native_strata=[];native_bounds=[]
+    for t in tasks:
+        task=t['base_task_id']
+        def obs(c,a):return {unit_key(dict(task=task,kind='factorial',condition=c,arm=a)):1.}
+        expr=combine((1,obs('self_high_10','baseline')),(-1,obs('self_low_2','baseline')),
+                     (-1,obs('self_high_10','native_baseline')),(1,obs('self_low_2','native_baseline')))
+        value,lo,hi,_=evaluate(expr,records);native_bounds.append((lo,hi))
+        if value is not None:native_values.append(value);native_strata.append(t['dataset'])
+    native_diagnostic={'estimand':'Explicit-mask history gap minus actual HF native history gap',
+        'complete_tasks':len(native_values),'planned_tasks':len(tasks),
+        'mean_gap_difference_points':sum(native_values)/len(native_values) if native_values else None,
+        'descriptive_ci95':interval(native_values,native_strata,draws=p['bootstrap_draws'],alpha=.05,seed=p['bootstrap_seed']),
+        'planned_task_bounds':[sum(b[i] for b in native_bounds)/len(tasks) for i in range(2)],
+        'inference_scope':'Required sensitivity diagnostic; 95% CI is not part of the primary 12-test family. No native-path equivalence is asserted.'}
     directional={}
     for patch in ['cross_patch','l2_patch']:
         for blocked in [False,True]:
@@ -176,7 +190,7 @@ def summarize(directory):
                        'Complete-case intervals do not correct selection from missing outputs; use planned-task bounds.',
                        'Non-history content blocking is a competing-content control, not an inert intervention.',
                        'Rationale continuation scores use a different output protocol; not proof of natural causal mediation.'],
-            'primary':results,'descriptive_gaps':descriptive,'descriptive_directional_patch_movement':directional,
+            'primary':results,'descriptive_gaps':descriptive,'descriptive_directional_patch_movement':directional,'native_vs_explicit_baseline':native_diagnostic,
             'invalid_rationale_donors':sum(r['kind']=='rationale' and not r['rationale_usable'] for r in records.values())}
 
 

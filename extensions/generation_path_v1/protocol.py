@@ -12,7 +12,7 @@ CONDS = ('self_high_10', 'self_low_2')
 DONORS = CONDS + ('no_history',)
 SCORE_ARMS = DONORS + ('generic', 'empty')
 GENERIC_RATIONALE = 'An evaluation considers the response in relation to the question. Relevant details and clarity can be considered together. '
-ARMS = ('baseline', 'generated_block', 'control_block', 'cross_patch',
+ARMS = ('baseline', 'native_baseline', 'generated_block', 'control_block', 'cross_patch',
         'cross_patch_generated_block', 'l2_patch', 'l2_patch_generated_block', 'same_state_patch')
 PRIMARY = ('history_gap_reduction', 'history_vs_control_specificity', 'patch_block_interaction',
            'patch_interaction_vs_l2', 'neutral_rationale_gap_reduction', 'rationale_donor_effect')
@@ -49,8 +49,10 @@ def source_hashes():
 
 
 def validate_protocol(p):
-    if p['version'] != 2 or p['primary_tests_total'] != len(PRIMARY)*2 or p.get('model_num_hidden_layers') != {'llama':32,'qwen':36} or p['mask_blocks'] != {'llama':list(range(32)), 'qwen':list(range(36))}:
-        raise ValueError('Protocol v2 requires all 32 Llama / 36 Qwen blocks and 12 planned tests')
+    if p['version'] != 3 or p['primary_tests_total'] != len(PRIMARY)*2 or p.get('model_num_hidden_layers') != {'llama':32,'qwen':36} or p['mask_blocks'] != {'llama':list(range(32)), 'qwen':list(range(36))}:
+        raise ValueError('Protocol v3 requires all 32 Llama / 36 Qwen blocks and 12 planned tests')
+    if p.get('engineering_policy')!='strict_within_path_invariance_cross_path_diagnostic_v3' or p.get('native_baseline')!='hf_generate_cached_same_native_messages':
+        raise ValueError('Protocol v3 requires exact within-path controls and a native baseline arm')
     if p['reader_policy'] != 'generated' or p['control_layer'] != 2 or p['family_alpha'] != .05 or p['primary_endpoints'] != list(PRIMARY) or p.get('seed') != 42:
         raise ValueError('Changed reader policy/control requires a new protocol version')
     if not (1 <= p['free_max_new'] <= 1024 and 1 <= p['rationale_max_new'] <= 512
@@ -61,6 +63,35 @@ def validate_protocol(p):
     if p['patch_sites'] != {'llama': {'layer': 12, 'span': 'history_end'},
                             'qwen': {'layer': 16, 'span': 'history_end'}}:
         raise ValueError('This protocol tests the previously discovered leads, not a new site search')
+
+
+HARD_ENGINEERING_CHECKS = ('repeat_explicit_tokens','repeat_explicit_logits','noop_hooks','same_state',
+    'generated_prefill_identical','generated_prefill_edges_zero','generated_decode_edges_active',
+    'prompt_cut_positive_control')
+
+
+def verify_engineering_record(r, protocol, model):
+    if set(r['checks']) != set(HARD_ENGINEERING_CHECKS) or not all(r['checks'].values()) or r.get('all_checks_pass') is not True:
+        raise ValueError('A mandatory within-path engineering control failed or is absent')
+    h=r['equivalence_token_sha256']
+    if len({h[k] for k in ['baseline','repeat_explicit','noop_hooks','same_state']})!=1:
+        raise ValueError('Within-path generated-token identity failed')
+    if not r['baseline_prediction_logits_sha256'] or r['baseline_prediction_logits_sha256']!=r['repeat_prediction_logits_sha256']:
+        raise ValueError('Repeated explicit-path logits are not bit-identical')
+    if r['baseline_prefill_logits_sha256']!=r['generated_block_prefill_logits_sha256']:
+        raise ValueError('Generated-reader blocking changed prompt logits')
+    if r['active_decode_events']['blocked_edges']!=len(r['history_keys'])*len(model_blocks(protocol,model)) or r['prefill_block_events']['blocked_edges']!=0:
+        raise ValueError('Reader-boundary check failed')
+    if not r['positive_control_max_logit_difference']>0:
+        raise ValueError('Active mask control had no measurable effect')
+    diagnostic=r['cross_path_diagnostics']
+    comparisons={'automatic_mask_vs_explicit':('automatic_mask','baseline'),
+                 'native_generate_vs_explicit':('native_generate','baseline'),
+                 'recomputed_vs_explicit':('no_cache','baseline'),
+                 'automatic_mask_vs_native_generate':('automatic_mask','native_generate')}
+    if set(diagnostic)!=set(comparisons):raise ValueError('Cross-path diagnostics are incomplete')
+    for key,(a,b) in comparisons.items():
+        if diagnostic[key] != (h[a]==h[b]):raise ValueError('Cross-path diagnostic disagrees with saved hashes')
 
 
 def model_blocks(protocol, model_key):

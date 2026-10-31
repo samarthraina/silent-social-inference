@@ -2,7 +2,7 @@
 import sys
 import time
 from pathlib import Path
-from protocol import DEPENDENCY, CONDS, DONORS, RATIONALE_REQUEST, SCORE_PREFIX, GENERIC_RATIONALE, rationale_valid, sha, canonical, model_blocks
+from protocol import DEPENDENCY, CONDS, DONORS, RATIONALE_REQUEST, SCORE_PREFIX, GENERIC_RATIONALE, rationale_valid, sha, canonical, model_blocks, verify_engineering_record
 import engine
 
 sys.path.insert(0, str(DEPENDENCY))
@@ -44,7 +44,7 @@ class Study:
         return {'ids': ids, 'positions': pos, 'prompt': prompt, 'rendered_sha256': sha(rendered.encode())}
 
     def generate(self, b, *, maximum, suffix='', prefix_ids=(), keys=(), blocks=(), patch=None,
-                 explicit=True, use_cache=True):
+                 explicit=True, use_cache=True, audit_logits=False):
         import torch
         ids = b['ids']
         if prefix_ids:
@@ -57,7 +57,7 @@ class Study:
         start = time.monotonic()
         g = engine.greedy(self.model, ids, prompt_len=b['ids'].shape[1], max_new=maximum,
                          eos_ids=set(eg.terminator_ids(self.loaded)), keys=keys, blocks=blocks,
-                         patch=patch, explicit=explicit, use_cache=use_cache, budget=self.budget)
+                         patch=patch, explicit=explicit, use_cache=use_cache, budget=self.budget, audit_logits=audit_logits)
         logits = g.pop('_first_logits')
         text = self.tok.decode(g['ids'], skip_special_tokens=True, clean_up_tokenization_spaces=False).strip()
         g.update(text=text, output_tokens=len(g['ids']), prompt_tokens=ids.shape[1],
@@ -80,7 +80,8 @@ class Study:
         import torch
         b = self.build(task, condition)
         n = self.p['engineering_max_new']
-        base, logits = self.generate(b, maximum=n)
+        base, logits = self.generate(b, maximum=n, audit_logits=True)
+        repeat, _ = self.generate(b, maximum=n, audit_logits=True)
         automatic, _ = self.generate(b, maximum=n, explicit=False)
         no_cache, _ = self.generate(b, maximum=n, use_cache=False)
         noop, _ = self.generate(b, maximum=n, blocks=self.blocks)
@@ -92,9 +93,13 @@ class Study:
         with torch.inference_mode():
             native = self.model.generate(input_ids=b['ids'], attention_mask=torch.ones_like(b['ids']), **kwargs)
         native_ids = eg.trim_to_first_eos(native[0,b['ids'].shape[1]:].tolist(),eg.terminator_ids(self.loaded))
-        identities = {name: base['ids'] == other['ids'] for name,other in
-                      [('automatic_mask',automatic),('no_cache',no_cache),('noop_hooks',noop),('same_state',identity)]}
-        identities['native_generate'] = base['ids'] == native_ids
+        identities = {'repeat_explicit_tokens':base['ids']==repeat['ids'],
+                      'repeat_explicit_logits':base['prediction_logits_sha256']==repeat['prediction_logits_sha256'],
+                      'noop_hooks':base['ids']==noop['ids'],'same_state':base['ids']==identity['ids']}
+        diagnostics = {'automatic_mask_vs_explicit':automatic['ids']==base['ids'],
+                       'native_generate_vs_explicit':native_ids==base['ids'],
+                       'recomputed_vs_explicit':no_cache['ids']==base['ids'],
+                       'automatic_mask_vs_native_generate':automatic['ids']==native_ids}
         # Structural boundary check: first-token logits cannot change when only
         # generated INPUT-token readers are blocked. Then force the same first token
         # for one cached step to exercise the active generated-reader edge.
@@ -112,10 +117,12 @@ class Study:
                       generated_prefill_edges_zero=blocked['events']['blocked_edges']==0,
                       generated_decode_edges_active=ev['blocked_edges']==len(b['positions']['history'])*len(self.blocks),
                       prompt_cut_positive_control=difference>0)
-        return {'checks':checks, 'all_checks_pass':all(checks.values()),
+        return {'checks':checks, 'all_checks_pass':all(checks.values()),'cross_path_diagnostics':diagnostics,
+                'baseline_prediction_logits_sha256':base['prediction_logits_sha256'],
+                'repeat_prediction_logits_sha256':repeat['prediction_logits_sha256'],
                 'positive_control_max_logit_difference':difference,
                 'baseline_token_sha256':base['token_sha256'],
-                'equivalence_token_sha256':dict(baseline=base['token_sha256'],automatic_mask=automatic['token_sha256'],
+                'equivalence_token_sha256':dict(baseline=base['token_sha256'],repeat_explicit=repeat['token_sha256'],automatic_mask=automatic['token_sha256'],
                      no_cache=no_cache['token_sha256'],noop_hooks=noop['token_sha256'],same_state=identity['token_sha256'],
                      native_generate=engine.digest_ids(native_ids)),
                 'baseline_prefill_logits_sha256':sha(logits.numpy().tobytes()),
@@ -159,6 +166,22 @@ class Study:
                         rationale_dependency_units=dependencies,shared_rationale_tokens=len(prefix_ids),
                         rationale_prefix_sha256=sha(canonical(prefix_ids)),
                         protocol_note='Equal-token rationale-prefix intervention; not ordinary free-generation mediation')
+        if kind=='factorial' and arm=='native_baseline':
+            # Same frozen renderer/loader as the original experiment; no custom mask.
+            # This pre-hook checks time only and never alters inputs or outputs.
+            self.budget()
+            h=self.model.register_forward_pre_hook(lambda _m,_a:self.budget())
+            try:
+                g=eg.generate_exact(self.loaded,C.messages(self.key,b['prompt']),
+                                    max_new_tokens=self.p['free_max_new'],seed=self.p['seed'],use_cache=True)
+            finally:h.remove()
+            ids=g['generated_token_ids_trimmed']
+            return dict(g,**RN.payload_from_generation(g,None,self.p['free_max_new']),
+                        text=g['text'],ids=ids,token_sha256=engine.digest_ids(ids),
+                        events={'mask_hooks':0,'blocked_edges':0,'patch_writes':0,'forwards':len(ids)},
+                        history_keys=b['positions']['history'],control_keys=b['positions']['control'],
+                        mask_blocks=[],source_condition=None,patch_layer=None,patch_positions=[],
+                        computation_path='hf_native_cached')
         keys, blocks, patch, source = (),(),None,None
         if 'generated_block' in arm or arm == 'generated_block':
             keys=b['positions']['history'];blocks=self.blocks

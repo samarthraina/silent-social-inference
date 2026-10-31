@@ -8,7 +8,7 @@ import signal
 import sys
 import time
 from protocol import (HERE, DEPENDENCY, canonical, load, planned_units, ordered_units, read_journal,
-                      sha, source_hashes, unit_key, validate_protocol, write_json, model_blocks, validate_model_config, validate_architecture)
+                      sha, source_hashes, unit_key, validate_protocol, write_json, model_blocks, validate_model_config, validate_architecture, verify_engineering_record)
 
 
 class BudgetStop(RuntimeError):
@@ -25,18 +25,8 @@ def gate_proof(path, *, model, stage, binding):
     expected={unit_key(u) for u in planned_units(tasks,stage)}
     records=read_journal(p/'raw.jsonl',expected)
     if set(records)!=expected:raise ValueError('Gate raw coverage is incomplete')
-    if stage=='engineering' and not all(r['all_checks_pass'] for r in records.values()):
-        raise ValueError('Engineering checks failed')
     if stage=='engineering':
-        for r in records.values():
-            if len(set(r['equivalence_token_sha256'].values()))!=1:
-                raise ValueError('Engineering token-hash identity differs')
-            if r['baseline_prefill_logits_sha256']!=r['generated_block_prefill_logits_sha256']:
-                raise ValueError('Generated-reader block changed prompt logits')
-            if r['active_decode_events']['blocked_edges']!=len(r['history_keys'])*len(model_blocks(load(p/'protocol.json'),model)) or r['prefill_block_events']['blocked_edges']!=0:
-                raise ValueError('Engineering reader-boundary checks differ')
-            if not r['positive_control_max_logit_difference']>0:
-                raise ValueError('Engineering active mask control had no measurable effect')
+        for r in records.values():verify_engineering_record(r,load(p/'protocol.json'),model)
     return sha((p/'metadata.json').read_bytes()),sha((p/'raw.jsonl').read_bytes())
 
 
@@ -151,7 +141,7 @@ def main():
                 print('DONE',key,f'[{len(journal)}/{len(expected)}]',flush=True)
         if set(journal)!=expected:raise ValueError('Final journal coverage differs')
         if a.stage=='engineering':
-            if not all(r['all_checks_pass'] for r in journal.values()):raise RuntimeError('Engineering gate failed; no pilot permitted')
+            for r in journal.values():verify_engineering_record(r,protocol,a.model)
         else:
             for t in tasks:
                 for c in ('self_high_10','self_low_2'):

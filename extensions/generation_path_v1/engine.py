@@ -136,7 +136,7 @@ def capture(model, ids, layer, positions):
 
 
 def greedy(model, input_ids, *, prompt_len, max_new, eos_ids, keys=(), blocks=(), patch=None,
-           explicit=True, use_cache=True, budget=lambda: None):
+           explicit=True, use_cache=True, budget=lambda: None, audit_logits=False):
     """Cache retained within a single arm only. No state/cache is shared across arms."""
     import torch
     if max_new < 1 or prompt_len < 1 or prompt_len > input_ids.shape[1]:
@@ -149,6 +149,7 @@ def greedy(model, input_ids, *, prompt_len, max_new, eos_ids, keys=(), blocks=()
     generated = []
     totals = {'mask_hooks': 0, 'blocked_edges': 0, 'patch_writes': 0, 'forwards': 0}
     first_logits = None
+    prediction_hashes = []
     for step in range(max_new):
         budget()
         if use_cache or step == 0:
@@ -163,6 +164,8 @@ def greedy(model, input_ids, *, prompt_len, max_new, eos_ids, keys=(), blocks=()
         logits = out.logits[0, -1].float()
         if step == 0:
             first_logits = logits.detach().cpu()
+        if audit_logits:
+            prediction_hashes.append(hashlib.sha256(logits.detach().cpu().numpy().tobytes()).hexdigest())
         token = int(logits.argmax())
         generated.append(token)
         totals['forwards'] += 1
@@ -177,4 +180,4 @@ def greedy(model, input_ids, *, prompt_len, max_new, eos_ids, keys=(), blocks=()
     return {'ids': generated, 'input_tokens': initial, 'native_prompt_tokens': prompt_len,
             'emitted_terminator': ended, 'hit_token_cap': len(generated) == max_new,
             'token_sha256': digest_ids(generated), 'events': totals,
-            '_first_logits': first_logits}
+            '_first_logits': first_logits, 'prediction_logits_sha256':prediction_hashes}

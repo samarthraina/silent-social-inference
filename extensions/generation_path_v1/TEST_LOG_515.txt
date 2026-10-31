@@ -8,6 +8,7 @@ test_mask_boundary_and_no_future_or_prompt_edits (test_generation_path.Architect
 test_sequential_batch_resume_and_stop_on_failed_gate (test_generation_path.BatchTests.test_sequential_batch_resume_and_stop_on_failed_gate) ... ok
 test_bootstrap_is_paired_by_task_and_stratified (test_generation_path.PureTests.test_bootstrap_is_paired_by_task_and_stratified) ... ok
 test_factorial_signs_and_controls (test_generation_path.PureTests.test_factorial_signs_and_controls) ... ok
+test_hard_controls_stay_mandatory_cross_path_diagnostics_remain_visible (test_generation_path.PureTests.test_hard_controls_stay_mandatory_cross_path_diagnostics_remain_visible) ... ok
 test_invalid_journal_never_resumes_silently (test_generation_path.PureTests.test_invalid_journal_never_resumes_silently) ... ok
 test_plan_exposure_and_coverage (test_generation_path.PureTests.test_plan_exposure_and_coverage) ... ok
 test_protocol_is_predeclared (test_generation_path.PureTests.test_protocol_is_predeclared) ... ok
@@ -15,6 +16,6 @@ test_rationale_cannot_smuggle_a_rating (test_generation_path.PureTests.test_rati
 test_resume_binding_gate_rejects_failed_checks (test_generation_path.PureTests.test_resume_binding_gate_rejects_failed_checks) ... ok
 
 ----------------------------------------------------------------------
-Ran 15 tests in 5.951s
+Ran 16 tests in 5.954s
 
 OK

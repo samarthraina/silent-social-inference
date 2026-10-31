@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "reader_policy": "generated",
   "mask_blocks": {
     "llama": [
@@ -111,5 +111,7 @@
   "model_num_hidden_layers": {
     "llama": 32,
     "qwen": 36
-  }
+  },
+  "engineering_policy": "strict_within_path_invariance_cross_path_diagnostic_v3",
+  "native_baseline": "hf_generate_cached_same_native_messages"
 }

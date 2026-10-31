@@ -27,8 +27,8 @@ class PureTests(unittest.TestCase):
         self.assertFalse(ids & (set(peer['splits']['D'])|set(peer['splits']['V'])))
         self.assertFalse(ids & {t['base_task_id'] for k in ['engineering','discovery'] for t in own['splits'][k]})
         units=planned_units(p['pilot'],'pilot')
-        self.assertEqual(len(units),348)
-        self.assertEqual(len({unit_key(u) for u in units}),348)
+        self.assertEqual(len(units),372)
+        self.assertEqual(len({unit_key(u) for u in units}),372)
         self.assertEqual({unit_key(u) for u in ordered_units(p['pilot'],'pilot')},{unit_key(u) for u in units})
         for task in p['pilot']:
             seq=[u for u in ordered_units([task],'pilot')]
@@ -86,6 +86,28 @@ class PureTests(unittest.TestCase):
             p=Path(d);binding=dict(plan_sha256='a',protocol_sha256='b',source_sha256={})
             (p/'metadata.json').write_text(json.dumps(dict(binding,status='failed',model='qwen',stage='engineering')))
             with self.assertRaises(ValueError):gate_proof(p,model='qwen',stage='engineering',binding=binding)
+
+    def test_hard_controls_stay_mandatory_cross_path_diagnostics_remain_visible(self):
+        import copy
+        from protocol import HARD_ENGINEERING_CHECKS,verify_engineering_record
+        p=load(HERE/'protocol.json')
+        row={'checks':dict.fromkeys(HARD_ENGINEERING_CHECKS,True),'all_checks_pass':True,
+             'equivalence_token_sha256':dict(baseline='a',repeat_explicit='a',noop_hooks='a',same_state='a',
+                                             automatic_mask='b',native_generate='c',no_cache='d'),
+             'baseline_prediction_logits_sha256':['exact'],'repeat_prediction_logits_sha256':['exact'],
+             'baseline_prefill_logits_sha256':'prefill','generated_block_prefill_logits_sha256':'prefill',
+             'history_keys':[1,2],'active_decode_events':{'blocked_edges':72},
+             'prefill_block_events':{'blocked_edges':0},'positive_control_max_logit_difference':1.,
+             'cross_path_diagnostics':dict(automatic_mask_vs_explicit=False,native_generate_vs_explicit=False,
+                                          recomputed_vs_explicit=False,automatic_mask_vs_native_generate=False)}
+        verify_engineering_record(row,p,'qwen')
+        for key in HARD_ENGINEERING_CHECKS:
+            bad=copy.deepcopy(row);bad['checks'][key]=False
+            with self.assertRaises(ValueError):verify_engineering_record(bad,p,'qwen')
+        bad=copy.deepcopy(row);bad['repeat_prediction_logits_sha256']=['different']
+        with self.assertRaises(ValueError):verify_engineering_record(bad,p,'qwen')
+        bad=copy.deepcopy(row);bad['cross_path_diagnostics']['automatic_mask_vs_native_generate']=True
+        with self.assertRaises(ValueError):verify_engineering_record(bad,p,'qwen')
 
 
 class ArchitectureTests(unittest.TestCase):
@@ -181,7 +203,8 @@ class CharacterTokenizer:
         text='<U>'+messages[-1]['content']+'</U><A>'
         if not tokenize:return text
         import torch
-        return {'input_ids':torch.tensor([[ord(c) for c in text]])}
+        from transformers import BatchEncoding
+        return BatchEncoding({'input_ids':torch.tensor([[ord(c) for c in text]])})
     def decode(self,ids,**kwargs):
         return ''.join(chr(i) for i in ids if i!=127)
 
@@ -191,7 +214,8 @@ class AdapterTests(unittest.TestCase):
         import torch
         from unittest.mock import patch
         from study import Study
-        tok=CharacterTokenizer();model=SimpleNamespace(parameters=lambda:iter([torch.zeros(1)]))
+        tok=CharacterTokenizer();model=torch.nn.Module()
+        model.register_parameter('dummy',torch.nn.Parameter(torch.zeros(1)))
         scorer=Study(SimpleNamespace(model=model,tokenizer=tok),'qwen',load(HERE/'protocol.json'))
         task={'question':'QUESTION: Are these markers safe? CONTENT TO JUDGE:',
               'answer':'A sufficiently long answer with a QUESTION: marker and a CONTENT TO JUDGE: marker.'}
@@ -209,8 +233,11 @@ class AdapterTests(unittest.TestCase):
                               'patch_writes':int(kw.get('patch') is not None)}},None
         def patcher(task,target,layer,same=False):
             return engine.Patch(layer,[0],torch.zeros(1,1)),target if same else next(c for c in CONDS if c!=target)
+        def native_generate(*args,**kwargs):
+            g,_=generate(None,maximum=512)
+            return dict(g,generated_token_ids_trimmed=g['ids'],generated_token_ids_sha256=g['token_sha256'])
         journal={};tasks=[dict(base_task_id='ds/1')]
-        with patch.object(scorer,'generate',side_effect=generate),patch.object(scorer,'patch',side_effect=patcher):
+        with patch.object(scorer,'generate',side_effect=generate),patch.object(scorer,'patch',side_effect=patcher),patch('study.eg.generate_exact',side_effect=native_generate):
             for u in ordered_units(tasks,'pilot'):
                 r=scorer.run_unit(u,task,journal);journal[unit_key(u)]=dict(u,model='qwen',**r)
                 if u['kind']=='factorial':
@@ -221,7 +248,7 @@ class AdapterTests(unittest.TestCase):
                 if u['kind']=='score':
                     self.assertTrue(r['analysis_valid']);self.assertEqual(r['analysis_score'],9)
                     self.assertTrue(calls[-1]['suffix'].endswith('\n\nFinal score: '))
-            self.assertEqual(len(journal),29)
+            self.assertEqual(len(journal),31)
             # Exercise the actual raw verification and bootstrap pipeline on clearly
             # synthetic, temporary adapter data, never on a saved research-results path.
             from analyze import summarize
@@ -269,6 +296,11 @@ class AdapterTests(unittest.TestCase):
             scorer=Study(SimpleNamespace(model=model,tokenizer=CharacterTokenizer(),spec=spec),name,p)
             result=scorer.engineering(task,'self_low_2')
             self.assertTrue(result['all_checks_pass'],result['checks'])
+            p['free_max_new']=3
+            r=scorer.run_unit(dict(task='synthetic/1',kind='factorial',condition='self_low_2',arm='native_baseline'),task,{})
+            self.assertEqual(r['computation_path'],'hf_native_cached')
+            self.assertEqual(r['events']['mask_hooks'],0)
+            self.assertGreater(len(r['ids']),0)
 
 
 
