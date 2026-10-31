@@ -1,0 +1,288 @@
+{
+  "record_id": "llama_mechanistic_case_study_manifest",
+  "created_at_utc": "2026-08-18T10:24:23+00:00",
+  "scorer": "llama",
+  "contrast": "no_history vs self_low_2",
+  "SELECTION_IS_OUTCOME_DEPENDENT": true,
+  "intended_use": "mechanistic case study only",
+  "not_valid_for": [
+    "any estimate of effect size, prevalence or generality",
+    "any confirmatory behavioural claim"
+  ],
+  "seed": 20260818,
+  "criteria": {
+    "a5_valid_matched_pairs_only": true,
+    "excluded_smoke_task": "arena_hard/4c7d8a034c4e40f6",
+    "endpoint_score_band_inclusive": [
+      2.0,
+      9.0
+    ],
+    "discovery_min_delta": 2,
+    "validation_min_delta": 1,
+    "per_dataset": {
+      "discovery": 4,
+      "validation": 8
+    }
+  },
+  "funnel": {
+    "llama_matched_pairs": 222,
+    "after_smoke_exclusion": 221,
+    "after_endpoint_band": 210
+  },
+  "discovery": [
+    {
+      "dataset": "mtbench",
+      "task_id": "135",
+      "no_history": 8.0,
+      "self_low_2": 6.0,
+      "delta": 2.0
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "149",
+      "no_history": 9.0,
+      "self_low_2": 7.0,
+      "delta": 2.0
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "156",
+      "no_history": 8.0,
+      "self_low_2": 4.0,
+      "delta": 4.0
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "95",
+      "no_history": 8.0,
+      "self_low_2": 4.0,
+      "delta": 4.0
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "0275cb6eae1649c1",
+      "no_history": 8.0,
+      "self_low_2": 6.0,
+      "delta": 2.0
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "6a02a908d61e46c5",
+      "no_history": 9.0,
+      "self_low_2": 6.0,
+      "delta": 3.0
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "b9ebb67820354dcd",
+      "no_history": 8.0,
+      "self_low_2": 4.0,
+      "delta": 4.0
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "e1a4d59e7ef74055",
+      "no_history": 6.0,
+      "self_low_2": 4.0,
+      "delta": 2.0
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "05e420b7d62d4911",
+      "no_history": 8.0,
+      "self_low_2": 6.0,
+      "delta": 2.0
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "b4b03645522f4602",
+      "no_history": 8.0,
+      "self_low_2": 6.0,
+      "delta": 2.0
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "c926c9ebdfce4cdc",
+      "no_history": 8.5,
+      "self_low_2": 6.0,
+      "delta": 2.5
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "f482c63648464b2b",
+      "no_history": 9.0,
+      "self_low_2": 6.0,
+      "delta": 3.0
+    }
+  ],
+  "validation": [
+    {
+      "dataset": "mtbench",
+      "task_id": "101",
+      "no_history": 8.0,
+      "self_low_2": 4.0,
+      "delta": 4.0
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "113",
+      "no_history": 8.0,
+      "self_low_2": 6.0,
+      "delta": 2.0
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "121",
+      "no_history": 8.9,
+      "self_low_2": 6.0,
+      "delta": 2.9000000000000004
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "148",
+      "no_history": 9.0,
+      "self_low_2": 6.0,
+      "delta": 3.0
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "152",
+      "no_history": 8.0,
+      "self_low_2": 6.0,
+      "delta": 2.0
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "84",
+      "no_history": 8.0,
+      "self_low_2": 6.0,
+      "delta": 2.0
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "88",
+      "no_history": 8.0,
+      "self_low_2": 4.0,
+      "delta": 4.0
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "91",
+      "no_history": 8.0,
+      "self_low_2": 6.0,
+      "delta": 2.0
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "4027c1a8845a4516",
+      "no_history": 8.0,
+      "self_low_2": 6.0,
+      "delta": 2.0
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "70dc029ac785461c",
+      "no_history": 9.0,
+      "self_low_2": 8.0,
+      "delta": 1.0
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "76894809e0fe48d9",
+      "no_history": 9.0,
+      "self_low_2": 8.0,
+      "delta": 1.0
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "a10d396f07574a4a",
+      "no_history": 9.0,
+      "self_low_2": 6.0,
+      "delta": 3.0
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "bdd19128a8fd4a99",
+      "no_history": 9.0,
+      "self_low_2": 8.0,
+      "delta": 1.0
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "bfdf93b4e65b4b0e",
+      "no_history": 8.0,
+      "self_low_2": 6.0,
+      "delta": 2.0
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "d309137e15d14f9f",
+      "no_history": 9.0,
+      "self_low_2": 8.0,
+      "delta": 1.0
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "dfc2bd06e952492d",
+      "no_history": 9.0,
+      "self_low_2": 7.0,
+      "delta": 2.0
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "02cda0d324384da7",
+      "no_history": 8.0,
+      "self_low_2": 4.0,
+      "delta": 4.0
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "7e071f9bd9e24dca",
+      "no_history": 9.0,
+      "self_low_2": 8.0,
+      "delta": 1.0
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "b5300bce101c4998",
+      "no_history": 9.0,
+      "self_low_2": 8.0,
+      "delta": 1.0
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "c40db1c020804e92",
+      "no_history": 9.0,
+      "self_low_2": 8.0,
+      "delta": 1.0
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "d9d3a0f99c694d72",
+      "no_history": 9.0,
+      "self_low_2": 8.0,
+      "delta": 1.0
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "eefe41e78705423b",
+      "no_history": 8.0,
+      "self_low_2": 7.0,
+      "delta": 1.0
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "f5e325dcfa434e22",
+      "no_history": 9.0,
+      "self_low_2": 8.0,
+      "delta": 1.0
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "f688239304c040a3",
+      "no_history": 9.0,
+      "self_low_2": 8.0,
+      "delta": 1.0
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "phase": "engineering",
+  "model": "qwen",
+  "planned_tasks": 6,
+  "engineering_positive_controls_checked": 12,
+  "ci_family": "98.75% exploratory intervals; not adjusted for candidate search; not confirmatory",
+  "results": [
+    {
+      "spec": {
+        "component": "resid",
+        "layer": 16,
+        "span": "history_end"
+      },
+      "source": "self_low_2",
+      "target": "self_high_10",
+      "n_complete": 6,
+      "missing": 0,
+      "baseline_gap_mean": 3.6666666666666665,
+      "movement_points_mean": 0.3333333333333333,
+      "movement_ci9875": [
+        -0.3333333333333333,
+        1.0
+      ],
+      "movement_missing_bounds": [
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "ratio_of_means": 0.09090909090909091
+    },
+    {
+      "spec": {
+        "component": "resid",
+        "layer": 16,
+        "span": "history_end"
+      },
+      "source": "self_high_10",
+      "target": "self_low_2",
+      "n_complete": 6,
+      "missing": 0,
+      "baseline_gap_mean": 3.6666666666666665,
+      "movement_points_mean": 0.8333333333333334,
+      "movement_ci9875": [
+        0.3333333333333333,
+        1.3333333333333333
+      ],
+      "movement_missing_bounds": [
+        0.8333333333333334,
+        0.8333333333333334
+      ],
+      "ratio_of_means": 0.22727272727272727
+    },
+    {
+      "spec": {
+        "component": "resid",
+        "layer": 16,
+        "span": "answer"
+      },
+      "source": "self_low_2",
+      "target": "self_high_10",
+      "n_complete": 6,
+      "missing": 0,
+      "baseline_gap_mean": 3.6666666666666665,
+      "movement_points_mean": -0.16666666666666666,
+      "movement_ci9875": [
+        -0.3333333333333333,
+        0.0
+      ],
+      "movement_missing_bounds": [
+        -0.16666666666666666,
+        -0.16666666666666666
+      ],
+      "ratio_of_means": -0.045454545454545456
+    },
+    {
+      "spec": {
+        "component": "resid",
+        "layer": 16,
+        "span": "answer"
+      },
+      "source": "self_high_10",
+      "target": "self_low_2",
+      "n_complete": 6,
+      "missing": 0,
+      "baseline_gap_mean": 3.6666666666666665,
+      "movement_points_mean": -0.16666666666666666,
+      "movement_ci9875": [
+        -0.3333333333333333,
+        0.0
+      ],
+      "movement_missing_bounds": [
+        -0.16666666666666666,
+        -0.16666666666666666
+      ],
+      "ratio_of_means": -0.045454545454545456
+    },
+    {
+      "spec": {
+        "component": "resid",
+        "layer": 16,
+        "span": "final"
+      },
+      "source": "self_low_2",
+      "target": "self_high_10",
+      "n_complete": 6,
+      "missing": 0,
+      "baseline_gap_mean": 3.6666666666666665,
+      "movement_points_mean": 0.0,
+      "movement_ci9875": [
+        0.0,
+        0.0
+      ],
+      "movement_missing_bounds": [
+        0.0,
+        0.0
+      ],
+      "ratio_of_means": 0.0
+    },
+    {
+      "spec": {
+        "component": "resid",
+        "layer": 16,
+        "span": "final"
+      },
+      "source": "self_high_10",
+      "target": "self_low_2",
+      "n_complete": 6,
+      "missing": 0,
+      "baseline_gap_mean": 3.6666666666666665,
+      "movement_points_mean": 0.0,
+      "movement_ci9875": [
+        0.0,
+        0.0
+      ],
+      "movement_missing_bounds": [
+        0.0,
+        0.0
+      ],
+      "ratio_of_means": 0.0
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "phase": "engineering",
+  "model": "qwen",
+  "split_sha256": "b655ff7af7587651dc10d5a3a85d1edc1dbe3329ebdeb06681700a618e07809c",
+  "candidates_sha256": "b6a46115f8b35b59ed688202cbdc89095ee7a662e9e4ad0b8f4e9b4afdd57e74",
+  "required_calls": 180,
+  "status": "complete",
+  "executor_sha256": "00576f06e5a205fdd07c957792aada602b684005abdf100ad2b72999507257d5",
+  "hooks_sha256": "c582090de760d37ec89487b623165264770073a2c79231c8d76649026445cb30",
+  "engineering_protocol": "v2_unequal_length_embedding_replay",
+  "alignment_protocol": "v3_native_semantic_spans",
+  "torch": "2.14.1+cu126",
+  "transformers": "5.15.0",
+  "device": "NVIDIA A100-PCIE-40GB",
+  "model_revision": "b968826d9c46dd6066d109eabc6255188de91218",
+  "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+  "calls": 180,
+  "elapsed_seconds": 501.8897604253143
+}

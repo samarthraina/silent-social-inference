@@ -1,0 +1,79 @@
+{
+  "record_id": "crossmodel_discovery_12_manifest",
+  "created_utc": "2026-08-20",
+  "purpose": "layer discovery for Gemma-2-9B-IT and Qwen3-8B; validation set is the untouched 72-task extension manifest",
+  "seed_string": "crossmodel_discovery_12_20260820",
+  "seed_int": 3727620828808500026,
+  "selection_inputs_used": [
+    "dataset",
+    "task_id"
+  ],
+  "selection_inputs_forbidden_and_unused": [
+    "scores",
+    "rationales",
+    "answer length",
+    "parse behaviour",
+    "pair validity",
+    "any mechanistic result"
+  ],
+  "excluded_prior_tasks": {
+    "smoke": 1,
+    "llama_discovery": 12,
+    "llama_validation_24": 24,
+    "ext72": 72,
+    "total": 109
+  },
+  "pool_size": 125,
+  "n_per_dataset": 4,
+  "tasks": [
+    {
+      "dataset": "mtbench",
+      "task_id": "118"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "123"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "150"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "160"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "6034f779ea6a49b6"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "972994b9fc544dc3"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "cab26034a7d64266"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "fc8a0fea66134a6e"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "254002fea37a4755"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "4c7b131e24e34295"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "512cc91caecc4a72"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "984eefa3549f4e41"
+    }
+  ],
+  "frozen_before_any_model_call": true
+}

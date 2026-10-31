@@ -1,0 +1,4 @@
+# Preserve recorded input/result/source bytes and their SHA-256 identities.
+* -text
+*.pdf binary
+*.png binary

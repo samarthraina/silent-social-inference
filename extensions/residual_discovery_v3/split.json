@@ -1,0 +1,899 @@
+{
+  "eligible_pool": {
+    "arena_hard": 206,
+    "mtbench": 34,
+    "wildbench": 205
+  },
+  "excluded_ids": [
+    "arena_hard/0275cb6eae1649c1",
+    "arena_hard/11a638d7129444c7",
+    "arena_hard/2700a551d7854f1c",
+    "arena_hard/2da7e53308a547d6",
+    "arena_hard/3b72cdccb79646d6",
+    "arena_hard/4027c1a8845a4516",
+    "arena_hard/40303f2127f04daa",
+    "arena_hard/4b9ba55ea5704f0d",
+    "arena_hard/4c7d8a034c4e40f6",
+    "arena_hard/51b620f7c9864b4e",
+    "arena_hard/5b17cfc31450426c",
+    "arena_hard/5df63b6b49dd4c71",
+    "arena_hard/6034f779ea6a49b6",
+    "arena_hard/632169bbda8b43ba",
+    "arena_hard/6325cdbd18634391",
+    "arena_hard/6a02a908d61e46c5",
+    "arena_hard/707e6bd0d8994e71",
+    "arena_hard/70dc029ac785461c",
+    "arena_hard/76894809e0fe48d9",
+    "arena_hard/7799882ac02d4c89",
+    "arena_hard/8b18b97cf1244aa3",
+    "arena_hard/8e5a22167b244dd1",
+    "arena_hard/92a5f85ad8414404",
+    "arena_hard/92fda90ee2ba47d2",
+    "arena_hard/9434458ae86049f9",
+    "arena_hard/972994b9fc544dc3",
+    "arena_hard/a10d396f07574a4a",
+    "arena_hard/b569d74273d4420e",
+    "arena_hard/b9ebb67820354dcd",
+    "arena_hard/bdd19128a8fd4a99",
+    "arena_hard/bfdf93b4e65b4b0e",
+    "arena_hard/c8f5fb0700cd4ff8",
+    "arena_hard/cab26034a7d64266",
+    "arena_hard/d309137e15d14f9f",
+    "arena_hard/d7765737164a4164",
+    "arena_hard/dfc2bd06e952492d",
+    "arena_hard/e1a4d59e7ef74055",
+    "arena_hard/e3610f8a81434e6f",
+    "arena_hard/e457fae4890745c8",
+    "arena_hard/ed0f0468c4764e1b",
+    "arena_hard/ee6a697e2b39423e",
+    "arena_hard/eec5785a6f59458d",
+    "arena_hard/f85200a0f1bd4543",
+    "arena_hard/fc8a0fea66134a6e",
+    "mtbench/101",
+    "mtbench/104",
+    "mtbench/105",
+    "mtbench/108",
+    "mtbench/110",
+    "mtbench/113",
+    "mtbench/114",
+    "mtbench/116",
+    "mtbench/118",
+    "mtbench/120",
+    "mtbench/121",
+    "mtbench/122",
+    "mtbench/123",
+    "mtbench/124",
+    "mtbench/126",
+    "mtbench/129",
+    "mtbench/132",
+    "mtbench/133",
+    "mtbench/135",
+    "mtbench/139",
+    "mtbench/140",
+    "mtbench/141",
+    "mtbench/142",
+    "mtbench/144",
+    "mtbench/148",
+    "mtbench/149",
+    "mtbench/150",
+    "mtbench/152",
+    "mtbench/156",
+    "mtbench/158",
+    "mtbench/159",
+    "mtbench/160",
+    "mtbench/82",
+    "mtbench/83",
+    "mtbench/84",
+    "mtbench/86",
+    "mtbench/87",
+    "mtbench/88",
+    "mtbench/89",
+    "mtbench/91",
+    "mtbench/93",
+    "mtbench/94",
+    "mtbench/95",
+    "mtbench/98",
+    "wildbench/0204f978aba442c5",
+    "wildbench/02cda0d324384da7",
+    "wildbench/05e420b7d62d4911",
+    "wildbench/0622b8b2a74a4363",
+    "wildbench/073e70dc86a54d9c",
+    "wildbench/0d2610c428e74f0d",
+    "wildbench/102ff8ac971c4aa1",
+    "wildbench/2149588bda5a45f4",
+    "wildbench/254002fea37a4755",
+    "wildbench/273bdb150c8f4147",
+    "wildbench/2ae29dbc65a44107",
+    "wildbench/2d4853074c7745db",
+    "wildbench/3b4cd3f7b0754123",
+    "wildbench/4c7b131e24e34295",
+    "wildbench/512cc91caecc4a72",
+    "wildbench/573df775a7994b2d",
+    "wildbench/58ea3dc4bbc9461a",
+    "wildbench/5f632c21b2d241dd",
+    "wildbench/6b3657694d9b4d4d",
+    "wildbench/72da41d2f5cf4838",
+    "wildbench/7ae4e561d4b34e57",
+    "wildbench/7e071f9bd9e24dca",
+    "wildbench/8706aea5150d4d8b",
+    "wildbench/8e46fba4555e4055",
+    "wildbench/957e2ced46e84447",
+    "wildbench/984eefa3549f4e41",
+    "wildbench/9a5f5ec7ede84fc5",
+    "wildbench/9da7e6f959a74f3b",
+    "wildbench/b4b03645522f4602",
+    "wildbench/b5300bce101c4998",
+    "wildbench/bb056fc94b704670",
+    "wildbench/c40db1c020804e92",
+    "wildbench/c8306c274a244093",
+    "wildbench/c926c9ebdfce4cdc",
+    "wildbench/cc89d4690cd44285",
+    "wildbench/cd1a59e3c9a34720",
+    "wildbench/d9d3a0f99c694d72",
+    "wildbench/eb57ead639294c64",
+    "wildbench/eefe41e78705423b",
+    "wildbench/f41bb5bf57c8481c",
+    "wildbench/f482c63648464b2b",
+    "wildbench/f5e325dcfa434e22",
+    "wildbench/f688239304c040a3",
+    "wildbench/fb8077cdf0094ab5",
+    "wildbench/fc39c802b8734936"
+  ],
+  "input_sha256": {
+    "code/data/candidates/final_olmo_answers.json": "764807d63ae883ea5e713931a4938888faa993ac50dd6d7a88abe6ae22b1ca0a",
+    "extensions/context_controls/artifacts/engineering/timing_gate_manifest_v1.jsonl": "bbf13e2e8084413e9adca1dc286a506a3dd32ea0fc4107b48bc3a5ea00e12f24",
+    "extensions/context_controls/artifacts/sample/sample_manifest_v1.json": "d43e66f99076a67a91babe9461e36363a007812b3372c349a3c0afd88b1ac44a",
+    "mechanistic/manifest/crossmodel_discovery_12.json": "a787e131d1013a703c484a3df10aa49c57bf1dcc22585d90e4c5896de691cd0d",
+    "mechanistic/manifest/mech_ext72_manifest.json": "6355022c808c74998a4c92e2f08d32141a5816eddac9560630c0ab3cfee38048",
+    "mechanistic/manifest/mech_task_manifest.json": "abf34f9f12269a0db9137548883618589a274274a46deb8d2476d6f4bc7a8e35"
+  },
+  "outcomes_used": false,
+  "scope": "Mechanistically held out relative to recorded manifests; not necessarily behaviorally unseen. External/unrecorded exposure and semantic duplicates require author audit.",
+  "seed": "silent-influence-token-path-v1-20261030",
+  "selection_inputs": [
+    "task_id",
+    "dataset",
+    "question identity",
+    "prior experiment membership"
+  ],
+  "source_commit": "f8010273445adcf276c094cf5b228fc7bd0acf2a",
+  "splits": {
+    "discovery": [
+      {
+        "answer_sha256": "9feafd144b983ded89d37628488bdb7b5e22010a95cf6d723768d088c676d3d6",
+        "base_task_id": "mtbench/100",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "scaled_90task"
+        ],
+        "question_sha256": "c21f18c9581ea0e4a9120fc54387c3cc40bb2515c322ec22007dcc978ab0c1c9"
+      },
+      {
+        "answer_sha256": "4c9e007620cb6e3537e47531ef34e7dec5d9b902338efed580e42d874c8dcade",
+        "base_task_id": "mtbench/145",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "scaled_90task"
+        ],
+        "question_sha256": "c311d7ff26dc8d88712921f4d81d4297f511f04e38fb686d2f2a379525d341a2"
+      },
+      {
+        "answer_sha256": "5456960e9a80aec70905638958c50838b336f1c6a190811aa2d4757a1fe0f85d",
+        "base_task_id": "mtbench/85",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "5b9ed9f841805e93141991fcf2a2f178fe64f39ecfa390fcb8ec01507dc1d04a"
+      },
+      {
+        "answer_sha256": "df17f26319ea3b7b2ad26fb89bdefc22e58d4132b2694da3ef14838b3e1e7aa8",
+        "base_task_id": "mtbench/81",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "phase1a_screening"
+        ],
+        "question_sha256": "ae0703a93d5816aaeadc9bb86cf60a81a2f6b4b7ae3474a4969ee2829b7f3e98"
+      },
+      {
+        "answer_sha256": "c4d8cf2f08d90b4fb9a77f15e0fde6983e19ef3cf6bd0b7b3786b0ee60e7a01d",
+        "base_task_id": "mtbench/154",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "scaled_90task"
+        ],
+        "question_sha256": "9ac6c0d33c1ce0a1044c307bfb350b02f249a07a171bc5e540e9f556e5479e15"
+      },
+      {
+        "answer_sha256": "e106c3a8dd1a591c87ff0f9775b15169aab4e69453cdf4cf171ff8d6ae4cb80e",
+        "base_task_id": "mtbench/147",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "pilot_24task"
+        ],
+        "question_sha256": "4dd9a1e802915aa8785f199300e9b0f3598dd014b9dfedbcbdf4570b3556c68b"
+      },
+      {
+        "answer_sha256": "16295c8efc5eaca8e948a666b83154f603de8d2f98090d029c8cca0692f7eb9f",
+        "base_task_id": "arena_hard/3fbe8598d66d4bce",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "1d6b2b2814cc46cfa7da4eaf11d957549aab0816a147ea8ccb4ee8d4ad2d637e"
+      },
+      {
+        "answer_sha256": "696c00c66cc4717afc836b533cb527ab3afd6ed393f723ba7a86443c2c20dc4a",
+        "base_task_id": "arena_hard/ae7b33aa9f5b40fd",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "7470661d8f10102959fc03141a1f3544a80e67fd05b78737edcd96fd3894756a"
+      },
+      {
+        "answer_sha256": "e7c70de92cdb3885b1e3b9136af70d507122c8b09276f2c229344b36821e1e2b",
+        "base_task_id": "arena_hard/685b9c50a867484b",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "7122bca70f2ab10b070f59ef3ad0b87bee3265e05cf09e224c7de1775c97bfe5"
+      },
+      {
+        "answer_sha256": "474470d7ee8553c48a990322d1a2f1b0f65c6a4d88815d7714d1378de10f3207",
+        "base_task_id": "arena_hard/315bfe841c154bed",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "c2159c22ac1a62d3aec7ec2d0046d7755bfdd1c37267dfea35b17f24fb45ae9b"
+      },
+      {
+        "answer_sha256": "878286f672a331b2d6efdd4d68ce0b77dc0e0c63b97ede374d169c0e4771dcaa",
+        "base_task_id": "arena_hard/cc6b2270bc234be5",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "99be0947c6aaf5276206adb92a32864989fe65481c0704f068086b7254b47919"
+      },
+      {
+        "answer_sha256": "b58003b5a44ee13e03437203b20acc79b2de1165f5e4a070acdbb167ca05ba59",
+        "base_task_id": "arena_hard/22ed32babcd14390",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "ebfd2817bd30f7e09c74c35cf669dbdc7774b911952961fdf3e177c94f14dad6"
+      },
+      {
+        "answer_sha256": "5f113ac665cacd1b6bf6312e9e7706c373c25fe311d56f5850b88a7b46df0a46",
+        "base_task_id": "wildbench/b7ad85712ab74db1",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "4dd56ae56b16c8e7b7a3efd809e331c32941543cb1858b1ae6b2e3a62108ba0e"
+      },
+      {
+        "answer_sha256": "b2fbfa8315aac4499939de41ca6fd600b3a2ac599b2fdaac609be7f2fd6fe74c",
+        "base_task_id": "wildbench/6a00c8c9ca924a9e",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "c69a742d8f28c6a6576ebdfb1aded21b08841b9e9c430aa32693377b0292f901"
+      },
+      {
+        "answer_sha256": "089ca4ccfd1752a2dc9765b10bfa8f4b21ad7681214cf29a0fe50d9bfe609ef1",
+        "base_task_id": "wildbench/b256bcc490364f38",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "62a001882e0f544467e823f21f70b52add31305c4e1bebe45c53b98ea4dad8bc"
+      },
+      {
+        "answer_sha256": "c9d20778172cc5e4e43e652df092009a6b9cb8b518332486d9a49ab3abe3dbd8",
+        "base_task_id": "wildbench/50793e7905854a45",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "5af0c8bf191182155154d9419fbc275eb652ab652ad62f973f625cb8b43b5406"
+      },
+      {
+        "answer_sha256": "98f1c789eec8fd172f3cfd9c80988e00e89ad7a3b1296786bed9817660b78c59",
+        "base_task_id": "wildbench/f66dbdd89a854954",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "85af6a5882abf5c3274f6f84d35162d83c556d033ec6d9627047af570b52a167"
+      },
+      {
+        "answer_sha256": "0e9f85da66ff62629ef775483b38c3f4a5872ffb21a07a54077975f72406a414",
+        "base_task_id": "wildbench/cec6b41dcc1e4bac",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "d276bb96075385ec82eaff7cdafc514a9809a003c9e759105cbf6a8e69b71653"
+      }
+    ],
+    "engineering": [
+      {
+        "answer_sha256": "da5ff8f011958af91689705b13b4ef592ac137ee44fc8563202f22e324eadfc0",
+        "base_task_id": "mtbench/119",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "scaled_90task"
+        ],
+        "question_sha256": "0f47d4fdf92854edc21ca474df48d638a01139767768e44e824e3b7fa8762403"
+      },
+      {
+        "answer_sha256": "317f0d223fcb3c7d7cd86fe590f5b6a87066e66c15a56184fb88e49861a92b30",
+        "base_task_id": "mtbench/112",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "phase1a_screening"
+        ],
+        "question_sha256": "cd3cca8d6520588a6d4f98967c32cfc480bdca79bf50fab2c59d0654bddeb79d"
+      },
+      {
+        "answer_sha256": "ead9808170f423779f37f5bbb1e490c99fe60a758019433736da894b146e4962",
+        "base_task_id": "arena_hard/dfc9be7c176d46bb",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "a8a7e0508b8ce6ad8ff8482352accb54a10ca81f9f2412d44e2af3d33eee03f6"
+      },
+      {
+        "answer_sha256": "670671cd97404156226e507973f2ab8330d3022ca96e0c93bdbdb320c41adcaf",
+        "base_task_id": "arena_hard/84a773f43c2a44cf",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "5bd293f932c3ae98003131672e611ab3025d9104704f5860a6f5ea6c7160c3b4"
+      },
+      {
+        "answer_sha256": "fd15ba9d4a702f7b9935fbfaea69f506b6038ed3c160d15f170bef8c9fe2f1fb",
+        "base_task_id": "wildbench/535225ef43a64eef",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "4bd7035186531df1e144d34ac56f6603938712d66a7efffee43479c63e2b43d9"
+      },
+      {
+        "answer_sha256": "6e7a7e22d68d3c359c6ff2e412bc8850728812f624ef464d20fe56920e71ed26",
+        "base_task_id": "wildbench/bf4d2528a6834420",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "435d1f3f3bb82242ac2f735d66f51f446ed1ea120c69d6a84d4122a93b2859e1"
+      }
+    ],
+    "validation": [
+      {
+        "answer_sha256": "5204992ae3bdfb26035d3175f5edf2911dac41c0764ee58cab097ea2347c0297",
+        "base_task_id": "mtbench/103",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "phase1a_screening"
+        ],
+        "question_sha256": "40820c84650a3ce928f664811aace6e372c798b2ade6cdcfdcc2f99d7a7b96c5"
+      },
+      {
+        "answer_sha256": "42eb921a068eb7ebb9af0f475c9ae261c6388d753df2baa9025d41fa13ff743d",
+        "base_task_id": "mtbench/96",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "0d7618544295abbf0cd86eddf2f225f3c43c257c6617f4de0b1b8a492e39cdb5"
+      },
+      {
+        "answer_sha256": "60a33e6cf5151f2d52eddae9685cfa270426aa89d8dbc7dfb854606f1d1a40fe",
+        "base_task_id": "mtbench/106",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "1153dd86d8406d85cfa0bb84184ffec26dff227ccc775c0b96113faae46d005c"
+      },
+      {
+        "answer_sha256": "58e97efa670dea5564252f2c0312a4ec2337a913cdf0daf7d5e8265638aa4e16",
+        "base_task_id": "mtbench/157",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "scaled_90task"
+        ],
+        "question_sha256": "68b2a4c9d0552dee9f02bbfa9663f63d23701b5e470bc29904820aaa7d9c9db8"
+      },
+      {
+        "answer_sha256": "c389bde7cf96a2cf36db996420d5dfa614a1a364f372827603283216e3504956",
+        "base_task_id": "mtbench/107",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "phase1a_screening"
+        ],
+        "question_sha256": "785f97771a81e64357cb2d52190913254dd15bc8fa62387df8419f4594af4b83"
+      },
+      {
+        "answer_sha256": "8481577c6236b0c5b7bf2f9045ae8fdd160f430738cdadec741c44e233ba82b6",
+        "base_task_id": "mtbench/92",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "scaled_90task"
+        ],
+        "question_sha256": "c1e6ffe9df2fd711013bb418ca1756e7c34be165a40c5727b1f6022122868cea"
+      },
+      {
+        "answer_sha256": "f6fceb12da26882bc794d9aa1c7c9183f6fb6c4ef8f18749d66d9c50538dda45",
+        "base_task_id": "mtbench/155",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "pilot_24task"
+        ],
+        "question_sha256": "3067e64e0ccf8de2d37f229f5140748fc71ffe6d5618b51b2183bc8ea33dcd16"
+      },
+      {
+        "answer_sha256": "dffc666edc39cd338e410c43b7b00c403deb78afe1750dd34ed1cdf902fe2792",
+        "base_task_id": "mtbench/136",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "pilot_24task"
+        ],
+        "question_sha256": "d520991bf53d10b51cd7c719c6f7cdd544417eb36e99ed7fa047bced1db28982"
+      },
+      {
+        "answer_sha256": "a271787868edaaa45a03b1069ab1bf9401d30059bc1e5918865b7c1bb394c453",
+        "base_task_id": "mtbench/90",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "scaled_90task"
+        ],
+        "question_sha256": "c7efbb034f245ac19156813827ff8e0ff175c444d41676a37682563ecb5383f3"
+      },
+      {
+        "answer_sha256": "295665b7bd52e1cc677ecc356cac43bef1e42f217608b89b573108c5b33f1a48",
+        "base_task_id": "mtbench/97",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "scaled_90task"
+        ],
+        "question_sha256": "ed5a6d6d2e7cee1596d33dfe0895e3529ff22a9a7dedacfbd9018d9ea87e000d"
+      },
+      {
+        "answer_sha256": "190a3c338c52ef9b99a73fad3c2e060e18f59ae45f87c41cb276c0268a3835cb",
+        "base_task_id": "mtbench/146",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "pilot_24task"
+        ],
+        "question_sha256": "f20987efd8da957a2fd96b291ce69ba50698737c41795e4e9a7f916d35cbf3c6"
+      },
+      {
+        "answer_sha256": "663044b33546aaad4a5ec4f9038907df21f35c9823c5e94ebe2ca0a6147406a7",
+        "base_task_id": "mtbench/117",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "pilot_24task"
+        ],
+        "question_sha256": "2bf8ddb006a59c169770cd6cb45c6538772459369a3f5db294fcf20393e2c1c2"
+      },
+      {
+        "answer_sha256": "8c190a47ddb6d1ba4a7ae54aedfa7c9152ce2a74f6582a52b456effad5d9fb82",
+        "base_task_id": "mtbench/102",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "scaled_90task"
+        ],
+        "question_sha256": "b867a9e638ca31cbadad6e7a933ec12438cb9f7845a0091d8535e34345408d1e"
+      },
+      {
+        "answer_sha256": "52daedcda74bee0a8c18bb8550ade1482bfb6d8889b6c2c52e95e54704110daa",
+        "base_task_id": "mtbench/151",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "pilot_24task"
+        ],
+        "question_sha256": "c23f464b2157a68cc4a58fa4fa45877f8066f62209753a5199e930e4e3f1b679"
+      },
+      {
+        "answer_sha256": "caa29a9f157cd191357515a12c68f04c3f9180d430f1cdeda15bd98cb8c7f72d",
+        "base_task_id": "mtbench/99",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "pilot_24task"
+        ],
+        "question_sha256": "ab2022973dc4879ee96c1e074fe47bd2f084bfc73bb38f4ebd326522d93aa8c4"
+      },
+      {
+        "answer_sha256": "5e8b84a68df6d97273838ddf1f7cbb755e3e8a3de4cf8bc2b56ee73c2310f8e4",
+        "base_task_id": "mtbench/111",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "scaled_90task"
+        ],
+        "question_sha256": "9a29c699e07257d1eb91fdda36c4055697d2c057ef0dcb4db1742d8bd6935190"
+      },
+      {
+        "answer_sha256": "98febba86a902fc76771015fc94364eaf103f19cf6226c08462627810500160c",
+        "base_task_id": "mtbench/130",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "pilot_24task"
+        ],
+        "question_sha256": "9672cee96aed463624779dc24e40383844c998d5989837524aa74adfa420e788"
+      },
+      {
+        "answer_sha256": "dd030255b52f8a0efe1fed91956f6470dc5dafca136a362a4e14f0a497be7360",
+        "base_task_id": "mtbench/125",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "scaled_90task"
+        ],
+        "question_sha256": "bf7d6764aba23b7b138f37ca49be4e5cdd4912d3d61737938bb355bc3bb0ad74"
+      },
+      {
+        "answer_sha256": "f118446fa4e91bc61b483c13f822e012a72702973d6526db3f2d418015d8d12b",
+        "base_task_id": "mtbench/143",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "pilot_24task"
+        ],
+        "question_sha256": "df59d06c5f48840659bae50083d3886e5948ca9a7f781baa4d94994fc20bad1b"
+      },
+      {
+        "answer_sha256": "d594277aa480cef7df8051971dce9fc2b34bed03dcbe8f76bdd6c40af8c0d657",
+        "base_task_id": "mtbench/109",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "pilot_24task"
+        ],
+        "question_sha256": "54656983aea9e571f881a95c5748981296b2b2c2e251781e3cf12bca7b3d32c7"
+      },
+      {
+        "answer_sha256": "36c23ef7f559e4f2107090bc75d35398d400c2efe48dc2d723d464d8fdb450d9",
+        "base_task_id": "mtbench/115",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "pilot_24task"
+        ],
+        "question_sha256": "64c35abdb84e9ba809122fd3ca60e5478cfdd36a6c6642a8ed951c3539ccfb32"
+      },
+      {
+        "answer_sha256": "4a17842d871f8e02931c87fcc190d78117e4ab7f7ae5969e82f00b55da344aec",
+        "base_task_id": "mtbench/127",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "pilot_24task"
+        ],
+        "question_sha256": "b0d00557d9f81c204cceb2fc32aeccf287359cce635d557f6e742cccec469431"
+      },
+      {
+        "answer_sha256": "8bef2156748b5e1050ed70ef7db3b0cb7195526249ab24b2dd3dd39bd13a14e7",
+        "base_task_id": "mtbench/128",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "phase1a_screening"
+        ],
+        "question_sha256": "025b3dacf7dba9b1fdffc4e70e6739324ecff485f8ce1bcb4a3255a835593a2e"
+      },
+      {
+        "answer_sha256": "4853a9acc43bdc975433205f448f1d95e175338a2cc8af82d72bd2fb44edca71",
+        "base_task_id": "mtbench/153",
+        "dataset": "mtbench",
+        "prior_behavioral_use": [
+          "scaled_90task"
+        ],
+        "question_sha256": "435ccc69ff8f130aa277efffaf27772461fbd436f25553cd91a34cc79e3f4cf9"
+      },
+      {
+        "answer_sha256": "a8ce4cf324e3c4b962e92b30e4cba64d720da91363e7db4ba27113891899cb8c",
+        "base_task_id": "arena_hard/c57522c6e2ed40f9",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "27cfa61ccc678b8a8dde5810a558c0c9be65e92ac592a9c0babc811ce7cd7dd7"
+      },
+      {
+        "answer_sha256": "98ad19f0811ccd9a16ab744deae4f92e01f0ed0336eaec730df43e793f08f592",
+        "base_task_id": "arena_hard/2a3370b2ce424f3c",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "18527f636acb242b467701d68e66ffad2ba1f9fa72487aa15fe029db438dc474"
+      },
+      {
+        "answer_sha256": "a0cbef825877924c3c9486dde9517baa94b31cf2338f10f5117b355fac83eb6a",
+        "base_task_id": "arena_hard/96f8f0e769584446",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "ce114a07e3382a1d146ad3e69a022e55e09d912400049c564a48700a1336f336"
+      },
+      {
+        "answer_sha256": "81294c3b8951ce74790a20013aa53c5f36a16f24afd9d5527257115aaa523161",
+        "base_task_id": "arena_hard/d3698c877a5040c4",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "31db50e5a7c9dae0ec765c1bf15886be97c19580dc4e689dba0dd196cfddae81"
+      },
+      {
+        "answer_sha256": "8fd9ea9a7e27051269002be734f70d0aef03ce3c001efdf1bdda6c2e311f3aa4",
+        "base_task_id": "arena_hard/f102436b3ea440d6",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "b8c733087bed28a3de4caec69a60ec9e4e9043f79342ba85e64196c50adc304f"
+      },
+      {
+        "answer_sha256": "fa8480cb4bc3423d10b4e5cea0f410da86af073142302e0406cddddc5c2c7ae2",
+        "base_task_id": "arena_hard/9d8a4964a985472e",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "39b84f3d18dd620a6120684f99431fae6c2641255c5828bf2bbbd13748284fdb"
+      },
+      {
+        "answer_sha256": "9ce32880b00143f8d70702bab45b01931758a9ae5d07eb692437bc81f2430282",
+        "base_task_id": "arena_hard/dd621a9a44934bb5",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "c9436c21b32c56abf1db4526933903da4dfa3b475bb22b88dbb651d60c2366c7"
+      },
+      {
+        "answer_sha256": "e3e717e2d3dab2481d5841eb6f1b258ce8017f6010a1b64d159f79814be3ee9b",
+        "base_task_id": "arena_hard/263e293d5f124cd2",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "f342165d30a0518953bd53629f0f5e96c35b5ba21bafffd76a47a285fee5c660"
+      },
+      {
+        "answer_sha256": "3c5a5dcf416d074d403dd39428c6311b0e5fed781b1aff2991d0c648392b938f",
+        "base_task_id": "arena_hard/52562da0204e422f",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "8740ac8aa52f1dce3b18f7926fd9ebbedc4017cbfef7b3744dd4cae8d27cbab4"
+      },
+      {
+        "answer_sha256": "49031c171cc10d79e242fe39c084f2681b74a4deb6489f0adb085615f6e9d85c",
+        "base_task_id": "arena_hard/f3ee6f09e3db4939",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "ae8008ae04089901e8eada255cdd860a08ed6bcea0c1675a9c03107d291c7228"
+      },
+      {
+        "answer_sha256": "23de09d53a8cc2906a4d41e0c69aa944e1aed5b08636c858fd5cd739ab93515b",
+        "base_task_id": "arena_hard/9f74a2159faa4c94",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "c3cd3fd96fa3a38f652e13312486439bc0a0317b827f49d6578464328a7ed076"
+      },
+      {
+        "answer_sha256": "196fbe8849ce3ed2150056eaf557892a2a375efb80e7682656281dc8897e8c12",
+        "base_task_id": "arena_hard/379addefaa94492c",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "2dd068287d8e41171d163a564cf679e87bc974adec72f5fedae8a402a670bd6d"
+      },
+      {
+        "answer_sha256": "afe9a12b033bf729f1777dc395a32e98386e548791cb510877b7013fb2d57e0a",
+        "base_task_id": "arena_hard/160e7f5bbfe84ce0",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "4091afa405f0c61ebed33db8ed066efe890eb9f1adc3307c02ac372fa3839441"
+      },
+      {
+        "answer_sha256": "089fefad38b81133c4cd9672ba7df220d35d2eca3c514b798f22c432d34a8987",
+        "base_task_id": "arena_hard/9a02bcd7fe4049f1",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "a8bd2419ef76fcd7b3434f67166c669658bf7d98e5360439cc96217f6c8b6a5d"
+      },
+      {
+        "answer_sha256": "296ce6575b97b18eaaf17acc8706fca884266fc962b07c1d603d2566931a7ba6",
+        "base_task_id": "arena_hard/a75053d1204e4793",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "ca917cc777719c75db116192df7037eb2908f365ac8913ad8f458cb4c7ac1b41"
+      },
+      {
+        "answer_sha256": "224f0c0bc0a63335972f487fa3c8fc4f697388e9023c801fa9d279fc1096d407",
+        "base_task_id": "arena_hard/f3d8baf3111a4148",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "0189353bee0ca3defb05b3240921cc6783bcd4465c8877c782969686edff87f6"
+      },
+      {
+        "answer_sha256": "eada2901585bcd4d3b2188d9cdb863bf9fca151de432220c1fca564a79edc895",
+        "base_task_id": "arena_hard/da1656e2fe454678",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "4557a8e05fa66827c62dbbcfaf1e01367b3054d57878c61b7e1f2946f65c51a3"
+      },
+      {
+        "answer_sha256": "b534cf1f944ed2940915a2b4ba7f37888a1dc016958987faf3ea4b9886603514",
+        "base_task_id": "arena_hard/199ee703dfb7418e",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "f36180fb1617b4b6ba92720b1783a6c130ada86629485f7a0d58bbfcfd6670c1"
+      },
+      {
+        "answer_sha256": "04f924975ea65f9dc5fb4ffb4a0dfebd12cdeff74d045a22019fe021913876d5",
+        "base_task_id": "arena_hard/d861a3584c2c479f",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "f9958161948cd580a213693428fcf1168ef529d3dcf3c3889a0b360cc858ad07"
+      },
+      {
+        "answer_sha256": "9b420278ad97d43414a3901bcb7d9f0234bfad353881d14669323f6a4255b694",
+        "base_task_id": "arena_hard/79fb96a5bee24f82",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "f1042f75e3e1553c156f1c9a443983a3d70e27f13230d738e292fa705f0f004b"
+      },
+      {
+        "answer_sha256": "2e2f13ced521ac66d8b3dabea027c2d1fcb27ef6d1332d5b5c2dc5e0921e8f82",
+        "base_task_id": "arena_hard/1679a9f3c1af4385",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "0281e69a2256878068fc2d80ad09e295866a36ef1d963f6bd569e6c58cd2a271"
+      },
+      {
+        "answer_sha256": "ef36225722dd201ad3083e787f735dbdf8e3512aa7e4f6077cfca0fb9229d8e7",
+        "base_task_id": "arena_hard/25e0e76d383b448c",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "729a0177e1df10f1d7e9915defd202e2a9ae83553a2421d8c90eba367984435a"
+      },
+      {
+        "answer_sha256": "99b8cd34086d8a481d3f38bce05167c3eb0f3b1d29abbc0e5460ae3435b477e1",
+        "base_task_id": "arena_hard/84af6b1ab6a24583",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "fd853a03a644f29d65eca258bc01c7c456fd0fd0e6c0fa75df1b3326a57894f7"
+      },
+      {
+        "answer_sha256": "bd6038a49a8d79e4b29059263d2bc266fc16693242ce04ea7aeffbf1a67c7873",
+        "base_task_id": "arena_hard/100ec9808f3b4185",
+        "dataset": "arena_hard",
+        "prior_behavioral_use": [],
+        "question_sha256": "7b90bf30687153671d4c61b05befe3862065f9aba731a8c7864140b59e50cce6"
+      },
+      {
+        "answer_sha256": "f2a31b2413826eb1526825ac2c233c2e45d0d0d9682bde6d8e8fdb6c099781a6",
+        "base_task_id": "wildbench/267d3913abf24977",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "0e567bf74d45b986bf16e86879265d943e62b825b86a6af0991b520667c80cf1"
+      },
+      {
+        "answer_sha256": "d53779374e6d8ce2abb7b3aaac8d10f665ecb03d038b0c738a5b4a04d31a2918",
+        "base_task_id": "wildbench/8a7aad43ae7540bc",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "ba6ebb7ad442e4c3ee0e97d0d58c55f0b9659487830d4715a3d3be7e827d9b47"
+      },
+      {
+        "answer_sha256": "cd0d0faedaa638d1b94c4e3f6a403ea43a0cc9b7792a7957ba41656bb625bb55",
+        "base_task_id": "wildbench/ecd615f4b2e34468",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "b604ad157cd65b3180c418a7a541acc15a15fe98c8aeff29492d3cce031b6812"
+      },
+      {
+        "answer_sha256": "2eb3b55d92ffaca96fd38672499b2137a36a303a4d95d47db7b0210bec9a14c1",
+        "base_task_id": "wildbench/c78004d3d36c4146",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "ddfe47ba19cdc7936c963f0f89e85d871ddb2cc04a6fd9313939bf2245e6913f"
+      },
+      {
+        "answer_sha256": "2e64173faa22795d84d00b21f0619d53113ed7bbf5e0e7a50c7fa2490271b5b6",
+        "base_task_id": "wildbench/50e63aa981aa46df",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "32c532a4428df6c01e1074e515abe499b6f489a07ab5540ee8879565ba36021a"
+      },
+      {
+        "answer_sha256": "31c76b0f2ed1cc8054f89e552db0af1051b85f3e88eaaa56561ade51eb48a72c",
+        "base_task_id": "wildbench/c1969cd51195400a",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "afa9946c27840011bb4da81cc18ba9b55a55bb21ce51892a66d2753803ccea81"
+      },
+      {
+        "answer_sha256": "afcb2516f0e284873658bd551742fbf519687527390e1001b135b313426d9487",
+        "base_task_id": "wildbench/b6edbf0f388948a7",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "73b651b4192bca954b782d40b3467b2d18052af73fa8e97cd2a97e887accb8d2"
+      },
+      {
+        "answer_sha256": "a9a469b1eef4ec11e9fcdc4497dc1ebdd584772de9d013d95c643ca4b7de14a0",
+        "base_task_id": "wildbench/33ced2dfa17f4e81",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "f6e8d76b126868d2cab201370be09e479fc8321a7c464ee10edd7188b71dcf5c"
+      },
+      {
+        "answer_sha256": "5f62c213d36565a643077da5c966b73ac485cccaaf0ccf12c352ab8b9a3395bc",
+        "base_task_id": "wildbench/1a8c1e89ce0d40ca",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "66331dbd204da19e9971c19a0fe1090e97dcb2e39701509a87b2b21331afa745"
+      },
+      {
+        "answer_sha256": "b36470be19841e5466cabd59b8a9792134c50a9e3a81270077d69b809481fdc1",
+        "base_task_id": "wildbench/e8774034f3b44cf8",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "5e5caf412d20f52f834e65aada451bd27b6eab118f4a180483e28eaf6981456b"
+      },
+      {
+        "answer_sha256": "aec39330f94755ed1edbd10b231bf4eb584298d7fa5d7dea64caaccd1d4712f8",
+        "base_task_id": "wildbench/cb72f0b4db174412",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "dff23c44407f68dcfb35635c06f6138e8859e7d816ee9161485c9ee46d930354"
+      },
+      {
+        "answer_sha256": "015c0a03d20b06f0db7eaf3d2e1b848eaa89051682f328b86b4020c06d4cd0c5",
+        "base_task_id": "wildbench/2fb46df3c8d842e0",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "cf7db7e1a65ae327c1ee90101eefb20ea88799ecdc52a52ac693516737d50cdf"
+      },
+      {
+        "answer_sha256": "49f84974953a7f81a49b8fea801934f265b35188bc59e91175beafba4242aa9d",
+        "base_task_id": "wildbench/a06b58ac4ae2420a",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "ec220e26a407a400a09e75bb618be1a8ce2b674bad070e15d91170d8916db598"
+      },
+      {
+        "answer_sha256": "54a2dac08992a2afbd1f78abd00a1274ea93efb68328f0880e67377871fb8766",
+        "base_task_id": "wildbench/6cb33c41d02e4d72",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "7b0f630b274e375cabfed431b3a424350e3b90cf5aebfda1d55038555613faf9"
+      },
+      {
+        "answer_sha256": "853d2bda4bda2a43966e67e7d5b6554311a77bfe3e387210fa76f99da6ec0ebf",
+        "base_task_id": "wildbench/ca7d8fdc596240d8",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "bce7d490f6034debd8479cb812ff98920d493d1d1393d7a4da519d5acfee678c"
+      },
+      {
+        "answer_sha256": "0baa2d2b77a584cdd6d36bc9f6873ae84a88610a85d3061e73b9444d1279a409",
+        "base_task_id": "wildbench/0693c7eb853b46e4",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "12665a50dbfa713ef9c42123111aaea7e2abb1d59a5bdb751308cfb20fe44199"
+      },
+      {
+        "answer_sha256": "6c0bd77c253a9e639a3519144ba0caccb8ec904a99405322fe33f35dcf63448a",
+        "base_task_id": "wildbench/6313fcb6d9544faf",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "b099bdf24a62bc00241899cee5e8e3d6fbd205c61df30c6dc95258e089fbad22"
+      },
+      {
+        "answer_sha256": "751c2568b102298773c6a0118514b209a0daaa8f06edfade0404dedb650ea8aa",
+        "base_task_id": "wildbench/85d49010372e49d6",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "6c3de8abf6596b257b82c63678c1f46656423889295ca88c5f7bece90f9bcb53"
+      },
+      {
+        "answer_sha256": "acd707ece16f959fa2da2a489426854287779b339b821973ba7c20e135862afc",
+        "base_task_id": "wildbench/b5c0b0bc1bbd45d6",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "70136295a70fed202b97981eb4653c916c5d8bcd28f54c5f647b829e4fe914f5"
+      },
+      {
+        "answer_sha256": "de8d59454302fb4c01449ae5e678dd939a645c55488fbfcd83dfb45d80760328",
+        "base_task_id": "wildbench/5d4498359a84401c",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "ebc8cc6c9a0487555d6efe7bc772bed814394270bff8882440466694807bbac7"
+      },
+      {
+        "answer_sha256": "acd0214a5c0c79e0c6bd5ea1169f3d58e46f962b464f033b7d36eb7304784a78",
+        "base_task_id": "wildbench/06de6f80e1af4252",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "36f28afa48cc3504dce2e7de22236ba712ce03253f675d71f119126f54350d39"
+      },
+      {
+        "answer_sha256": "53735bc47d485e89a241d46df68560059274299b0dd81fd1f04180df08ca1922",
+        "base_task_id": "wildbench/515ffb0178e2492e",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "6adeb5c7230fed2b7ad62381d09b3e30c3e2044613b6f5ffc8a168e847d428ba"
+      },
+      {
+        "answer_sha256": "d652be5b3f2b5bf25d952436b9c8947709cd1ea3d0a5649cffa08def4c61af97",
+        "base_task_id": "wildbench/f018a1a90b7644fb",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "0a5117e2b0cff047887d16be01b36716d0e86ef8ba7618d6c2b2c753b20a9c0f"
+      },
+      {
+        "answer_sha256": "558709e09fd17c0c267f730a778f251dbe2ae4e26466f0ea9d0f48de19c667b5",
+        "base_task_id": "wildbench/c6c90fc47ba94277",
+        "dataset": "wildbench",
+        "prior_behavioral_use": [],
+        "question_sha256": "441dceb2b20bc653b5ea98348e85c3db4c1afe01646015c1b6dd19c64d4a1792"
+      }
+    ]
+  },
+  "version": 1
+}

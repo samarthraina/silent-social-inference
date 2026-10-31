@@ -1,0 +1,345 @@
+{
+  "record_id": "llama_mechanistic_extension_72_manifest",
+  "created_at_utc": "2026-08-18T14:07:30+00:00",
+  "scorer": "llama",
+  "PROVENANCE": {
+    "specified_after_observing_the_24_task_control_result": true,
+    "preregistered_before_that_result": false,
+    "statement": "This 72-task extension was specified after the mixed 24-task control outcome was seen. The 72 tasks are themselves mechanistically unseen, so the replication is prospective with respect to them, but the decision to run it was outcome-motivated and must not be described as preregistered."
+  },
+  "selection": {
+    "seed_string": "mechanistic_extension_72_20260818",
+    "seed_int": 5555075948430449774,
+    "method": "deterministic task-id shuffle within each dataset stratum",
+    "n_per_dataset": 24,
+    "inputs_used": [
+      "task_id",
+      "dataset",
+      "pair_validity"
+    ],
+    "inputs_forbidden_and_unused": [
+      "delta magnitude",
+      "score values",
+      "rationales",
+      "response content",
+      "prior mechanistic results"
+    ],
+    "differs_from_prior_manifest": "no endpoint band and no delta threshold -- those would reintroduce outcome information",
+    "excluded_tasks": {
+      "smoke": 1,
+      "discovery": 12,
+      "validation": 24,
+      "total": 37
+    },
+    "pool_after_exclusions": 185
+  },
+  "reused_without_retuning": {
+    "layer": 24,
+    "beta": 1.5,
+    "alpha": 1.0,
+    "direction_file": "out/control_discovery/steering_direction.pt",
+    "random_direction_seed": 20260818,
+    "no_coefficient_search": true,
+    "no_layer_search": true,
+    "no_window_search": true,
+    "no_task_replacement": true
+  },
+  "secondary_strata_analytical_only": {
+    "high": "delta >= 2",
+    "moderate": "0 < delta < 2",
+    "nonresponsive": "delta <= 0",
+    "used_in_selection": false,
+    "note": "computed after this manifest was frozen; affects reporting only"
+  },
+  "frozen_before_any_model_call": true,
+  "tasks": [
+    {
+      "dataset": "mtbench",
+      "task_id": "104"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "105"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "108"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "114"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "116"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "120"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "122"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "124"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "126"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "129"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "132"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "139"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "140"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "141"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "142"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "144"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "159"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "82"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "83"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "86"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "87"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "89"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "94"
+    },
+    {
+      "dataset": "mtbench",
+      "task_id": "98"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "11a638d7129444c7"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "2700a551d7854f1c"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "2da7e53308a547d6"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "3b72cdccb79646d6"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "40303f2127f04daa"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "4b9ba55ea5704f0d"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "5b17cfc31450426c"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "5df63b6b49dd4c71"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "632169bbda8b43ba"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "6325cdbd18634391"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "7799882ac02d4c89"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "8b18b97cf1244aa3"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "8e5a22167b244dd1"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "92a5f85ad8414404"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "92fda90ee2ba47d2"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "9434458ae86049f9"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "b569d74273d4420e"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "c8f5fb0700cd4ff8"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "e3610f8a81434e6f"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "e457fae4890745c8"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "ed0f0468c4764e1b"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "ee6a697e2b39423e"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "eec5785a6f59458d"
+    },
+    {
+      "dataset": "arena_hard",
+      "task_id": "f85200a0f1bd4543"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "0204f978aba442c5"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "073e70dc86a54d9c"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "0d2610c428e74f0d"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "2149588bda5a45f4"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "273bdb150c8f4147"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "2ae29dbc65a44107"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "2d4853074c7745db"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "573df775a7994b2d"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "58ea3dc4bbc9461a"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "5f632c21b2d241dd"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "72da41d2f5cf4838"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "7ae4e561d4b34e57"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "8706aea5150d4d8b"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "8e46fba4555e4055"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "957e2ced46e84447"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "9a5f5ec7ede84fc5"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "9da7e6f959a74f3b"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "bb056fc94b704670"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "c8306c274a244093"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "cc89d4690cd44285"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "eb57ead639294c64"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "f41bb5bf57c8481c"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "fb8077cdf0094ab5"
+    },
+    {
+      "dataset": "wildbench",
+      "task_id": "fc39c802b8734936"
+    }
+  ]
+}

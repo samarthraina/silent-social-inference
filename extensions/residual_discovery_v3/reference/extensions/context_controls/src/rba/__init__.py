@@ -1,0 +1,5 @@
+"""Calibration and matched-history intervention studies."""
+CALIB_VERSION="rba-calib-v1"
+UNIT_SCHEMA="rba-calib-unit-v1"
+RESULT_SCHEMA="rba-calib-result-v1"
+LEDGER_SCHEMA="rba-ledger-v1"

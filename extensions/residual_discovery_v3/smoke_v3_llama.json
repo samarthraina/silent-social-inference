@@ -1,0 +1,17 @@
+[
+  {
+    "component": "resid",
+    "layer": 16,
+    "span": "history_end"
+  },
+  {
+    "component": "resid",
+    "layer": 16,
+    "span": "answer"
+  },
+  {
+    "component": "resid",
+    "layer": 16,
+    "span": "final"
+  }
+]

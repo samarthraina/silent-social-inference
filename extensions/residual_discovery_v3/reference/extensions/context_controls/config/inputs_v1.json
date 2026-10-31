@@ -1,0 +1,14 @@
+{
+  "paths": {
+    "answers": "code/data/candidates/final_olmo_answers.json",
+    "a9_tasks": "code/data/prompts/a9_scoring_tasks_seed20260818.json",
+    "merged_raw": "results/behavioral/merged_raw_results.jsonl",
+    "ext72_manifest": "mechanistic/manifest/mech_ext72_manifest.json"
+  },
+  "expected_sha256": {
+    "answers": "764807d63ae883ea5e713931a4938888faa993ac50dd6d7a88abe6ae22b1ca0a",
+    "a9_tasks": "8deb5178ad53c5942afa00ac285eff620762027378aed67b93b33dd6c44cc11a",
+    "merged_raw": "0efa8d7bb5a076ff08d3ef6f9db2f802c5ffe84a5b48a5ac2bab7af27bf5a8b6",
+    "ext72_manifest": "6355022c808c74998a4c92e2f08d32141a5816eddac9560630c0ab3cfee38048"
+  }
+}

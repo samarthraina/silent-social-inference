@@ -1,0 +1,122 @@
+[
+  {
+    "component": "resid",
+    "layer": 4,
+    "span": "history_end"
+  },
+  {
+    "component": "resid",
+    "layer": 4,
+    "span": "answer"
+  },
+  {
+    "component": "resid",
+    "layer": 4,
+    "span": "final"
+  },
+  {
+    "component": "resid",
+    "layer": 8,
+    "span": "history_end"
+  },
+  {
+    "component": "resid",
+    "layer": 8,
+    "span": "answer"
+  },
+  {
+    "component": "resid",
+    "layer": 8,
+    "span": "final"
+  },
+  {
+    "component": "resid",
+    "layer": 12,
+    "span": "history_end"
+  },
+  {
+    "component": "resid",
+    "layer": 12,
+    "span": "answer"
+  },
+  {
+    "component": "resid",
+    "layer": 12,
+    "span": "final"
+  },
+  {
+    "component": "resid",
+    "layer": 16,
+    "span": "history_end"
+  },
+  {
+    "component": "resid",
+    "layer": 16,
+    "span": "answer"
+  },
+  {
+    "component": "resid",
+    "layer": 16,
+    "span": "final"
+  },
+  {
+    "component": "resid",
+    "layer": 20,
+    "span": "history_end"
+  },
+  {
+    "component": "resid",
+    "layer": 20,
+    "span": "answer"
+  },
+  {
+    "component": "resid",
+    "layer": 20,
+    "span": "final"
+  },
+  {
+    "component": "resid",
+    "layer": 24,
+    "span": "history_end"
+  },
+  {
+    "component": "resid",
+    "layer": 24,
+    "span": "answer"
+  },
+  {
+    "component": "resid",
+    "layer": 24,
+    "span": "final"
+  },
+  {
+    "component": "resid",
+    "layer": 28,
+    "span": "history_end"
+  },
+  {
+    "component": "resid",
+    "layer": 28,
+    "span": "answer"
+  },
+  {
+    "component": "resid",
+    "layer": 28,
+    "span": "final"
+  },
+  {
+    "component": "resid",
+    "layer": 32,
+    "span": "history_end"
+  },
+  {
+    "component": "resid",
+    "layer": 32,
+    "span": "answer"
+  },
+  {
+    "component": "resid",
+    "layer": 32,
+    "span": "final"
+  }
+]
