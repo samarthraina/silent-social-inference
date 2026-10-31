@@ -1,6 +1,6 @@
 # Focused confirmation: does generated-token access to history carry the score effect?
 
-**Status: prospective code prepared; no held-out GPU outcomes have been collected by this package.** The task-exposure author review and a reachable GPU instance are still needed to start a real run. A test creates only temporary, explicitly synthetic locks; those are never research authorization or results.
+**Status: documented-source exposure audit complete; no held-out GPU outcomes have been collected by this package.** Prospective locks are frozen in `preregistered/`; a reachable current GPU instance is needed to start the real run. Tests create separate, temporary synthetic locks that are never research results.
 
 The completed pilot found history-gap reductions of about 45% (Llama) and 71% (Qwen), with positive history-versus-content-control contrasts. It did not establish a reliable patch interaction, and its rationale experiment was unusable because of generation limits. This confirmation therefore tests the history-reading result, while preserving those other pilot outcomes as reported. It is a prospectively selected follow-up, not an independent preregistration of the exploratory pilot.
 
@@ -15,7 +15,7 @@ Each model evaluates each frozen task under high and low history in four conditi
 
 These are exactly the already tested v3 backend arms, with the same 512-token limit, BF16/SDPA, seed 42, native prompts, frozen answers and cap-aware score parser. **No changes are made to the v3 backend.** The native baseline measures computation-path sensitivity; it is not the baseline for the causal mask contrast. The first output prediction remains a prompt-reader prediction and must be unchanged by generated-reader-only blocking.
 
-The recorded exposure manifests leave **44 candidate tasks: 1 MT-Bench, 21 Arena-Hard, 22 WildBench**. See `candidate_task_ids.txt`. Additional author-reported task IDs and exact-question hashes are excluded before freezing. Final task count can therefore be smaller. This is not a balanced three-benchmark replication, and tasks are not claimed behaviorally unseen, semantically novel or absent from pretraining.
+The recorded exposure manifests leave **44 candidate tasks: 1 MT-Bench, 21 Arena-Hard, 22 WildBench**. See `candidate_task_ids.txt`. The completed documented-source audit found no task-ID or exact-question overlap with 94 files representing 244 distinct recorded task IDs. Additional author-reported task IDs and exact-question hashes are excluded before freezing. Final task count can therefore be smaller. This is not a balanced three-benchmark replication, and tasks are not claimed behaviorally unseen, semantically novel or absent from pretraining.
 
 At 44 tasks, there are 352 scored generations per model (704 total). Each model first repeats its six engineering condition checks on the three previously exposed engineering tasks. Those engineering records never enter the confirmation's task-level statistics.
 
@@ -38,12 +38,16 @@ A confirmed result supports a causal contribution from direct history access dur
 
 `evidence/` in the complete local upload archive contains byte-preserved v3 engineering and pilot records. It is omitted from GitHub; it contains unpublished research outputs. The runner verifies source/configuration hashes, raw record coverage, payloads and the full original pilot controls. GitHub-only users must supply those evidence directories separately.
 
-Copy `exposure_review.template.json` to a new review file. Fill the reviewer name, actual time zone-aware review date, actual exposure statement, and any additional exposed task IDs/question hashes. Set `author_confirms_remaining_tasks_not_used_mechanistically` true only after checking with the team. This is missing scientific provenance, not an extra permission to spend GPU credits. Do not invent the attestation. The original and teammate branches were checked against their frozen recorded revisions during preparation, but unrecorded/local team experiments cannot be inferred from GitHub.
+The author directed the exposure review to the original submitted repository plus both post-review experiment sources. `documented_exposure_audit.json` records the 94 audited files, their hashes and task identities; `source_exposure_review.json` records the actual source-based review and its precise claim scope. All 44 candidates remain eligible by ID and exact-question hash. No statement that the author has attested to the absence of all unrecorded work is invented: that author-attestation flag remains false. The claim is **held out relative to the documented experiments audited here**.
 
-Freeze the confirmation before running any held-out task:
+The original and teammate branch heads matched the recorded commits when checked. The source audit includes original discovery/readout, lens metadata/tables, patching, steering/control, validation, cross-model and context-control patching records; teammate discovery/validation journals; and the author's saved discovery, engineering, numerical and pilot journals. Only identity fields are used to select/exclude tasks; outcome values are never used for this filter. See the report for file-level details.
+
+An optional broader author review remains supported through `exposure_review.template.json` if the team knows of extra experiments. Supply their task IDs/question hashes before freezing; the code excludes them. Do not alter a started confirmation's exposure scope.
+
+The complete upload package already contains the frozen `preregistered/` inputs. It can run directly with those locks. To independently recreate a new lock directory from the same documented review before any held-out inference:
 
 ```bash
-python freeze_confirmation.py --audit /workspace/exposure-review.json \
+python freeze_confirmation.py --audit source_exposure_review.json \
   --out /workspace/history-confirmation-locks
 ```
 
@@ -62,11 +66,11 @@ bash run_confirmation_both.sh /workspace/history-confirmation-locks /workspace/h
 An external launcher can activate the already tested isolated environment, freeze a reviewed plan if needed, and start the sequential batch:
 
 ```bash
-bash launch_confirmation.sh /workspace/exposure-review.json \
+bash launch_confirmation.sh "$PWD/source_exposure_review.json" \
   /workspace/history-confirmation-locks /workspace/history-confirmation-results
 ```
 
-It uses `/workspace/generation-path-venv` and `/workspace/hf-cache` by default, or explicit `CONFIRM_VENV` / `HF_HOME` values. It refuses a changed exposure review for an already frozen lock. It does not create an author attestation or start a rented instance. If setting up a fresh server, create an ordinary isolated venv (without system-package inheritance), install `requirements-gpu.txt`, and log in with `hf auth login` using the same `HF_HOME`.
+It uses `/workspace/generation-path-venv` and `/workspace/hf-cache` by default, or explicit `CONFIRM_VENV` / `HF_HOME` values. It refuses a changed exposure review for an already frozen lock. It does not invent an author attestation or start a rented instance. If setting up a fresh server, create an ordinary isolated venv (without system-package inheritance), install `requirements-gpu.txt`, and log in with `hf auth login` using the same `HF_HOME`.
 
 Qwen runs before Llama. The script exits on failed checks or an execution error. It does not run the rationale or residual-patch arms. It does not rent/start/stop/destroy a cloud instance. After both models finish, it generates JSON and a brief Markdown table.
 
@@ -79,7 +83,7 @@ python confirm.py --locks /workspace/history-confirmation-locks --model qwen \
 
 The three-hour wall-clock limit is per model/invocation. Interruption or timeout preserves synced completed units. Rerun the batch script to resume. A lock records the first output path to prevent accidentally starting the same confirmation in a second directory; restore interrupted results to that same path. Source/protocol/runtime changes are refused. Do not retune or selectively rerun confirmation outcomes.
 
-For unattended SSH use, make an external launcher that activates the existing Python environment, exports the correct `HF_HOME`, changes to this directory and executes the batch. Run that launcher in `tmux`. The package deliberately does not embed a host address or credentials. The previous address refused connections during preparation; obtain the current SSH Connect command before launching.
+For unattended SSH use, make an external launcher that activates the existing Python environment, exports the correct `HF_HOME`, changes to this directory and executes the batch. Run that launcher in `tmux`. The package deliberately does not embed a host address or credentials. The author will supply the new instance details after receiving the code; use its current SSH Connect command when launching.
 
 Based on the measured pilot's benchmark-specific timing, the four-arm 44-task subset projects to about 94 minutes of generation for both models, plus engineering rechecks, loading and task-length uncertainty. Budget roughly **2–3 GPU hours**, then revise from actual progress. Longer outputs or a different GPU can change this.
 
@@ -111,3 +115,15 @@ Optional figures, after installing Matplotlib, show both primary outcomes for bo
 ```bash
 python plot_confirmation.py --summary /workspace/history-confirmation-results/confirmation_summary.json --out /workspace/history-confirmation-results/figures
 ```
+
+
+To reproduce the identity-only audit from the full original repositories and author backups, use a new output file:
+
+```bash
+python audit_documented_exposure.py --original-repo /path/to/silent-influence \
+  --teammate-repo /path/to/silent-social-inference \
+  --own-backup-root "/path/to/Silent Influence - Mechanistic Followup" \
+  --out /path/to/new-documented-exposure-audit.json
+```
+
+The audit deliberately extracts identity fields and nested task lists only; it never uses score or intervention-effect fields for exclusions. It includes failed/incomplete engineering attempts conservatively. The report has no unresolved task identities in any scanned journal.

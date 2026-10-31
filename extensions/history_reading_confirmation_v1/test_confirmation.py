@@ -52,6 +52,17 @@ class ProtocolTests(unittest.TestCase):
             with self.assertRaises(ValueError):freeze(p,HERE/'evidence',root/'locks')
             self.assertFalse((root/'locks').exists())
 
+    def test_documented_source_review_is_scoped_and_hash_verified(self):
+        audit=load(HERE/'source_exposure_review.json')
+        self.assertFalse(audit['author_confirms_remaining_tasks_not_used_mechanistically'])
+        self.assertEqual(audit['claim_scope'],'held_out_relative_to_documented_sources')
+        plan=core.audited_plan(core.candidate_plan(),audit)
+        self.assertEqual(len(plan['tasks']),44)
+        bad=dict(audit,documented_exposure_report_sha256='0'*64)
+        with self.assertRaises(ValueError):core.audited_plan(core.candidate_plan(),bad)
+        bad=dict(audit,claim_scope='globally_unseen')
+        with self.assertRaises(ValueError):core.audited_plan(core.candidate_plan(),bad)
+
     def test_exposure_filter_removes_ids_and_question_hashes(self):
         candidate=core.candidate_plan();audit=valid_audit()
         audit['additional_exposed_task_ids']=[candidate['tasks'][0]['base_task_id']]

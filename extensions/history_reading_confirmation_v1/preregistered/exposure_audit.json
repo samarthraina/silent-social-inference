@@ -1,0 +1,12 @@
+{
+  "candidate_plan_sha256": "91f116ebec78851949fddb81fdf19f5d31602bca671e083050955e7d46de7c1d",
+  "review_method": "documented_source_audit",
+  "reviewer_name": "Codex — repository and saved-record audit requested by the author",
+  "reviewed_utc": "2026-10-31T06:17:17Z",
+  "exposure_statement": "The author identified silent-influence as the complete record of the submitted experiments and identified their own and their teammate’s post-review mechanistic work. The audit checked task IDs and exact-question hashes in the original repository, the provided teammate branch, and the saved author runs. No unrecorded-work attestation is inferred.",
+  "documented_exposure_report_sha256": "09b2c0259c04f48f302fbf429204318f270c003aec7a9f4b1ac1d6f3ef34c4b3",
+  "claim_scope": "held_out_relative_to_documented_sources",
+  "additional_exposed_task_ids": [],
+  "additional_exposed_question_sha256": [],
+  "author_confirms_remaining_tasks_not_used_mechanistically": false
+}

@@ -1,0 +1,79 @@
+{
+  "backend_protocol_sha256": "39124c892e179e6edaed503864f8e133ad58097e0273e0b5ca5147ac5c1c34ef",
+  "backend_source_sha256": {
+    "generation_path_v1/analyze.py": "82f347ee34a5c03e0a28bcd5f51897690135b04c460e65b00f8783fcd221c6f2",
+    "generation_path_v1/engine.py": "d8fbad63366fa1a01dd30ec049c416999765cf52473ea3bc4e4c4c6b5299309f",
+    "generation_path_v1/lock_validation.py": "9ab3753a928aa3499d0a717d307b39149408ed2eb12e046e547206a90216d1e2",
+    "generation_path_v1/plot_results.py": "8bc65a7947882282e3937bb56f60b134aa517ab4aa91918c3840f7a85213eb14",
+    "generation_path_v1/prepare_plan.py": "50c916154d71d27fa99a2ca5cb34c200673ef2f32db71e259fbfcffdf87fda8e",
+    "generation_path_v1/protocol.py": "b3d34667d8d11bce9015e0379cc97428d5e66ac25c0d00269c83b1a70f96790d",
+    "generation_path_v1/repair_tail.py": "bea72d12ef1d7334b8757369dc731cd9321de30002eade34486d5aa89cd35356",
+    "generation_path_v1/run.py": "3ef93ecd9726b7705599b9324f77fc91397642421e70c89181bcc7e9e580511c",
+    "generation_path_v1/study.py": "4fb6eb47ecd062522392370b3a0fbbb2fa5fd48b402d6482ee89ac35c5ea051b",
+    "generation_path_v1/test_generation_path.py": "a7e51442a302b751e39f2c680361c97f06c41a0e161939b83e6fc5b5fb24711e",
+    "residual_discovery_v3/interventions.py": "c582090de760d37ec89487b623165264770073a2c79231c8d76649026445cb30",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/__init__.py": "0989a4ccace225f1f73c8dcf3b8128bd1c60dfbcd457d39daddf62739b44b885",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/analysis.py": "8fe62c6a222e339f60d6c51389c1b0a6cb389e97d802c5a5eeb944ddadd86e81",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/budget.py": "09145dd23e2855930c0b6226b2918b953d123800afa34f54bd2f641f21615fe7",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/calib.py": "dcbfae96676f72f912a938104f0c405bce3b6ea7092640abc607c38a4b85e724",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/gates.py": "c24b8df3242927e48706dc10eda19f00a7ba6b782f28110e5ce2bdad7435bf85",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/inputs.py": "9790c91116db55744375f639f8746f018988597ffc99721d4c72e9d2f5cd340a",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/launch.py": "f029b0a3649d319e78ed982a3bc1e32c78bf62becf32cb9481af60eed3e3366c",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/legacy/__init__.py": "4b8fe56a603cc9ddcbd9378ea3b7e729c45d0e8177b4a471f87ac47c56e59c41",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/legacy/exact_generation.py": "b4c5ec438d519e4be6071d6c986955ea357cb8588cada795884b59b6b2b309b4",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/legacy/final_study_messages.py": "f4693b8846806dd9100ddb7f6592d20bcec1f92e7ddcbf26a48ce2c448ef9ce6",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/legacy/output_validity.py": "f24057fd6542e5cdf51a4ed75b3bfa94363ceb87ec529b3bad14392f89c47184",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/legacy/patching.py": "056144503af2393f7b563628d3afa27d764e9d8b9c176fb2114e42335edaabd3",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/legacy/scaled_conditions.py": "ef676689c8c3e673de64526fe1a9b26379632d1030d31e018fc6cbef42f94a64",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/legacy/scaled_parsing.py": "3a6a59caa666092fe49f13603364cb8222e894fe0c6c93855e54116cdd88ba78",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/mhp.py": "5b78f7a2d2c87682a1835a3efe3e4e4a8709a51431edc53ba09932b376c3a452",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/mhp_store.py": "9e565ce45d3a2595bcf4d2b8bd4ae92d5595a80cc57347d1530dd6605ec52415",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/runner.py": "ffcaba3beada6bf8d20a8330e99caedf5fae6b37f53541cbe8a38a1764b3ebf9",
+    "residual_discovery_v3/reference/extensions/context_controls/src/rba/units.py": "2576cbb9e2167f94226771fc9d3e830d73b47897cbd983a52ade9d3321d25ef7",
+    "residual_discovery_v3/run_targeted.py": "00576f06e5a205fdd07c957792aada602b684005abdf100ad2b72999507257d5"
+  },
+  "confirmation_protocol_sha256": "694064a41e13ea17805924ce63a41785158d6e203aa11d630d5548ad17c58150",
+  "exposure_audit_sha256": "1a965f4cc373e0ee747fbecbcbed3adab7af12eb0963bdd42b6e36ed0c54609b",
+  "exposure_claim_scope": "held_out_relative_to_documented_sources",
+  "exposure_review_method": "documented_source_audit",
+  "outcomes_observed_before_freeze": false,
+  "pilot_and_engineering_proofs": {
+    "llama": {
+      "engineering": [
+        "3bc3679d0123329cbce578e1d630ac1b0bbb5f3a495972341c4089a87a867229",
+        "4ec0c8a4962249af21d251207762fa47d58807befc599efcc4dddd1b0367d6a7"
+      ],
+      "pilot": [
+        "8edabb9301b5ff367a9c1905e30f38a48bb151b0d7ef1a03f9c0683cf6849d73",
+        "222ba517741f46e89526fe97898782f28db1f72345f5a7de3aaf93564e0e8296"
+      ]
+    },
+    "qwen": {
+      "engineering": [
+        "be6a0478a94782cb01c1cae4b920fe2c3b121653d2f330350fdfe10d8503447a",
+        "f15cf2776cccff6ba595a1b328c1816f80118f4caeeeeb56e641d528395c0871"
+      ],
+      "pilot": [
+        "d1ef91a729e14ee8f351d68fe4da57254bf6b639ca474eb46660154639a51410",
+        "2b5706d168b67bd66f20bc5ac3c7c814d01360bdc2857f2b9cbca38512f6a242"
+      ]
+    }
+  },
+  "plan_sha256": "9040897058d7fe6b26f34be34f5e0ce9380cd3a8a6088722d7b4d17a64c104fd",
+  "planned_tasks": 44,
+  "planned_units_per_model": 352,
+  "primary_tests_total": 4,
+  "protocol_scope": "Focused confirmation selected on the reported discovery pilot; all held-out outcomes unobserved",
+  "source_sha256": {
+    "audit_documented_exposure.py": "61a3f58f2cb9d6afd3b99e610f4da042bd3b1d53005cd4705a1c0ce4b5a9e6b9",
+    "confirm.py": "b38b12039e2e61e8220fc8596bb0ccfa219f1f3992fa36e53dbe50781f78de44",
+    "confirmation_core.py": "fe77180f7b3f35e972eaebca12a7f3f1ab1ca5299dc961ac0a841059a80fc9c2",
+    "freeze_confirmation.py": "255c5dff4f76a3e0192c297889f3cea5e0c07194e6291e975a128ba6a6a9fbe3",
+    "launch_confirmation.sh": "6d46ec00dc19a2635daa60af0c33ce568d08841d1dc59e406ed44d08be1fd185",
+    "plot_confirmation.py": "ef6468aaf90c9b4acdb0810b6f472a0e02919915d87d8dde606053efd9f2625d",
+    "run_confirmation_both.sh": "62e8ccfad853685cda5a3a7e3294ffb021b7bc0188394e85df403798a7ebe1c2",
+    "summarize_confirmation.py": "2ab682c6d47110fac2a4b636f891adc057e6b5cbd62e2563b7406a721eecb351",
+    "test_confirmation.py": "02a1941aa6371349de83f617c6f99fdb211e1a432f05ccdb1176f8f2a17c61dd"
+  },
+  "version": 1
+}

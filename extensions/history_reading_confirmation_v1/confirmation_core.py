@@ -87,17 +87,52 @@ def candidate_plan():
                     'Not a balanced benchmark sample or necessarily behaviorally unseen/semantically novel.'}
 
 
+def verify_documented_audit(candidate,audit):
+    path=HERE/'documented_exposure_audit.json'
+    if audit.get('documented_exposure_report_sha256')!=sha(path.read_bytes()):
+        raise ValueError('Documented-source audit report changed')
+    report=load(path)
+    if report['source_commits']!={'original':'f8010273445adcf276c094cf5b228fc7bd0acf2a','teammate':'630b1c6813a9b7578d9a7825f0ef1dd17a49faa8'}:
+        raise ValueError('Source audit refers to different repository revisions')
+    registry=backend.DEPENDENCY/'reference/code/data/candidates/final_olmo_answers.json'
+    if report['answer_registry_sha256']!=sha(registry.read_bytes()):raise ValueError('Audited answer registry changed')
+    if report['unknown_recorded_task_ids']:raise ValueError('Recorded unknown task identities require further review')
+    if audit.get('claim_scope')!='held_out_relative_to_documented_sources':raise ValueError('Documented audit cannot assert global non-exposure')
+    required={'original mechanistic','original context/patching','teammate post-review','own completed runs'}
+    if {row['scope'] for row in report['files']}!=required:raise ValueError('Required source groups are missing')
+    exposed={task for row in report['files'] for task in row['task_ids']}
+    if sorted(exposed)!=report['documented_mechanistic_or_conservatively_excluded_task_ids']:
+        raise ValueError('Per-file identities disagree with the exposure union')
+    question={f"{t['dataset']}/{t['source_task_id']}":t['question_sha256'] for t in load(registry)['accepted']}
+    q={question[t] for t in exposed}
+    if sorted(q)!=report['recorded_exposure_question_sha256']:raise ValueError('Exposure question hashes do not reproduce')
+    candidates={t['base_task_id'] for t in candidate['tasks']}
+    if report['candidate_question_hashes']!={t['base_task_id']:t['question_sha256'] for t in candidate['tasks']}:
+        raise ValueError('Audited candidate identities differ')
+    if sorted(candidates&exposed)!=report['candidate_overlap']:
+        raise ValueError('Recorded task-ID overlap does not reproduce')
+    if [t['base_task_id'] for t in candidate['tasks'] if t['question_sha256'] in q]!=report['candidate_exact_question_overlap']:
+        raise ValueError('Recorded exact-question overlap does not reproduce')
+    return exposed,q
+
+
 def audited_plan(candidate,audit):
     from datetime import datetime
     if candidate!=candidate_plan():raise ValueError('Candidate exposure plan changed')
     if audit.get('candidate_plan_sha256')!=sha(canonical(candidate)):raise ValueError('Exposure review binds another candidate plan')
-    if audit.get('author_confirms_remaining_tasks_not_used_mechanistically') is not True:
-        raise ValueError('Missing author information about additional mechanistic exposure')
+    method=audit.get('review_method','author_exposure_review')
+    documented_ids,documented_questions=set(),set()
+    if method=='documented_source_audit':
+        documented_ids,documented_questions=verify_documented_audit(candidate,audit)
+    elif method=='author_exposure_review':
+        if audit.get('author_confirms_remaining_tasks_not_used_mechanistically') is not True:
+            raise ValueError('Missing author information about additional mechanistic exposure')
+    else:raise ValueError('Unknown exposure-review method')
     if not audit.get('reviewer_name') or not audit.get('reviewed_utc') or not audit.get('exposure_statement'):
         raise ValueError('Exposure review needs name, date and the actual statement')
     stamp=datetime.fromisoformat(audit['reviewed_utc'].replace('Z','+00:00'))
     if stamp.tzinfo is None:raise ValueError('Exposure review date requires a time zone')
-    extra=set(audit.get('additional_exposed_task_ids',[]));q=set(audit.get('additional_exposed_question_sha256',[]))
+    extra=set(audit.get('additional_exposed_task_ids',[]))|documented_ids;q=set(audit.get('additional_exposed_question_sha256',[]))|documented_questions
     answers=load(backend.DEPENDENCY/'reference/code/data/candidates/final_olmo_answers.json')['accepted']
     known={f"{t['dataset']}/{t['source_task_id']}":t for t in answers}
     if extra-set(known) and not q:raise ValueError('Unknown additional task IDs require their question hashes as well')

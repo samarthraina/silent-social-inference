@@ -74,11 +74,12 @@ def summarize(directory):
     primary={name:contrast(plan['tasks'],records,name,p) for name in ENDPOINTS}
     return {'model':meta['model'],'confirmatory':True,'planned_tasks':len(plan['tasks']),
             'dataset_counts':plan['dataset_counts'],'records':len(records),
+            'exposure_scope':load(Path(directory)/'lock.json').get('exposure_claim_scope'),
             'primary':primary,'descriptive_arms':describe(plan['tasks'],records),
             'native_path_sensitivity':contrast(plan['tasks'],records,'explicit_minus_native_gap',p,primary=False),
             'both_predeclared_checks_positive':all(r['positive_with_ci_and_missingness_bounds'] for r in primary.values()),
             'interpretation_limits':['Direct access route during generation; no unique layer/head or complete circuit identified.',
-             'Mechanistic exposure is author-audited and exact-question-filtered, not proof of semantic novelty or behavioral non-exposure.',
+             'Mechanistic exposure is audited within the frozen documented/reviewer scope, not proof of global non-exposure, semantic novelty or behavioral non-exposure.',
              'The content-token control can affect grading; inspect absolute scores and raw text for degradation.',
              'Native-path sensitivity is descriptive; an interval spanning zero is not proof of equivalence.',
              'No inference about retaliation versus anchoring/calibration, real agent interactions or frontier models.']}

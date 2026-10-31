@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "arms": [
+    "baseline",
+    "native_baseline",
+    "generated_block",
+    "control_block"
+  ],
+  "models": [
+    "qwen",
+    "llama"
+  ],
+  "primary_endpoints": [
+    "history_gap_reduction",
+    "history_vs_control_specificity"
+  ],
+  "primary_tests_total": 4,
+  "family_alpha": 0.05,
+  "bootstrap_draws": 100000,
+  "bootstrap_seed": 20261031,
+  "generation_backend_protocol_version": 3,
+  "max_new_tokens": 512,
+  "seed": 42,
+  "reader_policy": "generated",
+  "engineering_recheck": true
+}

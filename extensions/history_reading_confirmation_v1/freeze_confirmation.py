@@ -19,7 +19,9 @@ def freeze(audit_path,evidence,out):
           'confirmation_protocol_sha256':sha((out/'confirmation_protocol.json').read_bytes()),
           'plan_sha256':sha((out/'plan.json').read_bytes()),'exposure_audit_sha256':sha((out/'exposure_audit.json').read_bytes()),
           'pilot_and_engineering_proofs':proofs,'planned_units_per_model':len(plan['tasks'])*8,
-          'planned_tasks':len(plan['tasks']),'primary_tests_total':4,'outcomes_observed_before_freeze':False}
+          'planned_tasks':len(plan['tasks']),'primary_tests_total':4,'outcomes_observed_before_freeze':False,
+          'exposure_review_method':audit.get('review_method','author_exposure_review'),
+          'exposure_claim_scope':audit.get('claim_scope','author-reviewed recorded task non-exposure')}
     backend.write_json(out/'lock.json',lock)
     print('Frozen prospective confirmation:',out,'tasks:',len(plan['tasks']))
 
