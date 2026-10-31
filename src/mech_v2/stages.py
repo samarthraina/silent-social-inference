@@ -385,4 +385,20 @@ def s6(cx: Ctx, args):
         st.finish(tid)
 
 
-STAGES = {"s1": s1, "s2": s2, "s3": s3, "s4": s4, "s5": s5, "s6": s6}
+def s6m(cx: Ctx, args):
+    """Post-hoc, not part of the frozen S6: greedy on the explicit-mask path with nothing blocked,
+    on the same tasks as S6's generation arms, to compare against gen_base and gen_ko."""
+    gen_tasks = {t for ds in ("mtbench", "arena_hard", "wildbench")
+                 for t in [x for x in cx.splits["V"] if x.startswith(ds + "/")][:int(args["gen_per_dataset"])]}
+    S = cx.S
+    st = Store(cx.out / f"s6m_{cx.key}.jsonl", cx.commit)
+    for tid in cx.splits["V"]:
+        if tid not in gen_tasks or tid in st.done:
+            continue
+        for c in (HIGH, LOW):
+            ids = S.build(cx.tasks[tid], c, "")["ids"][:-1]            # drop the readout '1'
+            st.add(task=tid, unit="gen_mask", cond=c, **S.greedy_loop(ids, masked=True))
+        st.finish(tid)
+
+
+STAGES = {"s1": s1, "s2": s2, "s3": s3, "s4": s4, "s5": s5, "s6": s6, "s6m": s6m}

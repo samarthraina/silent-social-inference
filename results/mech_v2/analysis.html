@@ -120,6 +120,7 @@ ul.lim li { margin-bottom: 6px; }
     <p class="sub">Greedy generation on 36 held-out tasks. Left: share of the greedy score gap removed by the frozen knockout. Right: shift of the greedy score toward the source after patching prompt states only, in score points (full gap ≈ 2).</p>
     <div class="grid2"><div id="fig5a"></div><div id="fig5b"></div></div>
     <p class="sub" style="margin-top:12px">Likely reason: every generated token is itself a post-history position and re-reads the history in the window; the knockout blocks that, the prompt patch does not. Confirming test (patch + generated-token knockout) not run.</p>
+    <p class="sub">Post-hoc check, not part of the frozen run: the frozen greedy baseline used the default attention path, while the knockout used the explicit mask. A mask-only run with nothing blocked kept the gap (2.71 Llama, 2.74 Qwen), so the mask does not explain the drop. Against that run the knockout removes 93.3% [86, 101] (Llama) and 93.2% [79, 105] (Qwen).</p>
     <details><summary>Table</summary><div class="tablewrap" id="tab5"></div></details>
   </section>
 
@@ -134,7 +135,8 @@ ul.lim li { margin-bottom: 6px; }
       <li>No head-level circuit: attention-ranked top-10 head sets removed 4% / −6% of the gap, at random-set level; single heads have opposing signs.</li>
       <li>Qwen pre-registered window prediction (blocks 9–17) was not met; reading spans 9–26. Qwen controls are 9 blocks wide vs 18 for the target.</li>
       <li>Readout deviation: the pre-registered gate chose a "forced" readout whose positive control failed (58%); switched to the direct readout after S1, before any S2 data.</li>
-      <li>Explicit-mask vs default attention path differs by up to 0.18 (Llama) / 0.48 (Qwen) in E[score]; all knockouts are compared to mask-path baselines.</li>
+      <li>Explicit-mask vs default attention path differs by up to 0.18 (Llama) / 0.48 (Qwen) in E[score]; cause not identified. Readout knockouts are compared to mask-path baselines. The frozen greedy knockout was not, so a post-hoc mask-only run checked it (section 5). The mask path changed the text of most greedy outputs (63/72 Llama, 49/72 Qwen), and the Llama gap change is uncertain (+11.5% [−5, +54]).</li>
+      <li>Early-block control is not near 0 for Llama: blocks 0–7 remove 21% of the gap. Late-block controls remove 3–5%.</li>
     </ul>
   </section>
   <p class="sub">Source: <code>results/mech_v2/s6_*_summary.json</code>, <code>docs/mech_plan_v2.md</code> run log. Discovery numbers (figures 3–4, released site) are from triage/discovery tasks, not V.</p>

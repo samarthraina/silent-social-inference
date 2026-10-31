@@ -21,8 +21,9 @@ Interactive charts: [results/mech_v2/analysis.html](../results/mech_v2/analysis.
 - The tokens after the history read it in a middle range of layers: Llama blocks 8–15, Qwen blocks 9–26.
 - If we block this read, 95% (Llama) and 97% (Qwen) of the score gap goes away.
 - If we patch the state after this range, 0.91 to 0.99 of the effect moves across.
-- Control sites show almost no effect.
+- Late-block controls and the layer 2 patch control show almost no effect. Early blocks are not zero: Llama blocks 0–7 remove 21% of the gap.
 - In free text output, the block removes 92–93% of the gap. A patch of the prompt only does not change the output.
+- The attention mask itself does not cause this drop. A post-hoc run with the mask but no block kept the gap. Against that run, the block removes 93% in both models.
 - No small set of attention heads carries the effect. The effect is spread across the range.
 
 ## What this means

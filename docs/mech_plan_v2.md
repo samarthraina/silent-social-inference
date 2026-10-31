@@ -406,8 +406,9 @@ Integrity:
 - One task was interrupted by a local network drop (DNS failure) and rerun on resume.
   Its duplicate rows are bit-identical.
 - Generation: 7 of 219 outputs have no parseable score, and 12 hit the 512-token cap.
-- The explicit-mask path differs from the default path by at most 0.18 in E. Knockouts are
-  compared against mask-path baselines.
+- The explicit-mask path differs from the default path by at most 0.18 in E. Readout knockouts
+  are compared against mask-path baselines. Greedy `gen_ko` is not: `gen_base` uses the default
+  path. See the post-hoc mask-only check below.
 
 Reading of the failed behavioral-patch criterion. This is an interpretation, not a rescue: the
 patch writes prompt positions only. Every generated token is itself a post-history position, and
@@ -515,8 +516,31 @@ Continuity, low↔no-history at the same site: **0.89** [0.84, 0.92] and **0.99*
 Integrity:
 - Generation: 2 of 216 outputs unparsed, 2 capped.
 - The explicit-mask vs default path difference in E is larger for Qwen than for Llama. The
-  maximum is 0.48 (distribution printed with the log). Knockouts are compared only against
-  mask-path baselines, so the estimates are internally consistent.
+  maximum is 0.48 (distribution printed with the log). Readout knockouts are compared only
+  against mask-path baselines, so those estimates are internally consistent. Greedy `gen_ko` is
+  not: `gen_base` uses the default path. See the post-hoc mask-only check below.
+
+### Post-hoc: mask-only greedy (added 2026-11-01, not part of the frozen S6), `results/mech_v2/results/s6m_{llama,qwen}.jsonl`
+
+Reason: in S6, `gen_ko` used the explicit-mask path and `gen_base` used the default path, so the
+frozen greedy result changed two things at once. This run uses the mask path with nothing
+blocked, on the same 36 tasks. To recompute: `python scripts/mech_v2_mask_check.py`.
+
+| 35 complete tasks | Llama | Qwen |
+|---|---|---|
+| Gap, default path (`gen_base`) | 2.43 | 2.71 |
+| Gap, mask path, no block (`gen_mask`) | 2.71 | 2.74 |
+| Gap, knockout (`gen_ko`) | 0.18 | 0.19 |
+| Reduction from `gen_base` | 92.5% | 93.2% |
+| **Reduction from `gen_mask`** | **93.3%** [86, 101] | **93.2%** [79, 105] |
+| Gap change, default to mask | +11.5% [−5, +54] | +1.1% [−8, +9] |
+| Identical text, of 72 outputs | 9 | 23 |
+| Same parsed score, of 72 outputs | 57 | 60 |
+
+The mask path does not reduce the gap, so it does not explain the greedy knockout. The mask path
+does change greedy text in most outputs, and the Llama gap change has a wide CI. This run did not
+test if the default path repeats its own text exactly, and the cause of the path difference is not
+known.
 
 ## Cross-model summary (frozen validations, 72 held-out tasks each)
 
